@@ -16,7 +16,7 @@
 	},
 	"devDependencies": {
 		"@cloudflare/workers-types": "^4.20250214.0",
-		"@sveltejs/adapter-cloudflare": "^4.7.3",
+		"@sveltejs/adapter-cloudflare": "^7.2.4",
 		"@sveltejs/kit": "^2.43.2",
 		"@sveltejs/vite-plugin-svelte": "^6.2.0",
 		"@tailwindcss/vite": "^4.1.13",
@@ -29,7 +29,7 @@
 		"vite": "^7.1.7",
 		"vitest": "^3.2.4",
 		"vitest-browser-svelte": "^1.1.0",
-		"wrangler": "^3.28.4"
+		"wrangler": "^4.43.0"
 	},
 	"dependencies": {
 		"dexie": "^4.2.1",
