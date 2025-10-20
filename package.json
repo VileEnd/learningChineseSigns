@@ -11,7 +11,8 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"test:unit": "vitest",
-		"test": "npm run test:unit -- --run"
+		"test": "npm run test:unit -- --run",
+		"deploy:pages": "npm run build && wrangler pages deploy .svelte-kit/cloudflare"
 	},
 	"devDependencies": {
 		"@cloudflare/workers-types": "^4.20250214.0",

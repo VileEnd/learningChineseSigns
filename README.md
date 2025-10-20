@@ -72,6 +72,6 @@ Playwright end-to-end tests can be added under `tests/` (install browsers first 
 
 ## Deployment
 
-- **Cloudflare Pages** – The project ships with `@sveltejs/adapter-cloudflare` and a Pages-focused `wrangler.toml`. Build with `npm run build` and deploy `.svelte-kit/cloudflare` via Cloudflare Pages (framework preset: SvelteKit) or run `wrangler pages deploy .svelte-kit/cloudflare`. For local testing run `wrangler pages dev .svelte-kit/cloudflare --local` after building.
+- **Cloudflare Pages** – The project ships with `@sveltejs/adapter-cloudflare` and a Pages-focused `wrangler.toml`. Build with `npm run build` and deploy `.svelte-kit/cloudflare` via Cloudflare Pages (framework preset: SvelteKit) or run `npm run deploy:pages` (which bundles `npm run build && wrangler pages deploy .svelte-kit/cloudflare`). For local testing run `wrangler pages dev .svelte-kit/cloudflare --local` after building.
 - **Cloudflare Workers** – If you later target Workers directly, create a separate Wrangler configuration (for example `wrangler.worker.toml`) that specifies a `main` entry point and asset binding before running `wrangler deploy`.
 - **Other hosts** – The generated client assets live in `build/`. Swap to a different adapter if you later target another platform.
