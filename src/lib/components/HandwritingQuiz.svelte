@@ -25,6 +25,31 @@
 	let restarting = false;
 	let outlineHintActive = false;
 	let lastOutlineVisible = false;
+	let restorePassiveListeners: (() => void) | null = null;
+
+	const PASSIVE_TOUCH_EVENTS = new Set(['touchstart', 'touchmove', 'touchend', 'touchcancel']);
+
+	function ensurePassiveTouchListeners(target: HTMLElement): () => void {
+		const originalAdd = target.addEventListener;
+		const patchedAdd: typeof target.addEventListener = (type: any, listener: any, options?: any) => {
+			if (typeof type === 'string' && PASSIVE_TOUCH_EVENTS.has(type)) {
+				if (options === undefined) {
+					return originalAdd.call(target, type, listener, { passive: true });
+				}
+				if (typeof options === 'boolean') {
+					return originalAdd.call(target, type, listener, { capture: options, passive: true });
+				}
+				if (options && typeof options === 'object' && !('passive' in options)) {
+					return originalAdd.call(target, type, listener, { ...options, passive: true });
+				}
+			}
+			return originalAdd.call(target, type, listener, options);
+		};
+		target.addEventListener = patchedAdd;
+		return () => {
+			target.addEventListener = originalAdd;
+		};
+	}
 
 	function shouldShowOutline(): boolean {
 		return alwaysShowOutline || outlineHintActive || mode !== 'free';
@@ -104,6 +129,10 @@
 	}
 
 	onMount(async () => {
+		if (container) {
+			restorePassiveListeners = ensurePassiveTouchListeners(container);
+		}
+
 		writer = HanziWriter.create(container, character, {
 			showOutline: false,
 			showCharacter: false,
@@ -124,6 +153,10 @@
 			(writer as unknown as { cancelQuiz: () => void }).cancelQuiz();
 		}
 		writer = null;
+		if (restorePassiveListeners) {
+			restorePassiveListeners();
+			restorePassiveListeners = null;
+		}
 	});
 
 	async function handleCharacterChange() {
