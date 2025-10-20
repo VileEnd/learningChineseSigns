@@ -1,7 +1,6 @@
 import { defineConfig } from 'vitest/config';
 import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
-import { tr } from 'zod/locales';
 
 export default defineConfig({
 	server:{host: true},

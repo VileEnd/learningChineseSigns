@@ -72,4 +72,5 @@ Playwright end-to-end tests can be added under `tests/` (install browsers first 
 
 ## Deployment
 
-The app builds to static assets compatible with any static host. For platforms that require a Node adapter, install the appropriate SvelteKit adapter.
+- **Cloudflare Pages / Workers** – The project ships with `@sveltejs/adapter-cloudflare` and a baseline `wrangler.toml`. Build with `npm run build` and deploy `.svelte-kit/cloudflare` via Cloudflare Pages (framework preset: SvelteKit) or run `wrangler deploy` for Workers. For local testing run `wrangler pages dev .svelte-kit/cloudflare --local` (Pages) or `wrangler dev .svelte-kit/cloudflare --local` (Workers) after building.
+- **Other hosts** – The generated client assets live in `build/`. Swap to a different adapter if you later target another platform.
