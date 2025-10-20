@@ -1,12 +1,7 @@
 name = "learning-chinese-signs"
-main = "./.svelte-kit/cloudflare/_worker.js"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = ".svelte-kit/cloudflare"
 
 [build]
 command = "npm run build"
-
-[assets]
-binding = "STATIC_CONTENT"
-directory = ".svelte-kit/cloudflare"
