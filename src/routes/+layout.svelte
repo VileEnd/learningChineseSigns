@@ -5,32 +5,50 @@
  import favicon from '$lib/assets/favicon.svg';
 
  onMount(() => {
-	if (dev) {
+	if (!('serviceWorker' in navigator)) {
 		return;
 	}
- 	if ('serviceWorker' in navigator) {
-			if (!window.isSecureContext) {
-				console.warn('Service workers require a secure context (HTTPS or localhost). Skipping registration.');
-				return;
-			}
-			const register = () => {
-				navigator.serviceWorker
-					.register('/service-worker.js', { type: dev ? 'module' : 'classic' })
-					.catch((error) => {
-						console.error('Service worker registration failed', error);
-					});
-			};
 
-			if (document.readyState === 'complete') {
-				register();
-			} else {
-				addEventListener(
-					'load',
-					() => register(),
-					{ once: true }
-				);
-			}
- 	}
+	if (dev) {
+		navigator.serviceWorker
+			.getRegistrations()
+			.then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+			.then(() => {
+				const cacheStorage = 'caches' in window ? window.caches : null;
+				if (cacheStorage) {
+					void cacheStorage
+						.keys()
+						.then((keys) => Promise.all(keys.map((key) => cacheStorage.delete(key))));
+				}
+			})
+			.catch((error) => {
+				console.warn('Failed to clean up service workers in dev mode', error);
+			});
+		return;
+	}
+
+	if (!window.isSecureContext) {
+		console.warn('Service workers require a secure context (HTTPS or localhost). Skipping registration.');
+		return;
+	}
+
+	const register = () => {
+		navigator.serviceWorker
+			.register('/service-worker.js', { type: 'classic' })
+			.catch((error) => {
+				console.error('Service worker registration failed', error);
+			});
+	};
+
+	if (document.readyState === 'complete') {
+		register();
+	} else {
+		addEventListener(
+			'load',
+			() => register(),
+			{ once: true }
+		);
+	}
  });
 </script>
 
