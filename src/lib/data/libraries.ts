@@ -64,7 +64,7 @@ export interface LibraryInfo {
 	totalWords: number;
 }
 
-const rawModules = import.meta.glob<{ default: RawLibrary }>('$lib/assets/*.json', {
+const rawModules = import.meta.glob<{ default: RawLibrary }>('$lib/assets/library/*.json', {
 	eager: true
 });
 

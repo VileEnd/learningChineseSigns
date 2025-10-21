@@ -1,4 +1,4 @@
-import klettData from '$lib/assets/klett2.json';
+import klettData from '$lib/assets/library/klett2.json';
 import type { WordEntry } from '$lib/types';
 
 interface RawWord {

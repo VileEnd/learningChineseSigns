@@ -64,53 +64,20 @@ Ersetzt das alte "Klett Kapitel" Modal mit:
 
 ### Neue Bibliothek hinzufügen
 
-1. **JSON-Datei erstellen** in `/src/lib/assets/`
+1. **JSON-Datei erstellen** in `/src/lib/assets/library/`
    ```json
    {
      "version": 1,
-     "chapter": "LibraryName",
-     "words": [...]
+     "libraryId": "my-library",
+     "name": "Meine Bibliothek",
+     "promptLanguage": "de",
+     "chapters": [ { "chapter": 1, "words": [...] } ]
    }
    ```
 
-2. **Parser-Datei erstellen** in `/src/lib/data/`
-   ```typescript
-   import data from '$lib/assets/your-library.json';
-   export const yourLibraryLevels = parseData(data);
-   export const totalYourLibraryWords = ...;
-   ```
-
-3. **In libraries.ts registrieren**
-   ```typescript
-   export const availableLibraries: LibraryInfo[] = [
-     // existing...
-     {
-       id: 'your-library',
-       name: 'Your Library Name',
-       totalWords: totalYourLibraryWords
-     }
-   ];
-   ```
-
-4. **getChaptersForLibrary() erweitern**
-   ```typescript
-   export function getChaptersForLibrary(libraryId: LibraryType): ChapterInfo[] {
-     // existing cases...
-     else if (libraryId === 'your-library') {
-       return yourLibraryLevels.map(...);
-     }
-   }
-   ```
-
-5. **getWordsForChapters() erweitern**
-   ```typescript
-   export function getWordsForChapters(libraryId: LibraryType, chapterIds: string[]): WordEntry[] {
-     // existing cases...
-     else if (libraryId === 'your-library') {
-       return yourLibraryLevels.filter(...).flatMap(...);
-     }
-   }
-   ```
+2. **Datei ablegen** – keine zusätzlichen Parser oder Code-Registrierungen nötig. 
+   Alles unter `/src/lib/assets/library/` wird beim Build automatisch erkannt, geparst 
+   und in der Auswahl angezeigt.
 
 ## Rückwärtskompatibilität
 

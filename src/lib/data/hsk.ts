@@ -1,4 +1,4 @@
-import hsk1Data from '$lib/assets/hsk1.json';
+import hsk1Data from '$lib/assets/library/hsk1.json';
 import type { WordEntry } from '$lib/types';
 
 interface RawWord {
