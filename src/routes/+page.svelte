@@ -83,6 +83,7 @@
 	let headerHeight = 0;
 	let removeResizeListener: (() => void) | null = null;
 	let isMobileViewport = false;
+	let headerExpanded = true; // New: Track header expanded state
 	
 	// Reactive statements for library selection
 	$: currentLibraryChapters = getLibraryChapters(selectedLibrary);
@@ -104,9 +105,9 @@
 				.reduce((sum, item) => sum + item.wordCount, 0);
 	$: selectedKlettChapterCount = selectedKlettChapters.length;
 	const headerActionClass =
-		'inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200/70 shadow-sm transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500';
+		'inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-xs font-medium text-slate-700 ring-1 ring-slate-200/70 shadow-sm transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 md:gap-2 md:px-4 md:py-2 md:text-sm';
 	const headerPrimaryActionClass =
-		'inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 disabled:opacity-60';
+		'inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 disabled:opacity-60 md:gap-2 md:px-4 md:py-2 md:text-sm';
 	const importExample = `Format 1 - Einfache Wortliste:
 {
   "version": 1,
@@ -493,6 +494,11 @@ Format 2 - Mit Kapiteln (wie Klett):
 		}
 
 		await applyActiveWord(candidate.word, candidate.progress);
+		
+		// Auto-collapse header on mobile when new word loads
+		if (isMobileViewport && !sessionFinished) {
+			headerExpanded = false;
+		}
 	}
 
 	async function handleHintRequest() {
@@ -514,6 +520,11 @@ Format 2 - Mit Kapiteln (wie Klett):
 	async function handlePinyinSubmit(event: SubmitEvent) {
 		event.preventDefault();
 		if (!currentWord || !activeSettings || stage !== 'pinyin') return;
+
+		// Auto-collapse header on mobile when user starts interacting
+		if (isMobileViewport && headerExpanded) {
+			headerExpanded = false;
+		}
 
 		const input = pinyinInput.trim();
 		if (!input) {
@@ -614,6 +625,12 @@ Format 2 - Mit Kapiteln (wie Klett):
 
 	async function handleQuizComplete(event: CustomEvent<{ mistakes: number }>) {
 		if (!currentWord || sessionFinished) return;
+		
+		// Auto-collapse header on mobile when user starts writing
+		if (isMobileViewport && headerExpanded) {
+			headerExpanded = false;
+		}
+		
 		const mistakes = event.detail.mistakes;
 
 		if (writingMode === 'free') {
@@ -878,21 +895,65 @@ Format 2 - Mit Kapiteln (wie Klett):
 	}
 </script>
 
-<section class="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-10">
-	<header class="sticky top-4 z-20" bind:this={headerElement}>
-			<nav class="flex flex-col gap-3 rounded-3xl bg-white/85 p-5 shadow-lg ring-1 ring-slate-200/70 backdrop-blur">
-				<div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
-					<div>
-						<h1 class="text-3xl font-semibold text-slate-900">Chinesischer Zettelkasten</h1>
-						<p class="text-sm text-slate-600">Deutsch - zu Pinyin & Schrift</p>
+<section class="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 pt-2 pb-10 md:py-10">
+	<header class="sticky top-0 z-20 md:top-4" bind:this={headerElement}>
+		<nav class="flex flex-col gap-3 rounded-2xl bg-white/95 p-3 shadow-lg ring-1 ring-slate-200/70 backdrop-blur md:rounded-3xl md:p-5">
+			<!-- Mobile Compact Header -->
+			{#if isMobileViewport && !headerExpanded}
+				<div class="flex items-center justify-between gap-3">
+					<div class="flex items-center gap-2">
+						<button
+							type="button"
+							class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-700 transition hover:bg-slate-200"
+							on:click={() => (headerExpanded = true)}
+							aria-label="Header erweitern"
+						>
+							<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+							</svg>
+						</button>
+						<div>
+							<h1 class="text-base font-semibold text-slate-900">Zettelkasten</h1>
+							<p class="text-xs text-slate-500">{selectedLibraryInfo?.name || 'Bibliothek'}</p>
+						</div>
 					</div>
-					<div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-end md:gap-2">
+					<button
+						type="button"
+						class="rounded-full bg-slate-900 px-2.5 py-1 text-xs font-medium text-white"
+						on:click={() => (showLibraryPicker = true)}
+					>
+						{selectedChapterIds.length}× / {selectedWordCount}
+					</button>
+				</div>
+			{:else}
+				<!-- Full Header (Desktop or Expanded Mobile) -->
+				<div class="flex flex-col gap-3">
+					<div class="flex items-center justify-between">
+						<div>
+							<h1 class="text-2xl font-semibold text-slate-900 md:text-3xl">Chinesischer Zettelkasten</h1>
+							<p class="text-sm text-slate-600">Deutsch - zu Pinyin & Schrift</p>
+						</div>
+						{#if isMobileViewport}
+							<button
+								type="button"
+								class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-700 transition hover:bg-slate-200"
+								on:click={() => (headerExpanded = false)}
+								aria-label="Header minimieren"
+							>
+								<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+								</svg>
+							</button>
+						{/if}
+					</div>
+					
+					<div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
 						<div class="relative w-full md:w-72" bind:this={searchContainer}>
 							<form class="relative" on:submit|preventDefault={handleSearchSubmit}>
 								<input
-									class="w-full rounded-full border border-slate-300 bg-white/90 px-4 py-2 pr-10 text-sm text-slate-800 shadow-inner focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400"
+									class="w-full rounded-full border border-slate-300 bg-white/90 px-3 py-1.5 pr-8 text-xs text-slate-800 shadow-inner focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400 md:px-4 md:py-2 md:pr-10 md:text-sm"
 									type="search"
-									placeholder="Wort auf Deutsch suchen"
+									placeholder="Wort suchen"
 									autocomplete="off"
 									spellcheck={false}
 									on:input={handleSearchInput}
@@ -903,7 +964,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 								{#if searchQuery}
 									<button
 										type="button"
-										class="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-slate-200 text-xs text-slate-600 transition hover:bg-slate-300"
+										class="absolute right-1.5 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full bg-slate-200 text-xs text-slate-600 transition hover:bg-slate-300 md:right-2 md:h-6 md:w-6"
 										on:click={clearSearchField}
 									>
 										✕
@@ -946,13 +1007,23 @@ Format 2 - Mit Kapiteln (wie Klett):
 						</div>
 						<div class="flex flex-wrap items-center gap-2 md:justify-end">
 							<button class={headerActionClass} type="button" on:click={() => (showSettings = true)}>
-								<span class="text-sm font-medium">Einstellungen</span>
+								<svg class="h-4 w-4 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+								</svg>
+								<span class="hidden md:inline">Einstellungen</span>
 							</button>
 							<button class={headerActionClass} type="button" on:click={() => (showImportHelp = true)}>
-								<span class="text-sm font-medium">Hilfe</span>
+								<svg class="h-4 w-4 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+								</svg>
+								<span class="hidden md:inline">Hilfe</span>
 							</button>
 							<label class={`${headerActionClass} cursor-pointer`}>
-								<span class="text-sm font-medium">Import</span>
+								<svg class="h-4 w-4 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+								</svg>
+								<span class="hidden md:inline">Import</span>
 								<input class="hidden" type="file" accept="application/json" on:change={handleImport} />
 							</label>
 							<button
@@ -961,8 +1032,11 @@ Format 2 - Mit Kapiteln (wie Klett):
 								on:click={() => (showLibraryPicker = true)}
 								aria-expanded={showLibraryPicker}
 							>
-								<span class="text-sm font-medium">Bibliothek</span>
-								<span class="flex items-center gap-1 rounded-full bg-slate-900 px-2 py-0.5 text-xs font-semibold text-white">
+								<svg class="h-4 w-4 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+								</svg>
+								<span class="hidden md:inline">Bibliothek</span>
+								<span class="flex items-center gap-1 rounded-full bg-slate-900 px-1.5 py-0.5 text-[10px] font-semibold text-white md:px-2 md:text-xs">
 									{selectedChapterIds.length ? `${selectedChapterIds.length}×` : '0×'}
 									<span class="hidden sm:inline">{selectedWordCount} Wörter</span>
 								</span>
@@ -973,17 +1047,20 @@ Format 2 - Mit Kapiteln (wie Klett):
 								on:click={handleExport}
 								disabled={exporting}
 							>
-								{exporting ? 'Export läuft …' : 'Export'}
+								<svg class="h-4 w-4 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+								</svg>
+								<span class="hidden md:inline">{exporting ? 'Export läuft …' : 'Export'}</span>
 							</button>
 						</div>
 					</div>
+					<div class="hidden text-xs font-medium text-slate-500 md:block">
+						{selectedLibraryInfo?.name || 'Bibliothek'}: {selectedChapterIds.length ? `${selectedChapterIds.length} Kapitel, ${selectedWordCount} Wörter` : 'Keine Kapitel ausgewählt'}
+					</div>
 				</div>
-			<div class="text-xs font-medium text-slate-500">
-				{selectedLibraryInfo?.name || 'Bibliothek'}: {selectedChapterIds.length ? `${selectedChapterIds.length} Kapitel, ${selectedWordCount} Wörter` : 'Keine Kapitel ausgewählt'}
-			</div>
+			{/if}
 		</nav>
 	</header>
-
 	{#if loading}
 		<p class="text-center text-slate-600">Lade nächste Karte …</p>
 	{:else if !currentWord}
@@ -1146,7 +1223,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 				>
 					<!-- Library Selection -->
 					<div class="flex flex-col gap-2">
-						<label class="text-sm font-medium text-slate-700">Bibliothek auswählen:</label>
+						<div class="text-sm font-medium text-slate-700">Bibliothek auswählen:</div>
 						<div class="flex gap-2">
 							{#each availableLibraries as library}
 								<button
