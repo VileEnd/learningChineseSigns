@@ -36,18 +36,6 @@
       ]
     },
     {
-      "id": "w-Ka1lun2",
-      "prompt": "Karin",
-      "pinyin": "Kālún",
-      "characters": [
-        "卡",
-        "伦"
-      ],
-      "alternatePinyin": [
-        "Ka1lun2"
-      ]
-    },
-    {
       "id": "w-lao3shi1",
       "prompt": "Lehrer(in)",
       "pinyin": "lǎoshī",
@@ -57,19 +45,6 @@
       ],
       "alternatePinyin": [
         "lao3shi1"
-      ]
-    },
-    {
-      "id": "w-Ma3ku4si1",
-      "prompt": "Markus",
-      "pinyin": "Mǎkusī",
-      "characters": [
-        "马",
-        "库",
-        "斯"
-      ],
-      "alternatePinyin": [
-        "Ma3ku4si1"
       ]
     },
     {
@@ -155,18 +130,6 @@
       ]
     },
     {
-      "id": "w-Zhang1-Hua2",
-      "prompt": "Zhang Hua (Eigenname)",
-      "pinyin": "Zhāng Huá",
-      "characters": [
-        "张",
-        "华"
-      ],
-      "alternatePinyin": [
-        "Zhang1 Hua2"
-      ]
-    },
-    {
       "id": "w-ming2zi5",
       "prompt": "Name",
       "pinyin": "míngzi",
@@ -214,19 +177,6 @@
       ]
     },
     {
-      "id": "w-Si1di4fen1",
-      "prompt": "Stefan",
-      "pinyin": "Sìdìfēn",
-      "characters": [
-        "斯",
-        "蒂",
-        "芬"
-      ],
-      "alternatePinyin": [
-        "Si1di4fen1"
-      ]
-    },
-    {
       "id": "w-ta1",
       "prompt": "sie, ihr",
       "pinyin": "tā",
@@ -250,6 +200,7 @@
     }
   ]
 }
+//kaption-2.json
 {
   "version": 1,
   "chapter": 2,
@@ -335,18 +286,6 @@
       ]
     },
     {
-      "id": "w-Pei2de2",
-      "prompt": "Peter",
-      "pinyin": "Péidé",
-      "characters": [
-        "培",
-        "德"
-      ],
-      "alternatePinyin": [
-        "Pei2de2"
-      ]
-    },
-    {
       "id": "w-ta1",
       "prompt": "er, ihm",
       "pinyin": "tā",
@@ -422,34 +361,6 @@
       ],
       "alternatePinyin": [
         "gao1xing4"
-      ]
-    },
-    {
-      "id": "w-gui4xing4",
-      "prompt": "(der werte) Familienname",
-      "pinyin": "guìxìng",
-      "characters": [
-        "贵",
-        "姓"
-      ],
-      "alternatePinyin": [
-        "gui4xing4"
-      ]
-    },
-    {
-      "id": "w-Han4si1-Shi1mi4te4",
-      "prompt": "Hans Schmidt",
-      "pinyin": "Hànsī Shīmitè",
-      "characters": [
-        "汉",
-        "斯",
-        "·",
-        "施",
-        "密",
-        "特"
-      ],
-      "alternatePinyin": [
-        "Han4si1 Shi1mi4te4"
       ]
     }
   ]
