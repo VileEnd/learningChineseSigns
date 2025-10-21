@@ -1,6 +1,6 @@
 {
-	"name": "Learning Chinese Signs",
-	"short_name": "HanZi Trainer",
+	"name": "Chinesischer Zettelkasten",
+	"short_name": "ChZettelkasten",
 	"start_url": "/",
 	"scope": "/",
 	"display": "standalone",
