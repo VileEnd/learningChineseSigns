@@ -5,6 +5,9 @@
  import favicon from '$lib/assets/favicon.svg';
 
  onMount(() => {
+	if (dev) {
+		return;
+	}
  	if ('serviceWorker' in navigator) {
 			if (!window.isSecureContext) {
 				console.warn('Service workers require a secure context (HTTPS or localhost). Skipping registration.');

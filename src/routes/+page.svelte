@@ -141,8 +141,11 @@
 	}
 
 	$: headerOffset = headerHeight > 0 ? headerHeight : 96;
-	$: dialogPaddingTop = `${headerOffset}px`;
-	$: dialogMinHeight = isMobileViewport ? `calc(100vh - ${headerOffset}px)` : 'auto';
+	$: dialogTopGap = isMobileViewport
+		? Math.max(16, Math.min(headerOffset, 80))
+		: headerOffset;
+	$: dialogPaddingTop = `${dialogTopGap}px`;
+	$: dialogMinHeight = isMobileViewport ? `calc(100vh - ${dialogTopGap}px)` : 'auto';
 	$: if (browser && showKlettPicker) {
 		updateHeaderHeight();
 	}
@@ -764,7 +767,7 @@
 			<nav class="flex flex-col gap-3 rounded-3xl bg-white/85 p-5 shadow-lg ring-1 ring-slate-200/70 backdrop-blur">
 				<div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
 					<div>
-						<h1 class="text-3xl font-semibold text-slate-900">Chinesischer Zettelkaster</h1>
+						<h1 class="text-3xl font-semibold text-slate-900">Chinesischer Zettelkasten</h1>
 						<p class="text-sm text-slate-600">Deutsch - zu Pinyin & Schrift</p>
 					</div>
 					<div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-end md:gap-2">
