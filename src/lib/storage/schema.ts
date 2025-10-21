@@ -21,6 +21,16 @@ export const wordPackSchema = z.object({
 	words: z.array(wordEntrySchema)
 });
 
+export const chapterSchema = z.object({
+	chapter: z.number().int().min(1),
+	words: z.array(wordEntrySchema)
+});
+
+export const chaptersPackSchema = z.object({
+	version: z.number().int().min(1),
+	chapters: z.array(chapterSchema)
+});
+
 export const settingsSchema = z.object({
 	interfaceLanguage: z.string().min(2).max(8),
 	learningMode: z.enum(['prompt-to-pinyin', 'prompt-to-character', 'pinyin-to-character']),
@@ -51,4 +61,5 @@ export const exportSnapshotSchema = z.object({
 
 export type WordEntryPayload = z.infer<typeof wordEntrySchema>;
 export type WordPackPayload = z.infer<typeof wordPackSchema>;
+export type ChaptersPackPayload = z.infer<typeof chaptersPackSchema>;
 export type ExportSnapshotPayload = z.infer<typeof exportSnapshotSchema>;

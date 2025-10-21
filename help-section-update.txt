@@ -1,0 +1,16 @@
+Zeile 1151 ändern von:
+						<li>Erstelle eine JSON-Datei im folgenden Format oder passe die exportierte Datei an.</li>
+
+zu:
+						<li>Erstelle eine JSON-Datei in einem der unten gezeigten Formate.</li>
+
+Und nach Zeile 1153 (nach </ol>) einfügen:
+					<p class="text-xs text-slate-600">
+						<strong>Unterstützte Formate:</strong> Einfache Wortlisten (<code class="rounded bg-slate-100 px-1">words</code>) oder strukturierte Kapitel (<code class="rounded bg-slate-100 px-1">chapters</code>) wie bei Klett-Dateien.
+					</p>
+
+Und in Zeile 1154 ändern von:
+					<pre class="overflow-x-auto rounded-md border border-slate-200 bg-slate-50 p-4 text-xs"><code>{importExample}</code></pre>
+
+zu:
+					<pre class="max-h-96 overflow-x-auto overflow-y-auto rounded-md border border-slate-200 bg-slate-50 p-4 text-xs"><code>{importExample}</code></pre>

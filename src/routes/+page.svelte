@@ -21,11 +21,16 @@
 		suspendKlettChapters,
 		resumeWord,
 		searchWordsByPrompt,
-		suspendWord
+		suspendWord,
+		getAvailableLibraries,
+		getLibraryChapters,
+		importLibraryChapters,
+		suspendLibraryChapters
 	} from '$lib/storage/repository';
 	import { loadSettings, saveSettings, settings } from '$lib/state/settings';
 	import type { LessonStage, LessonSummary, SessionState, Settings, WordProgress, WritingMode } from '$lib/types';
 	import type { WordRecord } from '$lib/storage/db';
+	import type { LibraryType } from '$lib/data/libraries';
 
 	let loading = true;
 	let errorMessage = '';
@@ -51,12 +56,22 @@
 	let characterIndex = 0;
 	let quizComponent: InstanceType<typeof HandwritingQuiz> | null = null;
 	let showImportHelp = false;
+	
+	// Library management
+	const availableLibraries = getAvailableLibraries();
+	let selectedLibrary: LibraryType = 'klett';
+	let selectedChapterIds: string[] = [];
+	let libraryImporting = false;
+	let showLibraryPicker = false;
+	
+	// Legacy Klett support (for backwards compatibility)
 	const klettChapterSummaries = getKlettChapterSummaries();
 	const klettTotalWords = getKlettTotalWordCount();
 	let selectedKlettChapters: number[] = [];
 	let klettImporting = false;
 	let unloadingWord = false;
 	let showKlettPicker = false;
+	
 	let searchQuery = '';
 	let searchResults: WordRecord[] = [];
 	let searchLoading = false;
@@ -68,6 +83,18 @@
 	let headerHeight = 0;
 	let removeResizeListener: (() => void) | null = null;
 	let isMobileViewport = false;
+	
+	// Reactive statements for library selection
+	$: currentLibraryChapters = getLibraryChapters(selectedLibrary);
+	$: allChaptersSelected = currentLibraryChapters.length > 0 && selectedChapterIds.length === currentLibraryChapters.length;
+	$: selectedWordCount = selectedChapterIds.length === 0 
+		? 0 
+		: currentLibraryChapters
+			.filter((chapter) => selectedChapterIds.includes(chapter.id))
+			.reduce((sum, chapter) => sum + chapter.wordCount, 0);
+	$: selectedLibraryInfo = availableLibraries.find((lib) => lib.id === selectedLibrary);
+	
+	// Legacy Klett reactive statements
 	$: allKlettChaptersSelected =
 		klettChapterSummaries.length > 0 && selectedKlettChapters.length === klettChapterSummaries.length;
 	$: selectedKlettWordCount = allKlettChaptersSelected
@@ -80,25 +107,63 @@
 		'inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200/70 shadow-sm transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500';
 	const headerPrimaryActionClass =
 		'inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 disabled:opacity-60';
-	const importExample = JSON.stringify(
-		{
-			version: 1,
-			words: [
-				{
-					id: 'w-gan3xie4',
-					prompt: 'Danke',
-					promptLanguage: 'de',
-					pinyin: 'gǎnxiè',
-					characters: ['感', '谢'],
-					alternatePinyin: ['gan3 xie4'],
-					hints: { note: 'Alternative zu 谢谢.' }
-				}
-			]
-		},
-		null,
-		2
-	);
+	const importExample = `Format 1 - Einfache Wortliste:
+{
+  "version": 1,
+  "words": [
+    {
+      "id": "w-gan3xie4",
+      "prompt": "Danke",
+      "promptLanguage": "de",
+      "pinyin": "gǎnxiè",
+      "characters": ["感", "谢"],
+      "alternatePinyin": ["gan3 xie4"],
+      "hints": { "note": "Alternative zu 谢谢." }
+    }
+  ]
+}
 
+Format 2 - Mit Kapiteln (wie Klett):
+{
+  "version": 1,
+  "chapters": [
+    {
+      "chapter": 1,
+      "words": [
+        {
+          "id": "w-ni3hao3",
+          "prompt": "Hallo",
+          "promptLanguage": "de",
+          "pinyin": "nǐhǎo",
+          "characters": ["你", "好"],
+          "alternatePinyin": ["ni3hao3"]
+        }
+      ]
+    }
+  ]
+}`;
+
+	// Library management functions
+	function toggleChapter(chapterId: string) {
+		selectedChapterIds = selectedChapterIds.includes(chapterId)
+			? selectedChapterIds.filter((id) => id !== chapterId)
+			: [...selectedChapterIds, chapterId];
+	}
+
+	function selectAllChapters() {
+		selectedChapterIds = currentLibraryChapters.map((chapter) => chapter.id);
+	}
+
+	function clearChapterSelection() {
+		selectedChapterIds = [];
+	}
+
+	function handleLibraryChange() {
+		// Reset chapter selection when library changes
+		selectedChapterIds = [];
+	}
+
+	// Legacy Klett functions (for backwards compatibility)
 	function toggleKlettChapter(chapter: number) {
 		selectedKlettChapters = selectedKlettChapters.includes(chapter)
 			? selectedKlettChapters.filter((value) => value !== chapter)
@@ -146,6 +211,10 @@
 		: headerOffset;
 	$: dialogPaddingTop = `${dialogTopGap}px`;
 	$: dialogMinHeight = isMobileViewport ? `calc(100vh - ${dialogTopGap}px)` : 'auto';
+	$: if (browser && showLibraryPicker) {
+		updateHeaderHeight();
+	}
+
 	$: if (browser && showKlettPicker) {
 		updateHeaderHeight();
 	}
@@ -636,9 +705,10 @@
 			const text = await file.text();
 			const payload = JSON.parse(text);
 
-			if ('version' in payload && 'words' in payload) {
+			if ('version' in payload && ('words' in payload || 'chapters' in payload)) {
 				const result = await importWordPack(payload);
-				importFeedback = `${result.inserted} neue Wörter importiert.`;
+				const format = 'chapters' in payload ? ' (Kapitel-Format)' : '';
+				importFeedback = `${result.inserted} neue Wörter importiert${format}.`;
 			} else {
 				await importSnapshot(payload);
 				importFeedback = 'Benutzerdaten erfolgreich importiert.';
@@ -674,6 +744,52 @@
 		await saveSettings(next);
 		showSettings = false;
 		void persistSession();
+	}
+
+	async function handleLibraryImport(): Promise<boolean> {
+		if (libraryImporting) return false;
+		libraryImporting = true;
+		try {
+			if (selectedChapterIds.length === 0) {
+				// Suspend all chapters from the selected library
+				const allChapterIds = currentLibraryChapters.map((ch) => ch.id);
+				const paused = await suspendLibraryChapters(selectedLibrary, allChapterIds);
+				importFeedback = paused
+					? `Alle ${selectedLibraryInfo?.name || 'Bibliothek'}-Wörter wurden pausiert (${paused}).`
+					: `Keine aktiven ${selectedLibraryInfo?.name || 'Bibliothek'}-Wörter zum Pausieren gefunden.`;
+				await loadNextWord();
+				return true;
+			}
+
+			// Import selected chapters
+			const result = await importLibraryChapters(selectedLibrary, selectedChapterIds);
+			
+			// Suspend chapters not selected
+			const unselectedChapterIds = currentLibraryChapters
+				.map((ch) => ch.id)
+				.filter((id) => !selectedChapterIds.includes(id));
+			
+			const paused = unselectedChapterIds.length > 0 
+				? await suspendLibraryChapters(selectedLibrary, unselectedChapterIds) 
+				: 0;
+
+			const feedbackParts = [
+				result.inserted
+					? `${selectedLibraryInfo?.name || 'Bibliothek'}-Wörter importiert: ${result.inserted}.`
+					: 'Keine neuen Wörter importiert – vermutlich schon vorhanden.',
+				paused ? `Pausiert: ${paused} Wörter außerhalb der Auswahl.` : ''
+			].filter(Boolean);
+			importFeedback = feedbackParts.join(' ');
+
+			await loadNextWord();
+			return true;
+		} catch (error) {
+			console.error(error);
+			importFeedback = 'Import fehlgeschlagen.';
+			return false;
+		} finally {
+			libraryImporting = false;
+		}
 	}
 
 	async function handleKlettImport(): Promise<boolean> {
@@ -842,13 +958,13 @@
 							<button
 								type="button"
 								class={`${headerActionClass} justify-between`}
-								on:click={() => (showKlettPicker = true)}
-								aria-expanded={showKlettPicker}
+								on:click={() => (showLibraryPicker = true)}
+								aria-expanded={showLibraryPicker}
 							>
-								<span class="text-sm font-medium">Klett Kapitel</span>
+								<span class="text-sm font-medium">Bibliothek</span>
 								<span class="flex items-center gap-1 rounded-full bg-slate-900 px-2 py-0.5 text-xs font-semibold text-white">
-									{selectedKlettChapterCount ? `${selectedKlettChapterCount}×` : '0×'}
-									<span class="hidden sm:inline">{selectedKlettWordCount} Wörter</span>
+									{selectedChapterIds.length ? `${selectedChapterIds.length}×` : '0×'}
+									<span class="hidden sm:inline">{selectedWordCount} Wörter</span>
 								</span>
 							</button>
 							<button
@@ -863,7 +979,7 @@
 					</div>
 				</div>
 			<div class="text-xs font-medium text-slate-500">
-				Klett-Auswahl: {selectedKlettChapterCount ? `${selectedKlettChapterCount} Kapitel, ${selectedKlettWordCount} Wörter` : 'Keine Kapitel ausgewählt'}
+				{selectedLibraryInfo?.name || 'Bibliothek'}: {selectedChapterIds.length ? `${selectedChapterIds.length} Kapitel, ${selectedWordCount} Wörter` : 'Keine Kapitel ausgewählt'}
 			</div>
 		</nav>
 	</header>
@@ -988,6 +1104,119 @@
 				</section>
 			</aside>
 		</article>
+	{/if}
+
+	{#if showLibraryPicker}
+		<div
+			class="fixed inset-0 z-[80] isolate flex flex-col bg-white/80 backdrop-blur-sm md:items-center md:justify-center md:px-4 md:pb-10"
+			style={`padding-top: ${dialogPaddingTop};`}
+			role="dialog"
+			aria-modal="true"
+			tabindex="-1"
+			on:keydown={(event) => {
+				if (event.key === 'Escape') {
+					event.preventDefault();
+					showLibraryPicker = false;
+				}
+			}}
+		>
+			<button
+				type="button"
+				class="absolute inset-0 z-0 h-full w-full cursor-pointer"
+				aria-label="Bibliotheksauswahl schließen"
+				on:click={() => (showLibraryPicker = false)}
+			></button>
+			<div
+				data-state="open"
+				class="relative z-10 flex w-full flex-1 flex-col translate-y-6 overflow-y-auto rounded-t-3xl bg-white p-6 opacity-0 shadow-2xl ring-1 ring-slate-200 transition-all duration-300 ease-out data-[state=open]:translate-y-0 data-[state=open]:opacity-100 md:mt-0 md:h-auto md:max-w-2xl md:flex-none md:rounded-2xl md:p-8"
+				style={`min-height: ${dialogMinHeight};`}
+			>
+				<header class="mb-4 flex items-center justify-between">
+					<h2 class="text-base font-semibold text-slate-900">Bibliothek & Kapitel wählen</h2>
+					<button class="text-sm text-slate-500" type="button" on:click={() => (showLibraryPicker = false)}>Schließen</button>
+				</header>
+				<form
+					class="flex flex-col gap-4"
+					on:submit|preventDefault={async () => {
+						const imported = await handleLibraryImport();
+						if (imported) {
+							showLibraryPicker = false;
+						}
+					}}
+				>
+					<!-- Library Selection -->
+					<div class="flex flex-col gap-2">
+						<label class="text-sm font-medium text-slate-700">Bibliothek auswählen:</label>
+						<div class="flex gap-2">
+							{#each availableLibraries as library}
+								<button
+									type="button"
+									class="flex-1 rounded-md border px-4 py-2 text-sm font-medium transition"
+									class:bg-slate-900={selectedLibrary === library.id}
+									class:text-white={selectedLibrary === library.id}
+									class:border-slate-900={selectedLibrary === library.id}
+									class:bg-white={selectedLibrary !== library.id}
+									class:text-slate-700={selectedLibrary !== library.id}
+									class:border-slate-200={selectedLibrary !== library.id}
+									on:click={() => {
+										selectedLibrary = library.id;
+										handleLibraryChange();
+									}}
+								>
+									{library.name}
+									<span class="block text-xs opacity-70">{library.totalWords} Wörter</span>
+								</button>
+							{/each}
+						</div>
+					</div>
+
+					<!-- Chapter Selection -->
+					{#if currentLibraryChapters.length > 0}
+						<div class="flex items-center justify-between text-sm text-slate-600">
+							<button type="button" class="rounded border border-slate-200 px-3 py-1" on:click={selectAllChapters}>
+								Alle auswählen
+							</button>
+							<button type="button" class="rounded border border-slate-200 px-3 py-1" on:click={clearChapterSelection}>
+								Zurücksetzen
+							</button>
+						</div>
+						<div class="grid max-h-[50vh] grid-cols-1 gap-2 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3">
+							{#each currentLibraryChapters as chapter}
+								<label class="flex items-center justify-between gap-3 rounded-md bg-white px-3 py-2 text-sm text-slate-700 shadow-sm cursor-pointer hover:bg-slate-50 transition">
+									<span class="font-medium">{chapter.label}</span>
+									<span class="text-xs text-slate-500">{chapter.wordCount} Wörter</span>
+									<input
+										type="checkbox"
+										class="h-5 w-5 rounded border-slate-300 text-slate-900 focus:ring-slate-500"
+										checked={selectedChapterIds.includes(chapter.id)}
+										on:change={() => toggleChapter(chapter.id)}
+									/>
+								</label>
+							{/each}
+						</div>
+					{:else}
+						<div class="rounded-lg border border-slate-200 bg-slate-50 p-4 text-center text-sm text-slate-600">
+							Keine Kapitel verfügbar für diese Bibliothek.
+						</div>
+					{/if}
+
+					<div class="flex flex-col gap-2 text-sm text-slate-600">
+						<span>Ausgewählt: {selectedWordCount} Wörter aus {selectedChapterIds.length} Kapitel(n)</span>
+						<button
+							type="submit"
+							class="rounded-md bg-slate-900 px-4 py-2 text-white disabled:opacity-60"
+							disabled={libraryImporting}
+						>
+							{libraryImporting
+								? 'Wird übernommen …'
+								: selectedChapterIds.length === 0
+									? `${selectedLibraryInfo?.name || 'Bibliothek'} pausieren`
+									: `${selectedLibraryInfo?.name || 'Bibliothek'} übernehmen`}
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
 	{/if}
 
 	{#if showKlettPicker}
@@ -1121,7 +1350,7 @@
 
 	{#if showImportHelp}
 		<div class="fixed inset-0 z-30 flex items-center justify-center bg-black/50">
-			<div class="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl">
+			<div class="w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl">
 				<header class="mb-4 flex items-center justify-between">
 					<h2 class="text-lg font-semibold text-slate-900">Import-Hilfe</h2>
 					<button class="text-slate-500" on:click={() => (showImportHelp = false)}>Schließen</button>
@@ -1130,7 +1359,7 @@
 					<p>Mit dem Import-Button kannst du neue Vokabelpakete oder Sicherungen im JSON-Format laden.</p>
 					<ol class="list-decimal space-y-1 pl-4">
 						<li>Exportiere vorhandene Daten als Vorlage über den Button „Export“.</li>
-						<li>Erstelle eine JSON-Datei im folgenden Format oder passe die exportierte Datei an.</li>
+						<li>Erstelle eine JSON-Datei in einem der beiden Formate: einfache Wortlisten mit <code>words</code> oder strukturierte Kapitel mit <code>chapters</code> (wie Klett).</li>
 						<li>Wähle die Datei über „Import“ aus, um Wörter oder Fortschritt zu übernehmen.</li>
 					</ol>
 					<pre class="overflow-x-auto rounded-md border border-slate-200 bg-slate-50 p-4 text-xs"><code>{importExample}</code></pre>

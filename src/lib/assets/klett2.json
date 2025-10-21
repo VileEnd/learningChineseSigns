@@ -1,0 +1,6788 @@
+{
+  "version": 1,
+  "chapters": [
+    {
+      "chapter": 1,
+      "words": [
+        {
+          "id": "w-hao3",
+          "prompt": "gut",
+          "pinyin": "hǎo",
+          "characters": [
+            "好"
+          ],
+          "alternatePinyin": [
+            "hao3"
+          ]
+        },
+        {
+          "id": "w-jian4",
+          "prompt": "sehen",
+          "pinyin": "jiàn",
+          "characters": [
+            "见"
+          ],
+          "alternatePinyin": [
+            "jian4"
+          ]
+        },
+        {
+          "id": "w-lao3shi1",
+          "prompt": "Lehrer(in)",
+          "pinyin": "lǎoshī",
+          "characters": [
+            "老",
+            "师"
+          ],
+          "alternatePinyin": [
+            "lao3shi1"
+          ]
+        },
+        {
+          "id": "w-ming2tian1",
+          "prompt": "morgen",
+          "pinyin": "míngtiān",
+          "characters": [
+            "明",
+            "天"
+          ],
+          "alternatePinyin": [
+            "ming2tian1"
+          ]
+        },
+        {
+          "id": "w-ni3",
+          "prompt": "du",
+          "pinyin": "nǐ",
+          "characters": [
+            "你"
+          ],
+          "alternatePinyin": [
+            "ni3"
+          ]
+        },
+        {
+          "id": "w-ni3men5",
+          "prompt": "ihr",
+          "pinyin": "nǐmen",
+          "characters": [
+            "你",
+            "们"
+          ],
+          "alternatePinyin": [
+            "ni3men5"
+          ]
+        },
+        {
+          "id": "w-nin2",
+          "prompt": "Sie",
+          "pinyin": "nín",
+          "characters": [
+            "您"
+          ],
+          "alternatePinyin": [
+            "nin2"
+          ]
+        },
+        {
+          "id": "w-tong2xue2men5",
+          "prompt": "Klassenkameraden",
+          "pinyin": "tóngxuémen",
+          "characters": [
+            "同",
+            "学",
+            "们"
+          ],
+          "alternatePinyin": [
+            "tong2xue2men5"
+          ]
+        },
+        {
+          "id": "w-zai4jian4",
+          "prompt": "auf Wiedersehen, tschüs",
+          "pinyin": "zàijiàn",
+          "characters": [
+            "再",
+            "见"
+          ],
+          "alternatePinyin": [
+            "zai4jian4"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 2,
+      "words": [
+        {
+          "id": "w-ba4ba5",
+          "prompt": "Papa, Vater",
+          "pinyin": "bàba",
+          "characters": [
+            "爸",
+            "爸"
+          ],
+          "alternatePinyin": [
+            "ba4ba5"
+          ]
+        },
+        {
+          "id": "w-bu4",
+          "prompt": "nein, nicht",
+          "pinyin": "bù",
+          "characters": [
+            "不"
+          ],
+          "alternatePinyin": [
+            "bu4"
+          ]
+        },
+        {
+          "id": "w-dou1",
+          "prompt": "beide, alle",
+          "pinyin": "dōu",
+          "characters": [
+            "都"
+          ],
+          "alternatePinyin": [
+            "dou1"
+          ]
+        },
+        {
+          "id": "w-hen3",
+          "prompt": "sehr",
+          "pinyin": "hěn",
+          "characters": [
+            "很"
+          ],
+          "alternatePinyin": [
+            "hen3"
+          ]
+        },
+        {
+          "id": "w-ke4qi5",
+          "prompt": "freundlich, bescheiden",
+          "pinyin": "kèqi",
+          "characters": [
+            "客",
+            "气"
+          ],
+          "alternatePinyin": [
+            "ke4qi5"
+          ]
+        },
+        {
+          "id": "w-ma5",
+          "prompt": "(Fragepartikel)",
+          "pinyin": "ma",
+          "characters": [
+            "吗"
+          ],
+          "alternatePinyin": [
+            "ma5"
+          ]
+        },
+        {
+          "id": "w-ma1ma5",
+          "prompt": "Mama, Mutter",
+          "pinyin": "māma",
+          "characters": [
+            "妈",
+            "妈"
+          ],
+          "alternatePinyin": [
+            "ma1ma5"
+          ]
+        },
+        {
+          "id": "w-ta1",
+          "prompt": "er, ihm",
+          "pinyin": "tā",
+          "characters": [
+            "他"
+          ],
+          "alternatePinyin": [
+            "ta1"
+          ]
+        },
+        {
+          "id": "w-ta1men5",
+          "prompt": "sie, ihnen (pl.)",
+          "pinyin": "tāmen",
+          "characters": [
+            "他",
+            "们"
+          ],
+          "alternatePinyin": [
+            "ta1men5"
+          ]
+        },
+        {
+          "id": "w-wo3men5",
+          "prompt": "wir",
+          "pinyin": "wǒmen",
+          "characters": [
+            "我",
+            "们"
+          ],
+          "alternatePinyin": [
+            "wo3men5"
+          ]
+        },
+        {
+          "id": "w-xie4xie5",
+          "prompt": "danke",
+          "pinyin": "xièxie",
+          "characters": [
+            "谢",
+            "谢"
+          ],
+          "alternatePinyin": [
+            "xie4xie5"
+          ]
+        },
+        {
+          "id": "w-ye3",
+          "prompt": "auch",
+          "pinyin": "yě",
+          "characters": [
+            "也"
+          ],
+          "alternatePinyin": [
+            "ye3"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 3,
+      "words": [
+        {
+          "id": "w-gao1xing4",
+          "prompt": "glücklich",
+          "pinyin": "gāoxìng",
+          "characters": [
+            "高",
+            "兴"
+          ],
+          "alternatePinyin": [
+            "gao1xing4"
+          ]
+        },
+        {
+          "id": "w-gui4xing4",
+          "prompt": "(der werte) Familienname",
+          "pinyin": "guìxìng",
+          "characters": [
+            "贵",
+            "姓"
+          ],
+          "alternatePinyin": [
+            "gui4xing4"
+          ]
+        },
+        {
+          "id": "w-jiao4",
+          "prompt": "rufen, heißen",
+          "pinyin": "jiào",
+          "characters": [
+            "叫"
+          ],
+          "alternatePinyin": [
+            "jiao4"
+          ]
+        },
+        {
+          "id": "w-ming2zi5",
+          "prompt": "Name",
+          "pinyin": "míngzi",
+          "characters": [
+            "名",
+            "字"
+          ],
+          "alternatePinyin": [
+            "ming2zi5"
+          ]
+        },
+        {
+          "id": "w-ne5",
+          "prompt": "(Modalpartikel)",
+          "pinyin": "ne",
+          "characters": [
+            "呢"
+          ],
+          "alternatePinyin": [
+            "ne5"
+          ]
+        },
+        {
+          "id": "w-ren4shi5",
+          "prompt": "kennen, kennenlernen",
+          "pinyin": "rènshi",
+          "characters": [
+            "认",
+            "识"
+          ],
+          "alternatePinyin": [
+            "ren4shi5"
+          ]
+        },
+        {
+          "id": "w-shen2me5",
+          "prompt": "was",
+          "pinyin": "shénme",
+          "characters": [
+            "什",
+            "么"
+          ],
+          "alternatePinyin": [
+            "shen2me5"
+          ]
+        },
+        {
+          "id": "w-ta1-she",
+          "prompt": "sie, ihr",
+          "pinyin": "tā",
+          "characters": [
+            "她"
+          ],
+          "alternatePinyin": [
+            "ta1"
+          ]
+        },
+        {
+          "id": "w-wo3",
+          "prompt": "ich, mich",
+          "pinyin": "wǒ",
+          "characters": [
+            "我"
+          ],
+          "alternatePinyin": [
+            "wo3"
+          ]
+        },
+        {
+          "id": "w-xing4",
+          "prompt": "den Familiennamen haben",
+          "pinyin": "xìng",
+          "characters": [
+            "姓"
+          ],
+          "alternatePinyin": [
+            "xing4"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 4,
+      "words": [
+        {
+          "id": "w-dui4",
+          "prompt": "richtig",
+          "pinyin": "duì",
+          "characters": [
+            "对"
+          ],
+          "alternatePinyin": [
+            "dui4"
+          ]
+        },
+        {
+          "id": "w-guo2",
+          "prompt": "Land",
+          "pinyin": "guó",
+          "characters": [
+            "国"
+          ],
+          "alternatePinyin": [
+            "guo2"
+          ]
+        },
+        {
+          "id": "w-na3",
+          "prompt": "welcher, welche, welches",
+          "pinyin": "nǎ",
+          "characters": [
+            "哪"
+          ],
+          "alternatePinyin": [
+            "na3"
+          ]
+        },
+        {
+          "id": "w-ren2",
+          "prompt": "Mensch, Person",
+          "pinyin": "rén",
+          "characters": [
+            "人"
+          ],
+          "alternatePinyin": [
+            "ren2"
+          ]
+        },
+        {
+          "id": "w-shi4",
+          "prompt": "sein",
+          "pinyin": "shì",
+          "characters": [
+            "是"
+          ],
+          "alternatePinyin": [
+            "shi4"
+          ]
+        },
+        {
+          "id": "w-shui2",
+          "prompt": "wer",
+          "pinyin": "shuí",
+          "characters": [
+            "谁"
+          ],
+          "alternatePinyin": [
+            "shui2"
+          ]
+        },
+        {
+          "id": "w-tong2xue2",
+          "prompt": "Klassenkamerad(in)",
+          "pinyin": "tóngxué",
+          "characters": [
+            "同",
+            "学"
+          ],
+          "alternatePinyin": [
+            "tong2xue2"
+          ]
+        },
+        {
+          "id": "w-wen4",
+          "prompt": "fragen",
+          "pinyin": "wèn",
+          "characters": [
+            "问"
+          ],
+          "alternatePinyin": [
+            "wen4"
+          ]
+        },
+        {
+          "id": "w-xue2xi2/xue2",
+          "prompt": "lernen",
+          "pinyin": "xuéxí /xué",
+          "characters": [
+            "学",
+            "习",
+            "学"
+          ],
+          "alternatePinyin": [
+            "xue2xi2/xue2"
+          ]
+        },
+        {
+          "id": "w-Ying1yu3",
+          "prompt": "Englisch",
+          "pinyin": "Yīngyǔ",
+          "characters": [
+            "英",
+            "语"
+          ],
+          "alternatePinyin": [
+            "Ying1yu3"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 5,
+      "words": [
+        {
+          "id": "w-bin1guan3",
+          "prompt": "Hotel",
+          "pinyin": "bīnguǎn",
+          "characters": [
+            "宾",
+            "馆"
+          ],
+          "alternatePinyin": [
+            "bin1guan3"
+          ]
+        },
+        {
+          "id": "w-dian4hua4",
+          "prompt": "Telefon",
+          "pinyin": "diànhuà",
+          "characters": [
+            "电",
+            "话"
+          ],
+          "alternatePinyin": [
+            "dian4hua4"
+          ]
+        },
+        {
+          "id": "w-dui4bu5qi3",
+          "prompt": "Verzeihung, Entschuldigung",
+          "pinyin": "duìbuqǐ",
+          "characters": [
+            "对",
+            "不",
+            "起"
+          ],
+          "alternatePinyin": [
+            "dui4bu5qi3"
+          ]
+        },
+        {
+          "id": "w-duo1shao5",
+          "prompt": "wie viele, wie viel",
+          "pinyin": "duōshao",
+          "characters": [
+            "多",
+            "少"
+          ],
+          "alternatePinyin": [
+            "duo1shao5"
+          ]
+        },
+        {
+          "id": "w-fang2jian1",
+          "prompt": "Zimmer",
+          "pinyin": "fángjiān",
+          "characters": [
+            "房",
+            "间"
+          ],
+          "alternatePinyin": [
+            "fang2jian1"
+          ]
+        },
+        {
+          "id": "w-hao4",
+          "prompt": "Nummer, Ziffer",
+          "pinyin": "hào",
+          "characters": [
+            "号"
+          ],
+          "alternatePinyin": [
+            "hao4"
+          ]
+        },
+        {
+          "id": "w-hao4ma3",
+          "prompt": "Nummer",
+          "pinyin": "hàomǎ",
+          "characters": [
+            "号",
+            "码"
+          ],
+          "alternatePinyin": [
+            "hao4ma3"
+          ]
+        },
+        {
+          "id": "w-hui4yi4zhong1xin1",
+          "prompt": "Kongresszentrum",
+          "pinyin": "huìyì zhōngxīn",
+          "characters": [
+            "会",
+            "议",
+            "中",
+            "心"
+          ],
+          "alternatePinyin": [
+            "hui4yi4 zhong1xin1"
+          ]
+        },
+        {
+          "id": "w-ji3",
+          "prompt": "wie viele, wie viel",
+          "pinyin": "jǐ",
+          "characters": [
+            "几"
+          ],
+          "alternatePinyin": [
+            "ji3"
+          ]
+        },
+        {
+          "id": "w-le5",
+          "prompt": "(Modalpartikel)",
+          "pinyin": "le",
+          "characters": [
+            "了"
+          ],
+          "alternatePinyin": [
+            "le5"
+          ]
+        },
+        {
+          "id": "w-ling2",
+          "prompt": "Null",
+          "pinyin": "líng",
+          "characters": [
+            "零"
+          ],
+          "alternatePinyin": [
+            "ling2"
+          ]
+        },
+        {
+          "id": "w-liu2xue2sheng1",
+          "prompt": "ausländischer Student, ausländische Studentin",
+          "pinyin": "liúxuéshēng",
+          "characters": [
+            "留",
+            "学",
+            "生"
+          ],
+          "alternatePinyin": [
+            "liu2xue2sheng1"
+          ]
+        },
+        {
+          "id": "w-lou2",
+          "prompt": "Gebäude",
+          "pinyin": "lóu",
+          "characters": [
+            "楼"
+          ],
+          "alternatePinyin": [
+            "lou2"
+          ]
+        },
+        {
+          "id": "w-mei2guan1xi5",
+          "prompt": "das macht nichts",
+          "pinyin": "méi guānxi",
+          "characters": [
+            "没",
+            "关",
+            "系"
+          ],
+          "alternatePinyin": [
+            "mei2 guan1xi5"
+          ]
+        },
+        {
+          "id": "w-na3(r5)",
+          "prompt": "wo",
+          "pinyin": "nǎ(r)",
+          "characters": [
+            "哪",
+            "儿"
+          ],
+          "alternatePinyin": [
+            "na3(r5)"
+          ]
+        },
+        {
+          "id": "w-shou3ji1",
+          "prompt": "Handy",
+          "pinyin": "shǒujī",
+          "characters": [
+            "手",
+            "机"
+          ],
+          "alternatePinyin": [
+            "shou3ji1"
+          ]
+        },
+        {
+          "id": "w-su4she4",
+          "prompt": "Studentenwohnheim",
+          "pinyin": "sùshè",
+          "characters": [
+            "宿",
+            "舍"
+          ],
+          "alternatePinyin": [
+            "su4she4"
+          ]
+        },
+        {
+          "id": "w-wang4",
+          "prompt": "vergessen",
+          "pinyin": "wàng",
+          "characters": [
+            "忘"
+          ],
+          "alternatePinyin": [
+            "wang4"
+          ]
+        },
+        {
+          "id": "w-zhu4",
+          "prompt": "wohnen",
+          "pinyin": "zhù",
+          "characters": [
+            "住"
+          ],
+          "alternatePinyin": [
+            "zhu4"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 6,
+      "words": [
+        {
+          "id": "w-dai4fu5",
+          "prompt": "Arzt, Ärztin",
+          "pinyin": "dàifu",
+          "characters": [
+            "大",
+            "夫"
+          ],
+          "alternatePinyin": [
+            "dai4fu5"
+          ]
+        },
+        {
+          "id": "w-di4di5",
+          "prompt": "jüngerer Bruder",
+          "pinyin": "dìdi",
+          "characters": [
+            "弟",
+            "弟"
+          ],
+          "alternatePinyin": [
+            "di4di5"
+          ]
+        },
+        {
+          "id": "w-ge4",
+          "prompt": "(Zähleinheitswort, z.B. für Mensch)",
+          "pinyin": "gè",
+          "characters": [
+            "个"
+          ],
+          "alternatePinyin": [
+            "ge4"
+          ]
+        },
+        {
+          "id": "w-ge1ge5",
+          "prompt": "älterer Bruder",
+          "pinyin": "gēge",
+          "characters": [
+            "哥",
+            "哥"
+          ],
+          "alternatePinyin": [
+            "ge1ge5"
+          ]
+        },
+        {
+          "id": "w-gong1ren2",
+          "prompt": "Arbeiter(in)",
+          "pinyin": "gōngrén",
+          "characters": [
+            "工",
+            "人"
+          ],
+          "alternatePinyin": [
+            "gong1ren2"
+          ]
+        },
+        {
+          "id": "w-gong1zuo4",
+          "prompt": "Arbeit, Beruf",
+          "pinyin": "gōngzuò",
+          "characters": [
+            "工",
+            "作"
+          ],
+          "alternatePinyin": [
+            "gong1zuo4"
+          ]
+        },
+        {
+          "id": "w-he2",
+          "prompt": "und",
+          "pinyin": "hé",
+          "characters": [
+            "和"
+          ],
+          "alternatePinyin": [
+            "he2"
+          ]
+        },
+        {
+          "id": "w-hu4shi5",
+          "prompt": "Krankenschwester",
+          "pinyin": "hùshi",
+          "characters": [
+            "护",
+            "士"
+          ],
+          "alternatePinyin": [
+            "hu4shi5"
+          ]
+        },
+        {
+          "id": "w-jia1",
+          "prompt": "Familie",
+          "pinyin": "jiā",
+          "characters": [
+            "家"
+          ],
+          "alternatePinyin": [
+            "jia1"
+          ]
+        },
+        {
+          "id": "w-jie3jie5",
+          "prompt": "ältere Schwester",
+          "pinyin": "jiějie",
+          "characters": [
+            "姐",
+            "姐"
+          ],
+          "alternatePinyin": [
+            "jie3jie5"
+          ]
+        },
+        {
+          "id": "w-jing3cha2",
+          "prompt": "Polizist(in)",
+          "pinyin": "jǐngchá",
+          "characters": [
+            "警",
+            "察"
+          ],
+          "alternatePinyin": [
+            "jing3cha2"
+          ]
+        },
+        {
+          "id": "w-kong1jie3",
+          "prompt": "Stewardess",
+          "pinyin": "kōngjiě",
+          "characters": [
+            "空",
+            "姐"
+          ],
+          "alternatePinyin": [
+            "kong1jie3"
+          ]
+        },
+        {
+          "id": "w-kou3",
+          "prompt": "Mund (hier Zähleinheitswort für Personen)",
+          "pinyin": "kǒu",
+          "characters": [
+            "口"
+          ],
+          "alternatePinyin": [
+            "kou3"
+          ]
+        },
+        {
+          "id": "w-mei2",
+          "prompt": "nicht",
+          "pinyin": "méi",
+          "characters": [
+            "没"
+          ],
+          "alternatePinyin": [
+            "mei2"
+          ]
+        },
+        {
+          "id": "w-mei4mei5",
+          "prompt": "jüngere Schwester",
+          "pinyin": "mèimei",
+          "characters": [
+            "妹",
+            "妹"
+          ],
+          "alternatePinyin": [
+            "mei4mei5"
+          ]
+        },
+        {
+          "id": "w-xue2sheng5",
+          "prompt": "Schüler(in),Student(in)",
+          "pinyin": "xuésheng",
+          "characters": [
+            "学",
+            "生"
+          ],
+          "alternatePinyin": [
+            "xue2sheng5"
+          ]
+        },
+        {
+          "id": "w-yi1yuan4",
+          "prompt": "Krankenhaus",
+          "pinyin": "yīyuàn",
+          "characters": [
+            "医",
+            "院"
+          ],
+          "alternatePinyin": [
+            "yi1yuan4"
+          ]
+        },
+        {
+          "id": "w-you3",
+          "prompt": "haben, es gibt",
+          "pinyin": "yǒu",
+          "characters": [
+            "有"
+          ],
+          "alternatePinyin": [
+            "you3"
+          ]
+        },
+        {
+          "id": "w-zai4",
+          "prompt": "in, an, auf, sich befinden",
+          "pinyin": "zài",
+          "characters": [
+            "在"
+          ],
+          "alternatePinyin": [
+            "zai4"
+          ]
+        },
+        {
+          "id": "w-zhi3",
+          "prompt": "nur",
+          "pinyin": "zhǐ",
+          "characters": [
+            "只"
+          ],
+          "alternatePinyin": [
+            "zhi3"
+          ]
+        },
+        {
+          "id": "w-zhi2yuan2",
+          "prompt": "Angestellte(r)",
+          "pinyin": "zhíyuán",
+          "characters": [
+            "职",
+            "员"
+          ],
+          "alternatePinyin": [
+            "zhi2yuan2"
+          ]
+        },
+        {
+          "id": "w-zuo4",
+          "prompt": "machen, tun",
+          "pinyin": "zuò",
+          "characters": [
+            "做"
+          ],
+          "alternatePinyin": [
+            "zuo4"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 7,
+      "words": [
+        {
+          "id": "w-a4/a5",
+          "prompt": "ah",
+          "pinyin": "à / a",
+          "characters": [
+            "啊"
+          ],
+          "alternatePinyin": [
+            "a4/a5"
+          ]
+        },
+        {
+          "id": "w-chi1",
+          "prompt": "essen",
+          "pinyin": "chī",
+          "characters": [
+            "吃"
+          ],
+          "alternatePinyin": [
+            "chi1"
+          ]
+        },
+        {
+          "id": "w-chu1sheng1",
+          "prompt": "geboren sein",
+          "pinyin": "chūshēng",
+          "characters": [
+            "出",
+            "生"
+          ],
+          "alternatePinyin": [
+            "chu1sheng1"
+          ]
+        },
+        {
+          "id": "w-da4hou4tian1",
+          "prompt": "überübermorgen",
+          "pinyin": "dà hòutian",
+          "characters": [
+            "大",
+            "后",
+            "天"
+          ],
+          "alternatePinyin": [
+            "da4 hou4tian1"
+          ]
+        },
+        {
+          "id": "w-fan4",
+          "prompt": "Essen, Mahlzeit",
+          "pinyin": "fàn",
+          "characters": [
+            "饭"
+          ],
+          "alternatePinyin": [
+            "fan4"
+          ]
+        },
+        {
+          "id": "w-hao4-2",
+          "prompt": "Datum, Tag (in Datumsangaben)",
+          "pinyin": "hào",
+          "characters": [
+            "号"
+          ],
+          "alternatePinyin": [
+            "hao4"
+          ]
+        },
+        {
+          "id": "w-hou4tian1",
+          "prompt": "übermorgen",
+          "pinyin": "hòutiān",
+          "characters": [
+            "后",
+            "天"
+          ],
+          "alternatePinyin": [
+            "hou4tian1"
+          ]
+        },
+        {
+          "id": "w-jin1tian1",
+          "prompt": "heute",
+          "pinyin": "jīntiān",
+          "characters": [
+            "今",
+            "天"
+          ],
+          "alternatePinyin": [
+            "jin1tian1"
+          ]
+        },
+        {
+          "id": "w-long2",
+          "prompt": "Drache",
+          "pinyin": "lóng",
+          "characters": [
+            "龙"
+          ],
+          "alternatePinyin": [
+            "long2"
+          ]
+        },
+        {
+          "id": "w-ming2tian1-2",
+          "prompt": "morgen",
+          "pinyin": "míngtiān",
+          "characters": [
+            "明",
+            "天"
+          ],
+          "alternatePinyin": [
+            "ming2tian1"
+          ]
+        },
+        {
+          "id": "w-nian2",
+          "prompt": "Jahr",
+          "pinyin": "nián",
+          "characters": [
+            "年"
+          ],
+          "alternatePinyin": [
+            "nian2"
+          ]
+        },
+        {
+          "id": "w-qian2tian1",
+          "prompt": "vorgestern",
+          "pinyin": "qiántiān",
+          "characters": [
+            "前",
+            "天"
+          ],
+          "alternatePinyin": [
+            "qian2tian1"
+          ]
+        },
+        {
+          "id": "w-sheng1ri4",
+          "prompt": "Geburtstag",
+          "pinyin": "shēngrì",
+          "characters": [
+            "生",
+            "日"
+          ],
+          "alternatePinyin": [
+            "sheng1ri4"
+          ]
+        },
+        {
+          "id": "w-shu3",
+          "prompt": "im Jahr des ... geboren sein",
+          "pinyin": "shǔ",
+          "characters": [
+            "属"
+          ],
+          "alternatePinyin": [
+            "shu3"
+          ]
+        },
+        {
+          "id": "w-wan3shang5",
+          "prompt": "Abend, Nacht",
+          "pinyin": "wǎnshang",
+          "characters": [
+            "晚",
+            "上"
+          ],
+          "alternatePinyin": [
+            "wan3shang5"
+          ]
+        },
+        {
+          "id": "w-wo3men5-2",
+          "prompt": "wir, uns",
+          "pinyin": "wǒmen",
+          "characters": [
+            "我",
+            "们"
+          ],
+          "alternatePinyin": [
+            "wo3men5"
+          ]
+        },
+        {
+          "id": "w-xing1qi1",
+          "prompt": "Woche",
+          "pinyin": "xīngqī",
+          "characters": [
+            "星",
+            "期"
+          ],
+          "alternatePinyin": [
+            "xing1qi1"
+          ]
+        },
+        {
+          "id": "w-yi4qi3",
+          "prompt": "zusammen",
+          "pinyin": "yìqǐ",
+          "characters": [
+            "一",
+            "起"
+          ],
+          "alternatePinyin": [
+            "yi4qi3"
+          ]
+        },
+        {
+          "id": "w-yong4",
+          "prompt": "gebrauchen, benutzen",
+          "pinyin": "yòng",
+          "characters": [
+            "用"
+          ],
+          "alternatePinyin": [
+            "yong4"
+          ]
+        },
+        {
+          "id": "w-yue4",
+          "prompt": "Monat",
+          "pinyin": "yuè",
+          "characters": [
+            "月"
+          ],
+          "alternatePinyin": [
+            "yue4"
+          ]
+        },
+        {
+          "id": "w-zuo2tian1",
+          "prompt": "gestern",
+          "pinyin": "zuótiān",
+          "characters": [
+            "昨",
+            "天"
+          ],
+          "alternatePinyin": [
+            "zuo2tian1"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 8,
+      "words": [
+        {
+          "id": "w-ai1ya1",
+          "prompt": "oje",
+          "pinyin": "āiyā",
+          "characters": [
+            "哎",
+            "呀"
+          ],
+          "alternatePinyin": [
+            "ai1ya1"
+          ]
+        },
+        {
+          "id": "w-ban4",
+          "prompt": "halb",
+          "pinyin": "bàn",
+          "characters": [
+            "半"
+          ],
+          "alternatePinyin": [
+            "ban4"
+          ]
+        },
+        {
+          "id": "w-chi1fan4",
+          "prompt": "essen",
+          "pinyin": "chīfàn",
+          "characters": [
+            "吃",
+            "饭"
+          ],
+          "alternatePinyin": [
+            "chi1fan4"
+          ]
+        },
+        {
+          "id": "w-chu1fa1",
+          "prompt": "losfahren",
+          "pinyin": "chūfā",
+          "characters": [
+            "出",
+            "发"
+          ],
+          "alternatePinyin": [
+            "chu1fa1"
+          ]
+        },
+        {
+          "id": "w-dao4",
+          "prompt": "ankommen",
+          "pinyin": "dào",
+          "characters": [
+            "到"
+          ],
+          "alternatePinyin": [
+            "dao4"
+          ]
+        },
+        {
+          "id": "w-dian3",
+          "prompt": "Uhr (Stundenangabe)",
+          "pinyin": "diǎn",
+          "characters": [
+            "点"
+          ],
+          "alternatePinyin": [
+            "dian3"
+          ]
+        },
+        {
+          "id": "w-duan4lian4",
+          "prompt": "Sport treiben",
+          "pinyin": "duànliàn",
+          "characters": [
+            "锻",
+            "炼"
+          ],
+          "alternatePinyin": [
+            "duan4lian4"
+          ]
+        },
+        {
+          "id": "w-fei1ji1",
+          "prompt": "Flugzeug",
+          "pinyin": "fēijī",
+          "characters": [
+            "飞",
+            "机"
+          ],
+          "alternatePinyin": [
+            "fei1ji1"
+          ]
+        },
+        {
+          "id": "w-fen1",
+          "prompt": "Minute",
+          "pinyin": "fēn",
+          "characters": [
+            "分"
+          ],
+          "alternatePinyin": [
+            "fen1"
+          ]
+        },
+        {
+          "id": "w-ha4",
+          "prompt": "weniger als, fehlen",
+          "pinyin": "hà",
+          "characters": [
+            "差"
+          ],
+          "alternatePinyin": [
+            "ha4"
+          ]
+        },
+        {
+          "id": "w-ji1chang3",
+          "prompt": "Flughafen",
+          "pinyin": "jīchǎng",
+          "characters": [
+            "机",
+            "场"
+          ],
+          "alternatePinyin": [
+            "ji1chang3"
+          ]
+        },
+        {
+          "id": "w-ke4",
+          "prompt": "Viertelstunde",
+          "pinyin": "kè",
+          "characters": [
+            "刻"
+          ],
+          "alternatePinyin": [
+            "ke4"
+          ]
+        },
+        {
+          "id": "w-ke4-2",
+          "prompt": "Unterricht",
+          "pinyin": "kè",
+          "characters": [
+            "课"
+          ],
+          "alternatePinyin": [
+            "ke4"
+          ]
+        },
+        {
+          "id": "w-kuai4",
+          "prompt": "schnell",
+          "pinyin": "kuài",
+          "characters": [
+            "快"
+          ],
+          "alternatePinyin": [
+            "kuai4"
+          ]
+        },
+        {
+          "id": "w-lai2",
+          "prompt": "kommen",
+          "pinyin": "lái",
+          "characters": [
+            "来"
+          ],
+          "alternatePinyin": [
+            "lai2"
+          ]
+        },
+        {
+          "id": "w-qi3chuang2",
+          "prompt": "aufstehen",
+          "pinyin": "qǐ chuáng",
+          "characters": [
+            "起",
+            "床"
+          ],
+          "alternatePinyin": [
+            "qi3 chuang2"
+          ]
+        },
+        {
+          "id": "w-qu4",
+          "prompt": "hingehen, gehen",
+          "pinyin": "qù",
+          "characters": [
+            "去"
+          ],
+          "alternatePinyin": [
+            "qu4"
+          ]
+        },
+        {
+          "id": "w-shang4/xia4ke4",
+          "prompt": "Unterricht haben/ den Unterricht beenden",
+          "pinyin": "shàng/xià kè",
+          "characters": [
+            "上",
+            "下",
+            "课"
+          ],
+          "alternatePinyin": [
+            "shang4/xia4 ke4"
+          ]
+        },
+        {
+          "id": "w-shang4wu3",
+          "prompt": "Vormittag",
+          "pinyin": "shàngwǔ",
+          "characters": [
+            "上",
+            "午"
+          ],
+          "alternatePinyin": [
+            "shang4wu3"
+          ]
+        },
+        {
+          "id": "w-xian4zai4",
+          "prompt": "jetzt",
+          "pinyin": "xiànzài",
+          "characters": [
+            "现",
+            "在"
+          ],
+          "alternatePinyin": [
+            "xian4zai4"
+          ]
+        },
+        {
+          "id": "w-xia4wu3",
+          "prompt": "Nachmittag",
+          "pinyin": "xiàwǔ",
+          "characters": [
+            "下",
+            "午"
+          ],
+          "alternatePinyin": [
+            "xia4wu3"
+          ]
+        },
+        {
+          "id": "w-xi3zao3",
+          "prompt": "duschen, baden",
+          "pinyin": "xǐzǎo",
+          "characters": [
+            "洗",
+            "澡"
+          ],
+          "alternatePinyin": [
+            "xi3zao3"
+          ]
+        },
+        {
+          "id": "w-zao3shang5",
+          "prompt": "Morgen, morgens",
+          "pinyin": "zǎoshang",
+          "characters": [
+            "早",
+            "上"
+          ],
+          "alternatePinyin": [
+            "zao3shang5"
+          ]
+        },
+        {
+          "id": "w-zhong1wu3",
+          "prompt": "Vormittag",
+          "pinyin": "zhōngwǔ",
+          "characters": [
+            "中",
+            "午"
+          ],
+          "alternatePinyin": [
+            "zhong1wu3"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 9,
+      "words": [
+        {
+          "id": "w-ceng2",
+          "prompt": "Etage, Stockwerk",
+          "pinyin": "céng",
+          "characters": [
+            "层"
+          ],
+          "alternatePinyin": [
+            "ceng2"
+          ]
+        },
+        {
+          "id": "w-cong2",
+          "prompt": "von",
+          "pinyin": "cóng",
+          "characters": [
+            "从"
+          ],
+          "alternatePinyin": [
+            "cong2"
+          ]
+        },
+        {
+          "id": "w-di4tie3",
+          "prompt": "U-Bahn",
+          "pinyin": "dìtiě",
+          "characters": [
+            "地",
+            "铁"
+          ],
+          "alternatePinyin": [
+            "di4tie3"
+          ]
+        },
+        {
+          "id": "w-fu2wu4yuan2",
+          "prompt": "Bedienungspersonal",
+          "pinyin": "fúwùyuán",
+          "characters": [
+            "服",
+            "务",
+            "员"
+          ],
+          "alternatePinyin": [
+            "fu2wu4yuan2"
+          ]
+        },
+        {
+          "id": "w-guai3",
+          "prompt": "abbiegen",
+          "pinyin": "guǎi",
+          "characters": [
+            "拐"
+          ],
+          "alternatePinyin": [
+            "guai3"
+          ]
+        },
+        {
+          "id": "w-li2",
+          "prompt": "entfernt sein von ...",
+          "pinyin": "lí",
+          "characters": [
+            "离"
+          ],
+          "alternatePinyin": [
+            "li2"
+          ]
+        },
+        {
+          "id": "w-lu4kou3",
+          "prompt": "Straßenecke, Einmündung, Kreuzung",
+          "pinyin": "lùkǒu",
+          "characters": [
+            "路",
+            "口"
+          ],
+          "alternatePinyin": [
+            "lu4kou3"
+          ]
+        },
+        {
+          "id": "w-lu4ren2",
+          "prompt": "Fußgänger(in)",
+          "pinyin": "lùrén",
+          "characters": [
+            "路",
+            "人"
+          ],
+          "alternatePinyin": [
+            "lu4ren2"
+          ]
+        },
+        {
+          "id": "w-qi2ma3",
+          "prompt": "reiten",
+          "pinyin": "qí mǎ",
+          "characters": [
+            "骑",
+            "马"
+          ],
+          "alternatePinyin": [
+            "qi2 ma3"
+          ]
+        },
+        {
+          "id": "w-qi2mo2tuo1che1",
+          "prompt": "mit dem Motorrad",
+          "pinyin": "qí mótuōchē",
+          "characters": [
+            "骑",
+            "摩",
+            "托",
+            "车"
+          ],
+          "alternatePinyin": [
+            "qi2 mo2tuo1che1"
+          ]
+        },
+        {
+          "id": "w-qi2zi4xing2che1",
+          "prompt": "mit dem Fahrrad",
+          "pinyin": "qí zìxíngchē",
+          "characters": [
+            "骑",
+            "自",
+            "行",
+            "车"
+          ],
+          "alternatePinyin": [
+            "qi2 zi4xing2che1"
+          ]
+        },
+        {
+          "id": "w-shi2zi4lu4kou3",
+          "prompt": "Straßenkreuzung",
+          "pinyin": "shízì lùkǒu",
+          "characters": [
+            "十",
+            "字",
+            "路",
+            "口"
+          ],
+          "alternatePinyin": [
+            "shi2zi4 lu4kou3"
+          ]
+        },
+        {
+          "id": "w-wang3",
+          "prompt": "nach",
+          "pinyin": "wǎng",
+          "characters": [
+            "往"
+          ],
+          "alternatePinyin": [
+            "wang3"
+          ]
+        },
+        {
+          "id": "w-zuo4-2",
+          "prompt": "nehmen (Verkehrsmittel)",
+          "pinyin": "zuò",
+          "characters": [
+            "坐"
+          ],
+          "alternatePinyin": [
+            "zuo4"
+          ]
+        },
+        {
+          "id": "w-yi4zhi2",
+          "prompt": "geradeaus",
+          "pinyin": "yìzhí",
+          "characters": [
+            "一",
+            "直"
+          ],
+          "alternatePinyin": [
+            "yi4zhi2"
+          ]
+        },
+        {
+          "id": "w-you4",
+          "prompt": "rechts",
+          "pinyin": "yòu",
+          "characters": [
+            "右"
+          ],
+          "alternatePinyin": [
+            "you4"
+          ]
+        },
+        {
+          "id": "w-yuan3",
+          "prompt": "weit",
+          "pinyin": "yuǎn",
+          "characters": [
+            "远"
+          ],
+          "alternatePinyin": [
+            "yuan3"
+          ]
+        },
+        {
+          "id": "w-zen3me5",
+          "prompt": "wie",
+          "pinyin": "zěnme",
+          "characters": [
+            "怎",
+            "么"
+          ],
+          "alternatePinyin": [
+            "zen3me5"
+          ]
+        },
+        {
+          "id": "w-zhan4",
+          "prompt": "Station, Haltestelle",
+          "pinyin": "zhàn",
+          "characters": [
+            "站"
+          ],
+          "alternatePinyin": [
+            "zhan4"
+          ]
+        },
+        {
+          "id": "w-zher4",
+          "prompt": "hier",
+          "pinyin": "zhèr",
+          "characters": [
+            "这",
+            "儿"
+          ],
+          "alternatePinyin": [
+            "zher4"
+          ]
+        },
+        {
+          "id": "w-zhi1dao5",
+          "prompt": "wissen",
+          "pinyin": "zhīdào",
+          "characters": [
+            "知",
+            "道"
+          ],
+          "alternatePinyin": [
+            "zhi1dao5"
+          ]
+        },
+        {
+          "id": "w-zou3",
+          "prompt": "gehen",
+          "pinyin": "zǒu",
+          "characters": [
+            "走"
+          ],
+          "alternatePinyin": [
+            "zou3"
+          ]
+        },
+        {
+          "id": "w-zuo3",
+          "prompt": "links",
+          "pinyin": "zuǒ",
+          "characters": [
+            "左"
+          ],
+          "alternatePinyin": [
+            "zuo3"
+          ]
+        },
+        {
+          "id": "w-zuo4chuan2",
+          "prompt": "mit dem Schiff",
+          "pinyin": "zuò chuán",
+          "characters": [
+            "坐",
+            "船"
+          ],
+          "alternatePinyin": [
+            "zuo4 chuan2"
+          ]
+        },
+        {
+          "id": "w-zuo4chu1zu1qi4che1",
+          "prompt": "mit dem Taxi",
+          "pinyin": "zuò chūzū qìchē",
+          "characters": [
+            "坐",
+            "出",
+            "租",
+            "汽",
+            "车"
+          ],
+          "alternatePinyin": [
+            "zuo4 chu1zu1 qi4che1"
+          ]
+        },
+        {
+          "id": "w-zuo4di4tie3",
+          "prompt": "mit der U-Bahn",
+          "pinyin": "zuò dìtiě",
+          "characters": [
+            "坐",
+            "地",
+            "铁"
+          ],
+          "alternatePinyin": [
+            "zuo4 di4tie3"
+          ]
+        },
+        {
+          "id": "w-zuo4fei1ji1",
+          "prompt": "mit dem Flugzeug",
+          "pinyin": "zuò fēijī",
+          "characters": [
+            "坐",
+            "飞",
+            "机"
+          ],
+          "alternatePinyin": [
+            "zuo4 fei1ji1"
+          ]
+        },
+        {
+          "id": "w-zuo4gong1gong4qi4che1",
+          "prompt": "mit dem Bus",
+          "pinyin": "zuò gōnggòng qìchē",
+          "characters": [
+            "坐",
+            "公",
+            "共",
+            "汽",
+            "车"
+          ],
+          "alternatePinyin": [
+            "zuo4 gong1gong4 qi4che1"
+          ]
+        },
+        {
+          "id": "w-zuo4huo3che1",
+          "prompt": "mit der Eisenbahn",
+          "pinyin": "zuò huǒchē",
+          "characters": [
+            "坐",
+            "火",
+            "车"
+          ],
+          "alternatePinyin": [
+            "zuo4 huo3che1"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 10,
+      "words": [
+        {
+          "id": "w-bie2de5",
+          "prompt": "anderer, andere, anderes, weitere",
+          "pinyin": "bié de",
+          "characters": [
+            "别",
+            "的"
+          ],
+          "alternatePinyin": [
+            "bie2 de5"
+          ]
+        },
+        {
+          "id": "w-cao3mei2",
+          "prompt": "Erdbeere",
+          "pinyin": "cǎoméi",
+          "characters": [
+            "草",
+            "莓"
+          ],
+          "alternatePinyin": [
+            "cao3mei2"
+          ]
+        },
+        {
+          "id": "w-dai4",
+          "prompt": "Beutel, Tasche",
+          "pinyin": "dài",
+          "characters": [
+            "袋"
+          ],
+          "alternatePinyin": [
+            "dai4"
+          ]
+        },
+        {
+          "id": "w-gei3",
+          "prompt": "geben",
+          "pinyin": "gěi",
+          "characters": [
+            "给"
+          ],
+          "alternatePinyin": [
+            "gei3"
+          ]
+        },
+        {
+          "id": "w-hai2",
+          "prompt": "noch",
+          "pinyin": "hái",
+          "characters": [
+            "还"
+          ],
+          "alternatePinyin": [
+            "hai2"
+          ]
+        },
+        {
+          "id": "w-jin1",
+          "prompt": "Pfund",
+          "pinyin": "jīn",
+          "characters": [
+            "斤"
+          ],
+          "alternatePinyin": [
+            "jin1"
+          ]
+        },
+        {
+          "id": "w-ke3le4",
+          "prompt": "Cola",
+          "pinyin": "kělè",
+          "characters": [
+            "可",
+            "乐"
+          ],
+          "alternatePinyin": [
+            "ke3le4"
+          ]
+        },
+        {
+          "id": "w-kuai4-2",
+          "prompt": "Kuai (chinesische Währungseinheit)",
+          "pinyin": "kuài",
+          "characters": [
+            "块"
+          ],
+          "alternatePinyin": [
+            "kuai4"
+          ]
+        },
+        {
+          "id": "w-li2-2",
+          "prompt": "Birne",
+          "pinyin": "lí",
+          "characters": [
+            "梨"
+          ],
+          "alternatePinyin": [
+            "li2"
+          ]
+        },
+        {
+          "id": "w-mai3",
+          "prompt": "kaufen",
+          "pinyin": "mǎi",
+          "characters": [
+            "买"
+          ],
+          "alternatePinyin": [
+            "mai3"
+          ]
+        },
+        {
+          "id": "w-mai4",
+          "prompt": "verkaufen",
+          "pinyin": "mài",
+          "characters": [
+            "卖"
+          ],
+          "alternatePinyin": [
+            "mai4"
+          ]
+        },
+        {
+          "id": "w-mao2",
+          "prompt": "Mao (chinesische Währungseinheit)",
+          "pinyin": "máo",
+          "characters": [
+            "毛"
+          ],
+          "alternatePinyin": [
+            "mao2"
+          ]
+        },
+        {
+          "id": "w-mian4bao1",
+          "prompt": "Brot",
+          "pinyin": "miànbāo",
+          "characters": [
+            "面",
+            "包"
+          ],
+          "alternatePinyin": [
+            "mian4bao1"
+          ]
+        },
+        {
+          "id": "w-mi2hou2tao2",
+          "prompt": "Kiwi",
+          "pinyin": "míhóutáo",
+          "characters": [
+            "猕",
+            "猴",
+            "桃"
+          ],
+          "alternatePinyin": [
+            "mi2hou2tao2"
+          ]
+        },
+        {
+          "id": "w-niu2nai3",
+          "prompt": "Milch",
+          "pinyin": "niúnǎi",
+          "characters": [
+            "牛",
+            "奶"
+          ],
+          "alternatePinyin": [
+            "niu2nai3"
+          ]
+        },
+        {
+          "id": "w-ping2",
+          "prompt": "Flasche (auch Zähleinheitswort)",
+          "pinyin": "píng",
+          "characters": [
+            "瓶"
+          ],
+          "alternatePinyin": [
+            "ping2"
+          ]
+        },
+        {
+          "id": "w-ping2guo3",
+          "prompt": "Apfel",
+          "pinyin": "píngguǒ",
+          "characters": [
+            "苹",
+            "果"
+          ],
+          "alternatePinyin": [
+            "ping2guo3"
+          ]
+        },
+        {
+          "id": "w-qian2",
+          "prompt": "Geld",
+          "pinyin": "qián",
+          "characters": [
+            "钱"
+          ],
+          "alternatePinyin": [
+            "qian2"
+          ]
+        },
+        {
+          "id": "w-shou4huo4yuan2",
+          "prompt": "Verkäufer(in)",
+          "pinyin": "shòuhuòyuán",
+          "characters": [
+            "售",
+            "货",
+            "员"
+          ],
+          "alternatePinyin": [
+            "shou4huo4yuan2"
+          ]
+        },
+        {
+          "id": "w-te4jia4",
+          "prompt": "Sonderangebot",
+          "pinyin": "tèjià",
+          "characters": [
+            "特",
+            "价"
+          ],
+          "alternatePinyin": [
+            "te4jia4"
+          ]
+        },
+        {
+          "id": "w-xiang1jiao1",
+          "prompt": "Banane",
+          "pinyin": "xiāngjiāo",
+          "characters": [
+            "香",
+            "蕉"
+          ],
+          "alternatePinyin": [
+            "xiang1jiao1"
+          ]
+        },
+        {
+          "id": "w-xi1gua1",
+          "prompt": "Wassermelone",
+          "pinyin": "xīguā",
+          "characters": [
+            "西",
+            "瓜"
+          ],
+          "alternatePinyin": [
+            "xi1gua1"
+          ]
+        },
+        {
+          "id": "w-yao4",
+          "prompt": "wollen, brauchen",
+          "pinyin": "yào",
+          "characters": [
+            "要"
+          ],
+          "alternatePinyin": [
+            "yao4"
+          ]
+        },
+        {
+          "id": "w-yi2gong4",
+          "prompt": "insgesamt",
+          "pinyin": "yígòng",
+          "characters": [
+            "一",
+            "共"
+          ],
+          "alternatePinyin": [
+            "yi2gong4"
+          ]
+        },
+        {
+          "id": "w-zhao3",
+          "prompt": "Wechselgeld herausgeben",
+          "pinyin": "zhǎo",
+          "characters": [
+            "找"
+          ],
+          "alternatePinyin": [
+            "zhao3"
+          ]
+        },
+        {
+          "id": "w-zhe4",
+          "prompt": "dieser, diese, dieses",
+          "pinyin": "zhè",
+          "characters": [
+            "这"
+          ],
+          "alternatePinyin": [
+            "zhe4"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 11,
+      "words": [
+        {
+          "id": "w-bai3",
+          "prompt": "hundert",
+          "pinyin": "bǎi",
+          "characters": [
+            "百"
+          ],
+          "alternatePinyin": [
+            "bai3"
+          ]
+        },
+        {
+          "id": "w-ben3",
+          "prompt": "Heft, Buch",
+          "pinyin": "běn",
+          "characters": [
+            "本"
+          ],
+          "alternatePinyin": [
+            "ben3"
+          ]
+        },
+        {
+          "id": "w-ci2dai4",
+          "prompt": "Kassette",
+          "pinyin": "cídài",
+          "characters": [
+            "磁",
+            "带"
+          ],
+          "alternatePinyin": [
+            "ci2dai4"
+          ]
+        },
+        {
+          "id": "w-ci2dian3",
+          "prompt": "Wörterbuch",
+          "pinyin": "cídiǎn",
+          "characters": [
+            "词",
+            "典"
+          ],
+          "alternatePinyin": [
+            "ci2dian3"
+          ]
+        },
+        {
+          "id": "w-da4gai4",
+          "prompt": "etwa, ungefähr",
+          "pinyin": "dàgài",
+          "characters": [
+            "大",
+            "概"
+          ],
+          "alternatePinyin": [
+            "da4gai4"
+          ]
+        },
+        {
+          "id": "w-dang1ran2",
+          "prompt": "selbstverständlich",
+          "pinyin": "dāngrán",
+          "characters": [
+            "当",
+            "然"
+          ],
+          "alternatePinyin": [
+            "dang1ran2"
+          ]
+        },
+        {
+          "id": "w-duo1",
+          "prompt": "viel, viele",
+          "pinyin": "duō",
+          "characters": [
+            "多"
+          ],
+          "alternatePinyin": [
+            "duo1"
+          ]
+        },
+        {
+          "id": "w-gang1bi3",
+          "prompt": "Füller",
+          "pinyin": "gāngbǐ",
+          "characters": [
+            "钢",
+            "笔"
+          ],
+          "alternatePinyin": [
+            "gang1bi3"
+          ]
+        },
+        {
+          "id": "w-gen1",
+          "prompt": "mit",
+          "pinyin": "gēn",
+          "characters": [
+            "跟"
+          ],
+          "alternatePinyin": [
+            "gen1"
+          ]
+        },
+        {
+          "id": "w-gui4",
+          "prompt": "teuer",
+          "pinyin": "guì",
+          "characters": [
+            "贵"
+          ],
+          "alternatePinyin": [
+            "gui4"
+          ]
+        },
+        {
+          "id": "w-Han4-De2–De2-Han4ci2dian3",
+          "prompt": "Wörterbuch Chinesisch-Deutsch/ Deutsch-Chinesisch",
+          "pinyin": "Hàn-Dé–Dé-Hàn cídiǎn",
+          "characters": [
+            "汉",
+            "德",
+            "德",
+            "汉",
+            "词",
+            "典"
+          ],
+          "alternatePinyin": [
+            "Han4-De2–De2-Han4 ci2dian3"
+          ]
+        },
+        {
+          "id": "w-Han4-Ying1ci2dian3",
+          "prompt": "Wörterbuch Chinesisch-Englisch",
+          "pinyin": "Hàn-Yīng cídiǎn",
+          "characters": [
+            "汉",
+            "英",
+            "词",
+            "典"
+          ],
+          "alternatePinyin": [
+            "Han4-Ying1 ci2dian3"
+          ]
+        },
+        {
+          "id": "w-Han4zi4",
+          "prompt": "chinesisches Schriftzeichen",
+          "pinyin": "Hànzì",
+          "characters": [
+            "汉",
+            "字"
+          ],
+          "alternatePinyin": [
+            "Han4zi4"
+          ]
+        },
+        {
+          "id": "w-lian4xi2",
+          "prompt": "üben, Übung",
+          "pinyin": "liànxí",
+          "characters": [
+            "练",
+            "习"
+          ],
+          "alternatePinyin": [
+            "lian4xi2"
+          ]
+        },
+        {
+          "id": "w-mao2bi3",
+          "prompt": "Pinsel",
+          "pinyin": "máobǐ",
+          "characters": [
+            "毛",
+            "笔"
+          ],
+          "alternatePinyin": [
+            "mao2bi3"
+          ]
+        },
+        {
+          "id": "w-na4bian5",
+          "prompt": "da drüben, dort",
+          "pinyin": "nàbian",
+          "characters": [
+            "那",
+            "边"
+          ],
+          "alternatePinyin": [
+            "na4bian5"
+          ]
+        },
+        {
+          "id": "w-nu3li4",
+          "prompt": "sich große Mühe geben, sich anstrengen",
+          "pinyin": "nǔlì",
+          "characters": [
+            "努",
+            "力"
+          ],
+          "alternatePinyin": [
+            "nu3li4"
+          ]
+        },
+        {
+          "id": "w-qian1bi3",
+          "prompt": "Bleistift",
+          "pinyin": "qiānbǐ",
+          "characters": [
+            "铅",
+            "笔"
+          ],
+          "alternatePinyin": [
+            "qian1bi3"
+          ]
+        },
+        {
+          "id": "w-Ri4-Han4–Han4-Ri4ci2dian3",
+          "prompt": "Wörterbuch Japanisch-Chinesisch/ Chinesisch-Japanisch",
+          "pinyin": "Rì-Hàn–Hàn-Rì cídiǎn",
+          "characters": [
+            "日",
+            "汉",
+            "汉",
+            "日",
+            "词",
+            "典"
+          ],
+          "alternatePinyin": [
+            "Ri4-Han4–Han4-Ri4 ci2dian3"
+          ]
+        },
+        {
+          "id": "w-shu1dian4",
+          "prompt": "Buchhandlung",
+          "pinyin": "shū diàn",
+          "characters": [
+            "书",
+            "店"
+          ],
+          "alternatePinyin": [
+            "shu1 dian4"
+          ]
+        },
+        {
+          "id": "w-tai4",
+          "prompt": "außerordentlich, übermäßig, zu (Gradpartikel)",
+          "pinyin": "tài",
+          "characters": [
+            "太"
+          ],
+          "alternatePinyin": [
+            "tai4"
+          ]
+        },
+        {
+          "id": "w-tian2zi4ge2",
+          "prompt": "karierter Schreibblock (fürs Schreiben chinesischer Schriftzeichen)",
+          "pinyin": "tiánzìgé",
+          "characters": [
+            "田",
+            "字",
+            "格"
+          ],
+          "alternatePinyin": [
+            "tian2zi4ge2"
+          ]
+        },
+        {
+          "id": "w-xiang3",
+          "prompt": "wollen, brauchen",
+          "pinyin": "xiǎng",
+          "characters": [
+            "想"
+          ],
+          "alternatePinyin": [
+            "xiang3"
+          ]
+        },
+        {
+          "id": "w-xiang4pi2",
+          "prompt": "Radiergummi",
+          "pinyin": "xiàngpí",
+          "characters": [
+            "橡",
+            "皮"
+          ],
+          "alternatePinyin": [
+            "xiang4pi2"
+          ]
+        },
+        {
+          "id": "w-yuan2zhu1bi3",
+          "prompt": "Kugelschreiber",
+          "pinyin": "yuánzhūbǐ",
+          "characters": [
+            "圆",
+            "珠",
+            "笔"
+          ],
+          "alternatePinyin": [
+            "yuan2zhu1bi3"
+          ]
+        },
+        {
+          "id": "w-zan2men5",
+          "prompt": "wir, uns",
+          "pinyin": "zánmen",
+          "characters": [
+            "咱",
+            "们"
+          ],
+          "alternatePinyin": [
+            "zan2men5"
+          ]
+        },
+        {
+          "id": "w-zhe4me5",
+          "prompt": "so",
+          "pinyin": "zhème",
+          "characters": [
+            "这",
+            "么"
+          ],
+          "alternatePinyin": [
+            "zhe4me5"
+          ]
+        },
+        {
+          "id": "w-zhong3",
+          "prompt": "Sortiment, Sorte",
+          "pinyin": "zhǒng",
+          "characters": [
+            "种"
+          ],
+          "alternatePinyin": [
+            "zhong3"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 12,
+      "words": [
+        {
+          "id": "w-chuan1",
+          "prompt": "anziehen, tragen",
+          "pinyin": "chuān",
+          "characters": [
+            "穿"
+          ],
+          "alternatePinyin": [
+            "chuan1"
+          ]
+        },
+        {
+          "id": "w-da4",
+          "prompt": "groß",
+          "pinyin": "dà",
+          "characters": [
+            "大"
+          ],
+          "alternatePinyin": [
+            "da4"
+          ]
+        },
+        {
+          "id": "w-hai2shi5",
+          "prompt": "oder",
+          "pinyin": "háishi",
+          "characters": [
+            "还",
+            "是"
+          ],
+          "alternatePinyin": [
+            "hai2shi5"
+          ]
+        },
+        {
+          "id": "w-hao4-3",
+          "prompt": "Größe",
+          "pinyin": "hào",
+          "characters": [
+            "号"
+          ],
+          "alternatePinyin": [
+            "hao4"
+          ]
+        },
+        {
+          "id": "w-hei1",
+          "prompt": "schwarz",
+          "pinyin": "hēi",
+          "characters": [
+            "黑"
+          ],
+          "alternatePinyin": [
+            "hei1"
+          ]
+        },
+        {
+          "id": "w-hei1se4",
+          "prompt": "schwarz",
+          "pinyin": "hēisè",
+          "characters": [
+            "黑",
+            "色"
+          ],
+          "alternatePinyin": [
+            "hei1se4"
+          ]
+        },
+        {
+          "id": "w-he2shi4",
+          "prompt": "passend, gemäß",
+          "pinyin": "héshì",
+          "characters": [
+            "合",
+            "适"
+          ],
+          "alternatePinyin": [
+            "he2shi4"
+          ]
+        },
+        {
+          "id": "w-hong2se4",
+          "prompt": "rot",
+          "pinyin": "hóngsè",
+          "characters": [
+            "红",
+            "色"
+          ],
+          "alternatePinyin": [
+            "hong2se4"
+          ]
+        },
+        {
+          "id": "w-huang2se4",
+          "prompt": "gelb",
+          "pinyin": "huángsè",
+          "characters": [
+            "黄",
+            "色"
+          ],
+          "alternatePinyin": [
+            "huang2se4"
+          ]
+        },
+        {
+          "id": "w-jian4-2",
+          "prompt": "(Zähleinheitswort für Kleidung)",
+          "pinyin": "jiàn",
+          "characters": [
+            "件"
+          ],
+          "alternatePinyin": [
+            "jian4"
+          ]
+        },
+        {
+          "id": "w-ka1fei1se4",
+          "prompt": "braun",
+          "pinyin": "kāfēi sè",
+          "characters": [
+            "咖",
+            "啡",
+            "色"
+          ],
+          "alternatePinyin": [
+            "ka1fei1 se4"
+          ]
+        },
+        {
+          "id": "w-ke3yi3",
+          "prompt": "dürfen, können",
+          "pinyin": "kěyǐ",
+          "characters": [
+            "可",
+            "以"
+          ],
+          "alternatePinyin": [
+            "ke3yi3"
+          ]
+        },
+        {
+          "id": "w-lan2se4",
+          "prompt": "blau",
+          "pinyin": "lánsè",
+          "characters": [
+            "蓝",
+            "色"
+          ],
+          "alternatePinyin": [
+            "lan2se4"
+          ]
+        },
+        {
+          "id": "w-l_se4",
+          "prompt": "grün",
+          "pinyin": "lǜsè",
+          "characters": [
+            "绿",
+            "色"
+          ],
+          "alternatePinyin": [
+            "lv4se4"
+          ]
+        },
+        {
+          "id": "w-mao2yi1",
+          "prompt": "Pullover",
+          "pinyin": "máoyī",
+          "characters": [
+            "毛",
+            "衣"
+          ],
+          "alternatePinyin": [
+            "mao2yi1"
+          ]
+        },
+        {
+          "id": "w-nan2xie2",
+          "prompt": "Herrenschuhe",
+          "pinyin": "nán xié",
+          "characters": [
+            "男",
+            "鞋"
+          ],
+          "alternatePinyin": [
+            "nan2 xie2"
+          ]
+        },
+        {
+          "id": "w-nar4",
+          "prompt": "dort",
+          "pinyin": "nàr",
+          "characters": [
+            "那",
+            "儿"
+          ],
+          "alternatePinyin": [
+            "nar4"
+          ]
+        },
+        {
+          "id": "w-neng2",
+          "prompt": "können",
+          "pinyin": "néng",
+          "characters": [
+            "能"
+          ],
+          "alternatePinyin": [
+            "neng2"
+          ]
+        },
+        {
+          "id": "w-n_3xie2",
+          "prompt": "Damenschuhe",
+          "pinyin": "nǚ xié",
+          "characters": [
+            "女",
+            "鞋"
+          ],
+          "alternatePinyin": [
+            "nv3 xie2"
+          ]
+        },
+        {
+          "id": "w-pian2yi5",
+          "prompt": "billig",
+          "pinyin": "piányi",
+          "characters": [
+            "便",
+            "宜"
+          ],
+          "alternatePinyin": [
+            "pian2yi5"
+          ]
+        },
+        {
+          "id": "w-pi2xie2",
+          "prompt": "Lederschuhe",
+          "pinyin": "píxié",
+          "characters": [
+            "皮",
+            "鞋"
+          ],
+          "alternatePinyin": [
+            "pi2xie2"
+          ]
+        },
+        {
+          "id": "w-qian3lan2se4",
+          "prompt": "hellblau",
+          "pinyin": "qiǎn lánsè",
+          "characters": [
+            "浅",
+            "蓝",
+            "色"
+          ],
+          "alternatePinyin": [
+            "qian3 lan2se4"
+          ]
+        },
+        {
+          "id": "w-shi4-2",
+          "prompt": "anprobieren, probieren, versuchen",
+          "pinyin": "shì",
+          "characters": [
+            "试"
+          ],
+          "alternatePinyin": [
+            "shi4"
+          ]
+        },
+        {
+          "id": "w-shi4yi1jian1",
+          "prompt": "Umkleidekabine",
+          "pinyin": "shì yī jiān",
+          "characters": [
+            "试",
+            "衣",
+            "间"
+          ],
+          "alternatePinyin": [
+            "shi4 yi1 jian1"
+          ]
+        },
+        {
+          "id": "w-shuang1",
+          "prompt": "Paar",
+          "pinyin": "shuāng",
+          "characters": [
+            "双"
+          ],
+          "alternatePinyin": [
+            "shuang1"
+          ]
+        },
+        {
+          "id": "w-xiao3",
+          "prompt": "klein",
+          "pinyin": "xiǎo",
+          "characters": [
+            "小"
+          ],
+          "alternatePinyin": [
+            "xiao3"
+          ]
+        },
+        {
+          "id": "w-xi3huan5",
+          "prompt": "mögen, etwas gerne tun",
+          "pinyin": "xǐhuan",
+          "characters": [
+            "喜",
+            "欢"
+          ],
+          "alternatePinyin": [
+            "xi3huan5"
+          ]
+        },
+        {
+          "id": "w-yan2se4",
+          "prompt": "Farbe",
+          "pinyin": "yánsè",
+          "characters": [
+            "颜",
+            "色"
+          ],
+          "alternatePinyin": [
+            "yan2se4"
+          ]
+        },
+        {
+          "id": "w-yi4dianr3",
+          "prompt": "ein bisschen",
+          "pinyin": "yìdiǎnr",
+          "characters": [
+            "一",
+            "点",
+            "儿"
+          ],
+          "alternatePinyin": [
+            "yi4dianr3"
+          ]
+        },
+        {
+          "id": "w-yi1fu5",
+          "prompt": "Kleidung",
+          "pinyin": "yīfu",
+          "characters": [
+            "衣",
+            "服"
+          ],
+          "alternatePinyin": [
+            "yi1fu5"
+          ]
+        },
+        {
+          "id": "w-you3dianr3",
+          "prompt": "ein bisschen",
+          "pinyin": "yǒudiǎnr",
+          "characters": [
+            "有",
+            "点",
+            "儿"
+          ],
+          "alternatePinyin": [
+            "you3dianr3"
+          ]
+        },
+        {
+          "id": "w-zheng4",
+          "prompt": "richtig",
+          "pinyin": "zhèng",
+          "characters": [
+            "正"
+          ],
+          "alternatePinyin": [
+            "zheng4"
+          ]
+        },
+        {
+          "id": "w-zi3se4",
+          "prompt": "violett",
+          "pinyin": "zǐsè",
+          "characters": [
+            "紫",
+            "色"
+          ],
+          "alternatePinyin": [
+            "zi3se4"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 13,
+      "words": [
+        {
+          "id": "w-bao1zi5",
+          "prompt": "Baozi (gedämpfte Teigtasche mit Füllung)",
+          "pinyin": "bāozi",
+          "characters": [
+            "包",
+            "子"
+          ],
+          "alternatePinyin": [
+            "bao1zi5"
+          ]
+        },
+        {
+          "id": "w-Bei3jing1kao3ya1",
+          "prompt": "Pekingente",
+          "pinyin": "Běijīng kǎoyā",
+          "characters": [
+            "北",
+            "京",
+            "烤",
+            "鸭"
+          ],
+          "alternatePinyin": [
+            "Bei3jing1 kao3ya1"
+          ]
+        },
+        {
+          "id": "w-cai4",
+          "prompt": "Gericht",
+          "pinyin": "cài",
+          "characters": [
+            "菜"
+          ],
+          "alternatePinyin": [
+            "cai4"
+          ]
+        },
+        {
+          "id": "w-chang2chang2",
+          "prompt": "oft",
+          "pinyin": "chángcháng",
+          "characters": [
+            "常",
+            "常"
+          ],
+          "alternatePinyin": [
+            "chang2chang2"
+          ]
+        },
+        {
+          "id": "w-cha1zi5",
+          "prompt": "Löffel",
+          "pinyin": "chāzi",
+          "characters": [
+            "勺",
+            "子"
+          ],
+          "alternatePinyin": [
+            "cha1zi5"
+          ]
+        },
+        {
+          "id": "w-dai4-2",
+          "prompt": "mitbringen, mitnehmen",
+          "pinyin": "dài",
+          "characters": [
+            "带"
+          ],
+          "alternatePinyin": [
+            "dai4"
+          ]
+        },
+        {
+          "id": "w-dao1cha1(zi3)",
+          "prompt": "Messer und Gabel",
+          "pinyin": "dāocha (zǐ)",
+          "characters": [
+            "刀",
+            "叉",
+            "子"
+          ],
+          "alternatePinyin": [
+            "dao1cha1 (zi3)"
+          ]
+        },
+        {
+          "id": "w-gong1bao3ji1ding1",
+          "prompt": "Hühnerfleisch nach Sichuan-Art",
+          "pinyin": "gōngbǎo jīdīng",
+          "characters": [
+            "宫",
+            "保",
+            "鸡",
+            "丁"
+          ],
+          "alternatePinyin": [
+            "gong1bao3 ji1ding1"
+          ]
+        },
+        {
+          "id": "w-he1",
+          "prompt": "trinken",
+          "pinyin": "hē",
+          "characters": [
+            "喝"
+          ],
+          "alternatePinyin": [
+            "he1"
+          ]
+        },
+        {
+          "id": "w-hui4",
+          "prompt": "können",
+          "pinyin": "huì",
+          "characters": [
+            "会"
+          ],
+          "alternatePinyin": [
+            "hui4"
+          ]
+        },
+        {
+          "id": "w-jiao1",
+          "prompt": "lehren",
+          "pinyin": "jiāo",
+          "characters": [
+            "教"
+          ],
+          "alternatePinyin": [
+            "jiao1"
+          ]
+        },
+        {
+          "id": "w-jiao3zi5",
+          "prompt": "Jiaozi (chinesische Maultasche)",
+          "pinyin": "jiǎozi",
+          "characters": [
+            "饺",
+            "子"
+          ],
+          "alternatePinyin": [
+            "jiao3zi5"
+          ]
+        },
+        {
+          "id": "w-ji1dan4",
+          "prompt": "Ei",
+          "pinyin": "jīdàn",
+          "characters": [
+            "鸡",
+            "蛋"
+          ],
+          "alternatePinyin": [
+            "ji1dan4"
+          ]
+        },
+        {
+          "id": "w-jing1jiang4rou4si1",
+          "prompt": "Schweinefleisch in Streifen mit Bohnenpaste",
+          "pinyin": "jīng jiàng ròusī",
+          "characters": [
+            "京",
+            "酱",
+            "肉",
+            "丝"
+          ],
+          "alternatePinyin": [
+            "jing1 jiang4 rou4si1"
+          ]
+        },
+        {
+          "id": "w-jue2de5",
+          "prompt": "meinen, fühlen",
+          "pinyin": "juéde",
+          "characters": [
+            "觉",
+            "得"
+          ],
+          "alternatePinyin": [
+            "jue2de5"
+          ]
+        },
+        {
+          "id": "w-ka1fei1",
+          "prompt": "Kaffee",
+          "pinyin": "kāfēi",
+          "characters": [
+            "咖",
+            "啡"
+          ],
+          "alternatePinyin": [
+            "ka1fei1"
+          ]
+        },
+        {
+          "id": "w-kuai4zi5",
+          "prompt": "Essstäbchen",
+          "pinyin": "kuàizi",
+          "characters": [
+            "筷",
+            "子"
+          ],
+          "alternatePinyin": [
+            "kuai4zi5"
+          ]
+        },
+        {
+          "id": "w-lia3",
+          "prompt": "zwei",
+          "pinyin": "liǎ",
+          "characters": [
+            "俩"
+          ],
+          "alternatePinyin": [
+            "lia3"
+          ]
+        },
+        {
+          "id": "w-man2tou5",
+          "prompt": "Mantou (Dampfbrötchen)",
+          "pinyin": "mántou",
+          "characters": [
+            "馒",
+            "头"
+          ],
+          "alternatePinyin": [
+            "man2tou5"
+          ]
+        },
+        {
+          "id": "w-mian4tiao2",
+          "prompt": "Nudel",
+          "pinyin": "miàntiáo",
+          "characters": [
+            "面",
+            "条"
+          ],
+          "alternatePinyin": [
+            "mian4tiao2"
+          ]
+        },
+        {
+          "id": "w-mi3fan4",
+          "prompt": "Reis",
+          "pinyin": "mǐfàn",
+          "characters": [
+            "米",
+            "饭"
+          ],
+          "alternatePinyin": [
+            "mi3fan4"
+          ]
+        },
+        {
+          "id": "w-nan2",
+          "prompt": "schwierig",
+          "pinyin": "nán",
+          "characters": [
+            "难"
+          ],
+          "alternatePinyin": [
+            "nan2"
+          ]
+        },
+        {
+          "id": "w-rou4",
+          "prompt": "Fleisch",
+          "pinyin": "ròu",
+          "characters": [
+            "肉"
+          ],
+          "alternatePinyin": [
+            "rou4"
+          ]
+        },
+        {
+          "id": "w-shi1fu5",
+          "prompt": "Herr (Anrede für einen Fremden)",
+          "pinyin": "shīfu",
+          "characters": [
+            "师",
+            "傅"
+          ],
+          "alternatePinyin": [
+            "shi1fu5"
+          ]
+        },
+        {
+          "id": "w-shi2tang2",
+          "prompt": "Mensa",
+          "pinyin": "shítáng",
+          "characters": [
+            "食",
+            "堂"
+          ],
+          "alternatePinyin": [
+            "shi2tang2"
+          ]
+        },
+        {
+          "id": "w-tang1",
+          "prompt": "Suppe",
+          "pinyin": "tāng",
+          "characters": [
+            "汤"
+          ],
+          "alternatePinyin": [
+            "tang1"
+          ]
+        },
+        {
+          "id": "w-wan3",
+          "prompt": "Schüssel, Schale",
+          "pinyin": "wǎn",
+          "characters": [
+            "碗"
+          ],
+          "alternatePinyin": [
+            "wan3"
+          ]
+        },
+        {
+          "id": "w-wei4shen2me5",
+          "prompt": "warum",
+          "pinyin": "wèishénme",
+          "characters": [
+            "为",
+            "什",
+            "么"
+          ],
+          "alternatePinyin": [
+            "wei4shen2me5"
+          ]
+        },
+        {
+          "id": "w-yu2xiang1rou4si1",
+          "prompt": "Schweinefleisch mit Ingwer, Knoblauch und Essig",
+          "pinyin": "yúxiāng ròusī",
+          "characters": [
+            "鱼",
+            "香",
+            "肉",
+            "丝"
+          ],
+          "alternatePinyin": [
+            "yu2xiang1 rou4si1"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 14,
+      "words": [
+        {
+          "id": "w-ban4-2",
+          "prompt": "erledigen, besorgen",
+          "pinyin": "bàn",
+          "characters": [
+            "办"
+          ],
+          "alternatePinyin": [
+            "ban4"
+          ]
+        },
+        {
+          "id": "w-bang1",
+          "prompt": "helfen",
+          "pinyin": "bāng",
+          "characters": [
+            "帮"
+          ],
+          "alternatePinyin": [
+            "bang1"
+          ]
+        },
+        {
+          "id": "w-dei3",
+          "prompt": "müssen",
+          "pinyin": "děi",
+          "characters": [
+            "得"
+          ],
+          "alternatePinyin": [
+            "dei3"
+          ]
+        },
+        {
+          "id": "w-deng3",
+          "prompt": "warten",
+          "pinyin": "děng",
+          "characters": [
+            "等"
+          ],
+          "alternatePinyin": [
+            "deng3"
+          ]
+        },
+        {
+          "id": "w-De2wen2",
+          "prompt": "Deutsch",
+          "pinyin": "Déwén",
+          "characters": [
+            "德",
+            "文"
+          ],
+          "alternatePinyin": [
+            "De2wen2"
+          ]
+        },
+        {
+          "id": "w-dui4le5",
+          "prompt": "übrigens",
+          "pinyin": "duì le",
+          "characters": [
+            "对",
+            "了"
+          ],
+          "alternatePinyin": [
+            "dui4 le5"
+          ]
+        },
+        {
+          "id": "w-gong1zuo4zheng4",
+          "prompt": "Dienstausweis",
+          "pinyin": "gōngzuòzhèng",
+          "characters": [
+            "工",
+            "作",
+            "证"
+          ],
+          "alternatePinyin": [
+            "gong1zuo4zheng4"
+          ]
+        },
+        {
+          "id": "w-huan2",
+          "prompt": "zurückgeben",
+          "pinyin": "huán",
+          "characters": [
+            "还"
+          ],
+          "alternatePinyin": [
+            "huan2"
+          ]
+        },
+        {
+          "id": "w-jie4",
+          "prompt": "ausleihen",
+          "pinyin": "jiè",
+          "characters": [
+            "借"
+          ],
+          "alternatePinyin": [
+            "jie4"
+          ]
+        },
+        {
+          "id": "w-ka3",
+          "prompt": "Karte",
+          "pinyin": "kǎ",
+          "characters": [
+            "卡"
+          ],
+          "alternatePinyin": [
+            "ka3"
+          ]
+        },
+        {
+          "id": "w-kan4",
+          "prompt": "besuchen, lesen",
+          "pinyin": "kàn",
+          "characters": [
+            "看"
+          ],
+          "alternatePinyin": [
+            "kan4"
+          ]
+        },
+        {
+          "id": "w-mei2wen4ti2",
+          "prompt": "kein Problem",
+          "pinyin": "méi wèntí",
+          "characters": [
+            "没",
+            "问",
+            "题"
+          ],
+          "alternatePinyin": [
+            "mei2 wen4ti2"
+          ]
+        },
+        {
+          "id": "w-pei2",
+          "prompt": "begleiten",
+          "pinyin": "péi",
+          "characters": [
+            "陪"
+          ],
+          "alternatePinyin": [
+            "pei2"
+          ]
+        },
+        {
+          "id": "w-peng2you5",
+          "prompt": "Freund(in)",
+          "pinyin": "péngyou",
+          "characters": [
+            "朋",
+            "友"
+          ],
+          "alternatePinyin": [
+            "peng2you5"
+          ]
+        },
+        {
+          "id": "w-shang4wang3",
+          "prompt": "im Internet surfen",
+          "pinyin": "shàng wǎng",
+          "characters": [
+            "上",
+            "网"
+          ],
+          "alternatePinyin": [
+            "shang4 wang3"
+          ]
+        },
+        {
+          "id": "w-shen1fen4zheng4",
+          "prompt": "Personalausweis",
+          "pinyin": "shēnfènzhèng",
+          "characters": [
+            "身",
+            "份",
+            "证"
+          ],
+          "alternatePinyin": [
+            "shen1fen4zheng4"
+          ]
+        },
+        {
+          "id": "w-shu1",
+          "prompt": "Buch",
+          "pinyin": "shū",
+          "characters": [
+            "书"
+          ],
+          "alternatePinyin": [
+            "shu1"
+          ]
+        },
+        {
+          "id": "w-shun4bian4",
+          "prompt": "nebenbei",
+          "pinyin": "shùnbiàn",
+          "characters": [
+            "顺",
+            "便"
+          ],
+          "alternatePinyin": [
+            "shun4bian4"
+          ]
+        },
+        {
+          "id": "w-ti4",
+          "prompt": "für",
+          "pinyin": "tì",
+          "characters": [
+            "替"
+          ],
+          "alternatePinyin": [
+            "ti4"
+          ]
+        },
+        {
+          "id": "w-tu2shu1guan3",
+          "prompt": "Bibliothek",
+          "pinyin": "túshūguǎn",
+          "characters": [
+            "图",
+            "书",
+            "馆"
+          ],
+          "alternatePinyin": [
+            "tu2shu1guan3"
+          ]
+        },
+        {
+          "id": "w-xue2sheng5zheng4",
+          "prompt": "Studentenausweis",
+          "pinyin": "xuéshēngzhèng",
+          "characters": [
+            "学",
+            "生",
+            "证"
+          ],
+          "alternatePinyin": [
+            "xue2sheng1zheng4"
+          ]
+        },
+        {
+          "id": "w-yue4lan3shi4",
+          "prompt": "Lesesaal",
+          "pinyin": "yuèlǎn shì",
+          "characters": [
+            "阅",
+            "览",
+            "室"
+          ],
+          "alternatePinyin": [
+            "yue4lan3 shi4"
+          ]
+        },
+        {
+          "id": "w-zhao4pian4",
+          "prompt": "Foto",
+          "pinyin": "zhàopiàn",
+          "characters": [
+            "照",
+            "片"
+          ],
+          "alternatePinyin": [
+            "zhao4pian4"
+          ]
+        },
+        {
+          "id": "w-Zhong1wen2",
+          "prompt": "Chinesisch",
+          "pinyin": "Zhōngwén",
+          "characters": [
+            "中",
+            "文"
+          ],
+          "alternatePinyin": [
+            "Zhong1wen2"
+          ]
+        },
+        {
+          "id": "w-zi4ji3",
+          "prompt": "selbst",
+          "pinyin": "zìjǐ",
+          "characters": [
+            "自",
+            "己"
+          ],
+          "alternatePinyin": [
+            "zi4ji3"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 15,
+      "words": [
+        {
+          "id": "w-cun2zhe2",
+          "prompt": "Sparbuch",
+          "pinyin": "cúnzhé",
+          "characters": [
+            "存",
+            "折"
+          ],
+          "alternatePinyin": [
+            "cun2zhe2"
+          ]
+        },
+        {
+          "id": "w-fang1bian4",
+          "prompt": "angenehm, bequem",
+          "pinyin": "fāngbiàn",
+          "characters": [
+            "方",
+            "便"
+          ],
+          "alternatePinyin": [
+            "fang1bian4"
+          ]
+        },
+        {
+          "id": "w-fu4jin4",
+          "prompt": "in der Nähe",
+          "pinyin": "fùjìn",
+          "characters": [
+            "附",
+            "近"
+          ],
+          "alternatePinyin": [
+            "fu4jin4"
+          ]
+        },
+        {
+          "id": "w-han2yuan2",
+          "prompt": "Won (koreanische Währung)",
+          "pinyin": "hányuán",
+          "characters": [
+            "韩",
+            "元"
+          ],
+          "alternatePinyin": [
+            "han2yuan2"
+          ]
+        },
+        {
+          "id": "w-huan4",
+          "prompt": "wechseln, umtauschen",
+          "pinyin": "huàn",
+          "characters": [
+            "换"
+          ],
+          "alternatePinyin": [
+            "huan4"
+          ]
+        },
+        {
+          "id": "w-hui4l_4",
+          "prompt": "Wechselkurs",
+          "pinyin": "huìlǜ",
+          "characters": [
+            "汇",
+            "率"
+          ],
+          "alternatePinyin": [
+            "hui4lv4"
+          ]
+        },
+        {
+          "id": "w-hu4zhao4",
+          "prompt": "Reisepass",
+          "pinyin": "hùzhào",
+          "characters": [
+            "护",
+            "照"
+          ],
+          "alternatePinyin": [
+            "hu4zhao4"
+          ]
+        },
+        {
+          "id": "w-mei3yuan2",
+          "prompt": "US-Dollar",
+          "pinyin": "měiyuán",
+          "characters": [
+            "美",
+            "元"
+          ],
+          "alternatePinyin": [
+            "mei3yuan2"
+          ]
+        },
+        {
+          "id": "w-mi4ma3",
+          "prompt": "Kennwort",
+          "pinyin": "mìmǎ",
+          "characters": [
+            "密",
+            "码"
+          ],
+          "alternatePinyin": [
+            "mi4ma3"
+          ]
+        },
+        {
+          "id": "w-ou1yuan2",
+          "prompt": "Euro",
+          "pinyin": "ōuyuán",
+          "characters": [
+            "欧",
+            "元"
+          ],
+          "alternatePinyin": [
+            "ou1yuan2"
+          ]
+        },
+        {
+          "id": "w-qian1",
+          "prompt": "unterschreiben",
+          "pinyin": "qiān",
+          "characters": [
+            "签"
+          ],
+          "alternatePinyin": [
+            "qian1"
+          ]
+        },
+        {
+          "id": "w-qian1-2",
+          "prompt": "tausend",
+          "pinyin": "qiān",
+          "characters": [
+            "千"
+          ],
+          "alternatePinyin": [
+            "qian1"
+          ]
+        },
+        {
+          "id": "w-qu3",
+          "prompt": "abheben",
+          "pinyin": "qǔ",
+          "characters": [
+            "取"
+          ],
+          "alternatePinyin": [
+            "qu3"
+          ]
+        },
+        {
+          "id": "w-ren2min2bi4",
+          "prompt": "Renminbi (chinesische Währung)",
+          "pinyin": "rénmínbì",
+          "characters": [
+            "人",
+            "民",
+            "币"
+          ],
+          "alternatePinyin": [
+            "ren2min2bi4"
+          ]
+        },
+        {
+          "id": "w-ri4yuan2",
+          "prompt": "Yen",
+          "pinyin": "rìyuán",
+          "characters": [
+            "日",
+            "元"
+          ],
+          "alternatePinyin": [
+            "ri4yuan2"
+          ]
+        },
+        {
+          "id": "w-shu3-2",
+          "prompt": "zählen",
+          "pinyin": "shǔ",
+          "characters": [
+            "数"
+          ],
+          "alternatePinyin": [
+            "shu3"
+          ]
+        },
+        {
+          "id": "w-shu1ru4",
+          "prompt": "eingeben",
+          "pinyin": "shūrù",
+          "characters": [
+            "输",
+            "入"
+          ],
+          "alternatePinyin": [
+            "shu1ru4"
+          ]
+        },
+        {
+          "id": "w-wai4bian5",
+          "prompt": "draußen",
+          "pinyin": "wàibian",
+          "characters": [
+            "外",
+            "边"
+          ],
+          "alternatePinyin": [
+            "wai4bian5"
+          ]
+        },
+        {
+          "id": "w-wan4",
+          "prompt": "zehntausend",
+          "pinyin": "wàn",
+          "characters": [
+            "万"
+          ],
+          "alternatePinyin": [
+            "wan4"
+          ]
+        },
+        {
+          "id": "w-xian1sheng5",
+          "prompt": "Herr",
+          "pinyin": "xiānsheng",
+          "characters": [
+            "先",
+            "生"
+          ],
+          "alternatePinyin": [
+            "xian1sheng5"
+          ]
+        },
+        {
+          "id": "w-xiao3jie5",
+          "prompt": "Fräulein",
+          "pinyin": "xiǎojiě",
+          "characters": [
+            "小",
+            "姐"
+          ],
+          "alternatePinyin": [
+            "xiao3jie5"
+          ]
+        },
+        {
+          "id": "w-xiao3shi2",
+          "prompt": "Stunde",
+          "pinyin": "xiǎoshí",
+          "characters": [
+            "小",
+            "时"
+          ],
+          "alternatePinyin": [
+            "xiao3shi2"
+          ]
+        },
+        {
+          "id": "w-ying1bang4",
+          "prompt": "Britisches Pfund",
+          "pinyin": "yīngbàng",
+          "characters": [
+            "英",
+            "镑"
+          ],
+          "alternatePinyin": [
+            "ying1bang4"
+          ]
+        },
+        {
+          "id": "w-yin2hang2",
+          "prompt": "Bank",
+          "pinyin": "yínháng",
+          "characters": [
+            "银",
+            "行"
+          ],
+          "alternatePinyin": [
+            "yin2hang2"
+          ]
+        },
+        {
+          "id": "w-yuan2",
+          "prompt": "Yuan (größte Einheit der chinesischen Währung)",
+          "pinyin": "yuán",
+          "characters": [
+            "元"
+          ],
+          "alternatePinyin": [
+            "yuan2"
+          ]
+        },
+        {
+          "id": "w-zi4",
+          "prompt": "Schriftzeichen",
+          "pinyin": "zì",
+          "characters": [
+            "字"
+          ],
+          "alternatePinyin": [
+            "zi4"
+          ]
+        },
+        {
+          "id": "w-zi4dong4qu3kuan3ji1",
+          "prompt": "Geldautomat",
+          "pinyin": "zìdòng qǔkuǎnjī",
+          "characters": [
+            "自",
+            "动",
+            "取",
+            "款",
+            "机"
+          ],
+          "alternatePinyin": [
+            "zi4dong4 qu3kuan3ji1"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 16,
+      "words": [
+        {
+          "id": "w-bao1guo3",
+          "prompt": "Paket",
+          "pinyin": "bāoguǒ",
+          "characters": [
+            "包",
+            "裹"
+          ],
+          "alternatePinyin": [
+            "bao1guo3"
+          ]
+        },
+        {
+          "id": "w-chuang1kou3",
+          "prompt": "Schalter",
+          "pinyin": "chuāngkǒu",
+          "characters": [
+            "窗",
+            "口"
+          ],
+          "alternatePinyin": [
+            "chuang1kou3"
+          ]
+        },
+        {
+          "id": "w-da2",
+          "prompt": "Dutzend",
+          "pinyin": "dá",
+          "characters": [
+            "打"
+          ],
+          "alternatePinyin": [
+            "da2"
+          ]
+        },
+        {
+          "id": "w-dan1",
+          "prompt": "Formular",
+          "pinyin": "dān",
+          "characters": [
+            "单"
+          ],
+          "alternatePinyin": [
+            "dan1"
+          ]
+        },
+        {
+          "id": "w-di4",
+          "prompt": "(Präfix für Ordinalzahlen)",
+          "pinyin": "dì",
+          "characters": [
+            "第"
+          ],
+          "alternatePinyin": [
+            "di4"
+          ]
+        },
+        {
+          "id": "w-gan4",
+          "prompt": "machen, tun, erledigen",
+          "pinyin": "gàn",
+          "characters": [
+            "干"
+          ],
+          "alternatePinyin": [
+            "gan4"
+          ]
+        },
+        {
+          "id": "w-gei3-2",
+          "prompt": "geben",
+          "pinyin": "gěi",
+          "characters": [
+            "给"
+          ],
+          "alternatePinyin": [
+            "gei3"
+          ]
+        },
+        {
+          "id": "w-guo2ji4",
+          "prompt": "international",
+          "pinyin": "guójì",
+          "characters": [
+            "国",
+            "际"
+          ],
+          "alternatePinyin": [
+            "guo2ji4"
+          ]
+        },
+        {
+          "id": "w-han4bao3bao1",
+          "prompt": "Hamburger",
+          "pinyin": "hànbǎobāo",
+          "characters": [
+            "汉",
+            "堡",
+            "包"
+          ],
+          "alternatePinyin": [
+            "han4bao3bao1"
+          ]
+        },
+        {
+          "id": "w-hang2kong1",
+          "prompt": "Luftpost",
+          "pinyin": "hángkōng",
+          "characters": [
+            "航",
+            "空"
+          ],
+          "alternatePinyin": [
+            "hang2kong1"
+          ]
+        },
+        {
+          "id": "w-ji4",
+          "prompt": "schicken, zuschicken, abschicken",
+          "pinyin": "jì",
+          "characters": [
+            "寄"
+          ],
+          "alternatePinyin": [
+            "ji4"
+          ]
+        },
+        {
+          "id": "w-ji4nian4",
+          "prompt": "Gedenken, gedenken",
+          "pinyin": "jìniàn",
+          "characters": [
+            "纪",
+            "念"
+          ],
+          "alternatePinyin": [
+            "ji4nian4"
+          ]
+        },
+        {
+          "id": "w-kan4-2",
+          "prompt": "sehen, ansehen, schauen",
+          "pinyin": "kàn",
+          "characters": [
+            "看"
+          ],
+          "alternatePinyin": [
+            "kan4"
+          ]
+        },
+        {
+          "id": "w-pu3tong1",
+          "prompt": "gewöhnlich, allgemein",
+          "pinyin": "pǔtōng",
+          "characters": [
+            "普",
+            "通"
+          ],
+          "alternatePinyin": [
+            "pu3tong1"
+          ]
+        },
+        {
+          "id": "w-qu3-2",
+          "prompt": "abholen",
+          "pinyin": "qǔ",
+          "characters": [
+            "取"
+          ],
+          "alternatePinyin": [
+            "qu3"
+          ]
+        },
+        {
+          "id": "w-shen2meyang4",
+          "prompt": "Was für ein...?",
+          "pinyin": "shénme yàng",
+          "characters": [
+            "什",
+            "么",
+            "样"
+          ],
+          "alternatePinyin": [
+            "shen2me5 yang4"
+          ]
+        },
+        {
+          "id": "w-xin4feng1",
+          "prompt": "Briefumschlag",
+          "pinyin": "xìnfēng",
+          "characters": [
+            "信",
+            "封"
+          ],
+          "alternatePinyin": [
+            "xin4feng1"
+          ]
+        },
+        {
+          "id": "w-xing2",
+          "prompt": "gut, o.k.",
+          "pinyin": "xíng",
+          "characters": [
+            "行"
+          ],
+          "alternatePinyin": [
+            "xing2"
+          ]
+        },
+        {
+          "id": "w-you2ju2",
+          "prompt": "Postamt",
+          "pinyin": "yóujú",
+          "characters": [
+            "邮",
+            "局"
+          ],
+          "alternatePinyin": [
+            "you2ju2"
+          ]
+        },
+        {
+          "id": "w-you2piao4",
+          "prompt": "Briefmarke",
+          "pinyin": "yóupiào",
+          "characters": [
+            "邮",
+            "票"
+          ],
+          "alternatePinyin": [
+            "you2piao4"
+          ]
+        },
+        {
+          "id": "w-zhang1",
+          "prompt": "(Zähleinheitswort für Papier)",
+          "pinyin": "zhāng",
+          "characters": [
+            "张"
+          ],
+          "alternatePinyin": [
+            "zhang1"
+          ]
+        },
+        {
+          "id": "w-zuo3bian5",
+          "prompt": "links",
+          "pinyin": "zuǒbian",
+          "characters": [
+            "左",
+            "边"
+          ],
+          "alternatePinyin": [
+            "zuo3bian5"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 17,
+      "words": [
+        {
+          "id": "w-bing1xiang1",
+          "prompt": "Kühlschrank",
+          "pinyin": "bīngxiāng",
+          "characters": [
+            "冰",
+            "箱"
+          ],
+          "alternatePinyin": [
+            "bing1xiang1"
+          ]
+        },
+        {
+          "id": "w-chao1shi4",
+          "prompt": "Supermarkt",
+          "pinyin": "chāoshì",
+          "characters": [
+            "超",
+            "市"
+          ],
+          "alternatePinyin": [
+            "chao1shi4"
+          ]
+        },
+        {
+          "id": "w-chuang2",
+          "prompt": "Bett",
+          "pinyin": "chuáng",
+          "characters": [
+            "床"
+          ],
+          "alternatePinyin": [
+            "chuang2"
+          ]
+        },
+        {
+          "id": "w-chu2fang2",
+          "prompt": "Küche",
+          "pinyin": "chúfáng",
+          "characters": [
+            "厨",
+            "房"
+          ],
+          "alternatePinyin": [
+            "chu2fang2"
+          ]
+        },
+        {
+          "id": "w-dian4shi4",
+          "prompt": "Fernseher",
+          "pinyin": "diànshì",
+          "characters": [
+            "电",
+            "视"
+          ],
+          "alternatePinyin": [
+            "dian4shi4"
+          ]
+        },
+        {
+          "id": "w-dong1bian5",
+          "prompt": "östlich",
+          "pinyin": "dōngbian",
+          "characters": [
+            "东",
+            "边"
+          ],
+          "alternatePinyin": [
+            "dong1bian5"
+          ]
+        },
+        {
+          "id": "w-fang2zi5",
+          "prompt": "Haus, Wohnung",
+          "pinyin": "fángzi",
+          "characters": [
+            "房",
+            "子"
+          ],
+          "alternatePinyin": [
+            "fang2zi5"
+          ]
+        },
+        {
+          "id": "w-fang2zu1",
+          "prompt": "Miete",
+          "pinyin": "fángzū",
+          "characters": [
+            "房",
+            "租"
+          ],
+          "alternatePinyin": [
+            "fang2zu1"
+          ]
+        },
+        {
+          "id": "w-gong1yuan2",
+          "prompt": "Park",
+          "pinyin": "gōngyuán",
+          "characters": [
+            "公",
+            "园"
+          ],
+          "alternatePinyin": [
+            "gong1yuan2"
+          ]
+        },
+        {
+          "id": "w-huan2jing4",
+          "prompt": "Umgebung",
+          "pinyin": "huánjìng",
+          "characters": [
+            "环",
+            "境"
+          ],
+          "alternatePinyin": [
+            "huan2jing4"
+          ]
+        },
+        {
+          "id": "w-jiu4",
+          "prompt": "also, bereits, schon",
+          "pinyin": "jiù",
+          "characters": [
+            "就"
+          ],
+          "alternatePinyin": [
+            "jiu4"
+          ]
+        },
+        {
+          "id": "w-kao3l_4",
+          "prompt": "überlegen, nachdenken",
+          "pinyin": "kǎolǜ",
+          "characters": [
+            "考",
+            "虑"
+          ],
+          "alternatePinyin": [
+            "kao3lv4"
+          ]
+        },
+        {
+          "id": "w-ke4ting1(ting1)",
+          "prompt": "Wohnzimmer",
+          "pinyin": "kètīng (tīng)",
+          "characters": [
+            "客",
+            "厅",
+            "厅"
+          ],
+          "alternatePinyin": [
+            "ke4ting1 (ting1)"
+          ]
+        },
+        {
+          "id": "w-kong1tiao2",
+          "prompt": "Klimaanlage",
+          "pinyin": "kōngtiáo",
+          "characters": [
+            "空",
+            "调"
+          ],
+          "alternatePinyin": [
+            "kong1tiao2"
+          ]
+        },
+        {
+          "id": "w-nan2bian5",
+          "prompt": "südlich",
+          "pinyin": "nánbian",
+          "characters": [
+            "南",
+            "边"
+          ],
+          "alternatePinyin": [
+            "nan2bian5"
+          ]
+        },
+        {
+          "id": "w-pang2bian1",
+          "prompt": "neben",
+          "pinyin": "pángbiān",
+          "characters": [
+            "旁",
+            "边"
+          ],
+          "alternatePinyin": [
+            "pang2bian1"
+          ]
+        },
+        {
+          "id": "w-shu1zhuo1",
+          "prompt": "Schreibtisch",
+          "pinyin": "shūzhuō",
+          "characters": [
+            "书",
+            "桌"
+          ],
+          "alternatePinyin": [
+            "shu1zhuo1"
+          ]
+        },
+        {
+          "id": "w-tao4",
+          "prompt": "Satz",
+          "pinyin": "tào",
+          "characters": [
+            "套"
+          ],
+          "alternatePinyin": [
+            "tao4"
+          ]
+        },
+        {
+          "id": "w-wei4sheng1jian1(wei4)",
+          "prompt": "Badezimmer",
+          "pinyin": "wèishēngjiān (wèi)",
+          "characters": [
+            "卫",
+            "生",
+            "间",
+            "卫"
+          ],
+          "alternatePinyin": [
+            "wei4sheng1jian1 (wei4)"
+          ]
+        },
+        {
+          "id": "w-wo4shi4(shi4)",
+          "prompt": "Schlafzimmer",
+          "pinyin": "wòshì (shì)",
+          "characters": [
+            "卧",
+            "室",
+            "室"
+          ],
+          "alternatePinyin": [
+            "wo4shi4 (shi4)"
+          ]
+        },
+        {
+          "id": "w-xiao3qu1",
+          "prompt": "Nachbarschaft, Wohngegend",
+          "pinyin": "xiǎoqū",
+          "characters": [
+            "小",
+            "区"
+          ],
+          "alternatePinyin": [
+            "xiao3qu1"
+          ]
+        },
+        {
+          "id": "w-xi3yi1ji1",
+          "prompt": "Waschmaschine",
+          "pinyin": "xǐyījī",
+          "characters": [
+            "洗",
+            "衣",
+            "机"
+          ],
+          "alternatePinyin": [
+            "xi3yi1ji1"
+          ]
+        },
+        {
+          "id": "w-xue2xiao4",
+          "prompt": "Schule",
+          "pinyin": "xuéxiào",
+          "characters": [
+            "学",
+            "校"
+          ],
+          "alternatePinyin": [
+            "xue2xiao4"
+          ]
+        },
+        {
+          "id": "w-yi1gui4",
+          "prompt": "Kleiderschrank",
+          "pinyin": "yīguì",
+          "characters": [
+            "衣",
+            "柜"
+          ],
+          "alternatePinyin": [
+            "yi1gui4"
+          ]
+        },
+        {
+          "id": "w-ying1gai1",
+          "prompt": "sollen",
+          "pinyin": "yīnggāi",
+          "characters": [
+            "应",
+            "该"
+          ],
+          "alternatePinyin": [
+            "ying1gai1"
+          ]
+        },
+        {
+          "id": "w-yi3zi5",
+          "prompt": "Stuhl",
+          "pinyin": "yǐzi",
+          "characters": [
+            "椅",
+            "子"
+          ],
+          "alternatePinyin": [
+            "yi3zi5"
+          ]
+        },
+        {
+          "id": "w-yun4dong4chang3",
+          "prompt": "Sportplatz",
+          "pinyin": "yùndòngchǎng",
+          "characters": [
+            "运",
+            "动",
+            "场"
+          ],
+          "alternatePinyin": [
+            "yun4dong4chang3"
+          ]
+        },
+        {
+          "id": "w-zen3meyang4",
+          "prompt": "wie, wie wäre es ...",
+          "pinyin": "zěnmeyang",
+          "characters": [
+            "怎",
+            "么",
+            "样"
+          ],
+          "alternatePinyin": [
+            "zen3me5yang4"
+          ]
+        },
+        {
+          "id": "w-zu1",
+          "prompt": "mieten",
+          "pinyin": "zū",
+          "characters": [
+            "租"
+          ],
+          "alternatePinyin": [
+            "zu1"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 18,
+      "words": [
+        {
+          "id": "w-bing4",
+          "prompt": "Krankheit, krank",
+          "pinyin": "bìng",
+          "characters": [
+            "病"
+          ],
+          "alternatePinyin": [
+            "bing4"
+          ]
+        },
+        {
+          "id": "w-du4",
+          "prompt": "Grad",
+          "pinyin": "dù",
+          "characters": [
+            "度"
+          ],
+          "alternatePinyin": [
+            "du4"
+          ]
+        },
+        {
+          "id": "w-du4zi5teng2",
+          "prompt": "Bauchschmerzen",
+          "pinyin": "dùziténg",
+          "characters": [
+            "肚",
+            "子",
+            "疼"
+          ],
+          "alternatePinyin": [
+            "du4zi5teng2"
+          ]
+        },
+        {
+          "id": "w-fa1shao1(shao1)",
+          "prompt": "Fieber haben",
+          "pinyin": "fā shāo (shāo)",
+          "characters": [
+            "发",
+            "烧",
+            "烧"
+          ],
+          "alternatePinyin": [
+            "fa1 shao1 (shao1)"
+          ]
+        },
+        {
+          "id": "w-gan3mao4",
+          "prompt": "Erkältung",
+          "pinyin": "gǎnmào",
+          "characters": [
+            "感",
+            "冒"
+          ],
+          "alternatePinyin": [
+            "gan3mao4"
+          ]
+        },
+        {
+          "id": "w-gu3zhe2",
+          "prompt": "Knochenbruch",
+          "pinyin": "gǔzhé",
+          "characters": [
+            "骨",
+            "折"
+          ],
+          "alternatePinyin": [
+            "gu3zhe2"
+          ]
+        },
+        {
+          "id": "w-kai1yao4",
+          "prompt": "verschreiben",
+          "pinyin": "kāi yào",
+          "characters": [
+            "开",
+            "药"
+          ],
+          "alternatePinyin": [
+            "kai1 yao4"
+          ]
+        },
+        {
+          "id": "w-ke3neng2",
+          "prompt": "wahrscheinlich, vielleicht, es könnte sein",
+          "pinyin": "kěnéng",
+          "characters": [
+            "可",
+            "能"
+          ],
+          "alternatePinyin": [
+            "ke3neng2"
+          ]
+        },
+        {
+          "id": "w-liang2",
+          "prompt": "kühl, kalt",
+          "pinyin": "liáng",
+          "characters": [
+            "凉"
+          ],
+          "alternatePinyin": [
+            "liang2"
+          ]
+        },
+        {
+          "id": "w-sang3zi5",
+          "prompt": "Hals",
+          "pinyin": "sǎngzi",
+          "characters": [
+            "嗓",
+            "子"
+          ],
+          "alternatePinyin": [
+            "sang3zi5"
+          ]
+        },
+        {
+          "id": "w-shu1fu5",
+          "prompt": "sich wohlfühlen, angenehm, gemütlich",
+          "pinyin": "shūfu",
+          "characters": [
+            "舒",
+            "服"
+          ],
+          "alternatePinyin": [
+            "shu1fu5"
+          ]
+        },
+        {
+          "id": "w-shui3",
+          "prompt": "Wasser",
+          "pinyin": "shuǐ",
+          "characters": [
+            "水"
+          ],
+          "alternatePinyin": [
+            "shui3"
+          ]
+        },
+        {
+          "id": "w-shui4jiao4",
+          "prompt": "schlafen, Schlaf",
+          "pinyin": "shuìjiào",
+          "characters": [
+            "睡"
+          ],
+          "alternatePinyin": [
+            "shui4jiao4"
+          ]
+        },
+        {
+          "id": "w-teng2",
+          "prompt": "Schmerz",
+          "pinyin": "téng",
+          "characters": [
+            "疼"
+          ],
+          "alternatePinyin": [
+            "teng2"
+          ]
+        },
+        {
+          "id": "w-ti3wen1biao3",
+          "prompt": "Thermometer",
+          "pinyin": "tǐwēn biǎo",
+          "characters": [
+            "体",
+            "温",
+            "表"
+          ],
+          "alternatePinyin": [
+            "ti3wen1 biao3"
+          ]
+        },
+        {
+          "id": "w-tou2",
+          "prompt": "Kopf",
+          "pinyin": "tóu",
+          "characters": [
+            "头"
+          ],
+          "alternatePinyin": [
+            "tou2"
+          ]
+        },
+        {
+          "id": "w-xiu1xi5",
+          "prompt": "sich erholen, Pause machen",
+          "pinyin": "xiūxi",
+          "characters": [
+            "休",
+            "息"
+          ],
+          "alternatePinyin": [
+            "xiu1xi5"
+          ]
+        },
+        {
+          "id": "w-xi1yao4",
+          "prompt": "westliche Medizin",
+          "pinyin": "xīyào",
+          "characters": [
+            "西",
+            "药"
+          ],
+          "alternatePinyin": [
+            "xi1yao4"
+          ]
+        },
+        {
+          "id": "w-yan2zhong4",
+          "prompt": "kritisch, ernst",
+          "pinyin": "yánzhòng",
+          "characters": [
+            "严",
+            "重"
+          ],
+          "alternatePinyin": [
+            "yan2zhong4"
+          ]
+        },
+        {
+          "id": "w-yao4-2",
+          "prompt": "Medikament",
+          "pinyin": "yào",
+          "characters": [
+            "药"
+          ],
+          "alternatePinyin": [
+            "yao4"
+          ]
+        },
+        {
+          "id": "w-yao4fang1",
+          "prompt": "Rezept",
+          "pinyin": "yàofāng",
+          "characters": [
+            "药",
+            "方"
+          ],
+          "alternatePinyin": [
+            "yao4fang1"
+          ]
+        },
+        {
+          "id": "w-yao4fang2",
+          "prompt": "Apotheke",
+          "pinyin": "yàofáng",
+          "characters": [
+            "药",
+            "房"
+          ],
+          "alternatePinyin": [
+            "yao4fang2"
+          ]
+        },
+        {
+          "id": "w-yao4jin3",
+          "prompt": "wichtig",
+          "pinyin": "yàojǐn",
+          "characters": [
+            "要",
+            "紧"
+          ],
+          "alternatePinyin": [
+            "yao4jin3"
+          ]
+        },
+        {
+          "id": "w-ya2teng2",
+          "prompt": "Zahnschmerzen",
+          "pinyin": "yáténg",
+          "characters": [
+            "牙",
+            "疼"
+          ],
+          "alternatePinyin": [
+            "ya2teng2"
+          ]
+        },
+        {
+          "id": "w-you2yong3",
+          "prompt": "schwimmen",
+          "pinyin": "yóuyǒng",
+          "characters": [
+            "游",
+            "泳"
+          ],
+          "alternatePinyin": [
+            "you2yong3"
+          ]
+        },
+        {
+          "id": "w-zhong1yao4",
+          "prompt": "chinesische Medizin",
+          "pinyin": "zhōngyào",
+          "characters": [
+            "中",
+            "药"
+          ],
+          "alternatePinyin": [
+            "zhong1yao4"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 19,
+      "words": [
+        {
+          "id": "w-bie2",
+          "prompt": "nicht",
+          "pinyin": "bié",
+          "characters": [
+            "别"
+          ],
+          "alternatePinyin": [
+            "bie2"
+          ]
+        },
+        {
+          "id": "w-bi2zi5",
+          "prompt": "Nase",
+          "pinyin": "bízi",
+          "characters": [
+            "鼻",
+            "子"
+          ],
+          "alternatePinyin": [
+            "bi2zi5"
+          ]
+        },
+        {
+          "id": "w-chui1feng1",
+          "prompt": "trocknen, föhnen",
+          "pinyin": "chuī fēng",
+          "characters": [
+            "吹",
+            "风"
+          ],
+          "alternatePinyin": [
+            "chui1 feng1"
+          ]
+        },
+        {
+          "id": "w-duan3",
+          "prompt": "kurz",
+          "pinyin": "duǎn",
+          "characters": [
+            "短"
+          ],
+          "alternatePinyin": [
+            "duan3"
+          ]
+        },
+        {
+          "id": "w-gen1…yi2yang4",
+          "prompt": "gleich wie …",
+          "pinyin": "gēn … yíyàng",
+          "characters": [
+            "跟",
+            "一",
+            "样"
+          ],
+          "alternatePinyin": [
+            "gen1 … yi2yang4"
+          ]
+        },
+        {
+          "id": "w-guang1lin2",
+          "prompt": "besuchen, kommen",
+          "pinyin": "guānglín",
+          "characters": [
+            "光",
+            "临"
+          ],
+          "alternatePinyin": [
+            "guang1lin2"
+          ]
+        },
+        {
+          "id": "w-Han4yu3",
+          "prompt": "Chinesisch",
+          "pinyin": "Hànyǔ",
+          "characters": [
+            "汉",
+            "语"
+          ],
+          "alternatePinyin": [
+            "Han4yu3"
+          ]
+        },
+        {
+          "id": "w-hou4bian5",
+          "prompt": "hinten, hinter",
+          "pinyin": "hòubian",
+          "characters": [
+            "后",
+            "边"
+          ],
+          "alternatePinyin": [
+            "hou4bian5"
+          ]
+        },
+        {
+          "id": "w-huang2",
+          "prompt": "gelb",
+          "pinyin": "huáng",
+          "characters": [
+            "黄"
+          ],
+          "alternatePinyin": [
+            "huang2"
+          ]
+        },
+        {
+          "id": "w-huan1ying2",
+          "prompt": "Willkommen, willkommen heißen",
+          "pinyin": "huānyíng",
+          "characters": [
+            "欢",
+            "迎"
+          ],
+          "alternatePinyin": [
+            "huan1ying2"
+          ]
+        },
+        {
+          "id": "w-jian3",
+          "prompt": "schneiden",
+          "pinyin": "jiǎn",
+          "characters": [
+            "剪"
+          ],
+          "alternatePinyin": [
+            "jian3"
+          ]
+        },
+        {
+          "id": "w-jie1fa4",
+          "prompt": "die Haare verlängern",
+          "pinyin": "jiēfà",
+          "characters": [
+            "接",
+            "发"
+          ],
+          "alternatePinyin": [
+            "jie1fa4"
+          ]
+        },
+        {
+          "id": "w-kai1wan2xiao4",
+          "prompt": "Witze machen",
+          "pinyin": "kāi wánxiào",
+          "characters": [
+            "开",
+            "玩",
+            "笑"
+          ],
+          "alternatePinyin": [
+            "kai1 wan2xiao4"
+          ]
+        },
+        {
+          "id": "w-ke3shi4",
+          "prompt": "aber",
+          "pinyin": "kěshì",
+          "characters": [
+            "可",
+            "是"
+          ],
+          "alternatePinyin": [
+            "ke3shi4"
+          ]
+        },
+        {
+          "id": "w-la1zhi2",
+          "prompt": "die Haare glätten",
+          "pinyin": "lāzhí",
+          "characters": [
+            "拉",
+            "直"
+          ],
+          "alternatePinyin": [
+            "la1zhi2"
+          ]
+        },
+        {
+          "id": "w-li3fa4",
+          "prompt": "die Haare schneiden",
+          "pinyin": "lǐfà",
+          "characters": [
+            "理",
+            "发"
+          ],
+          "alternatePinyin": [
+            "li3fa4"
+          ]
+        },
+        {
+          "id": "w-li3fa4shi1",
+          "prompt": "Friseur(in)",
+          "pinyin": "lǐfàshī",
+          "characters": [
+            "理",
+            "发",
+            "师"
+          ],
+          "alternatePinyin": [
+            "li3fa4shi1"
+          ]
+        },
+        {
+          "id": "w-qian2bian5",
+          "prompt": "vorne, vor",
+          "pinyin": "qiánbian",
+          "characters": [
+            "前",
+            "边"
+          ],
+          "alternatePinyin": [
+            "qian2bian5"
+          ]
+        },
+        {
+          "id": "w-ran3fa4",
+          "prompt": "die Haare färben",
+          "pinyin": "rǎnfà",
+          "characters": [
+            "染",
+            "发"
+          ],
+          "alternatePinyin": [
+            "ran3fa4"
+          ]
+        },
+        {
+          "id": "w-rong2yi4",
+          "prompt": "leicht, einfach",
+          "pinyin": "róngyì",
+          "characters": [
+            "容",
+            "易"
+          ],
+          "alternatePinyin": [
+            "rong2yi4"
+          ]
+        },
+        {
+          "id": "w-shui3ping2",
+          "prompt": "Niveau",
+          "pinyin": "shuǐpíng",
+          "characters": [
+            "水",
+            "平"
+          ],
+          "alternatePinyin": [
+            "shui3ping2"
+          ]
+        },
+        {
+          "id": "w-tang4fa4",
+          "prompt": "sich eine Dauerwelle machen lassen",
+          "pinyin": "tàngfà",
+          "characters": [
+            "烫",
+            "发"
+          ],
+          "alternatePinyin": [
+            "tang4fa4"
+          ]
+        },
+        {
+          "id": "w-tiao3ran3",
+          "prompt": "Strähnen färben",
+          "pinyin": "tiǎorǎn",
+          "characters": [
+            "挑",
+            "染"
+          ],
+          "alternatePinyin": [
+            "tiao3ran3"
+          ]
+        },
+        {
+          "id": "w-tou2fa5",
+          "prompt": "Haar",
+          "pinyin": "tóufa",
+          "characters": [
+            "头",
+            "发"
+          ],
+          "alternatePinyin": [
+            "tou2fa5"
+          ]
+        },
+        {
+          "id": "w-xi3",
+          "prompt": "waschen",
+          "pinyin": "xǐ",
+          "characters": [
+            "洗"
+          ],
+          "alternatePinyin": [
+            "xi3"
+          ]
+        },
+        {
+          "id": "w-yang4",
+          "prompt": "Form, Stil",
+          "pinyin": "yàng",
+          "characters": [
+            "样"
+          ],
+          "alternatePinyin": [
+            "yang4"
+          ]
+        },
+        {
+          "id": "w-yan3jing5",
+          "prompt": "Auge",
+          "pinyin": "yǎnjing",
+          "characters": [
+            "眼",
+            "睛"
+          ],
+          "alternatePinyin": [
+            "yan3jing5"
+          ]
+        },
+        {
+          "id": "w-zai4-2",
+          "prompt": "wieder, noch einmal",
+          "pinyin": "zài",
+          "characters": [
+            "再"
+          ],
+          "alternatePinyin": [
+            "zai4"
+          ]
+        },
+        {
+          "id": "w-zheng3rong2",
+          "prompt": "Schönheitsoperation",
+          "pinyin": "zhěngróng",
+          "characters": [
+            "整",
+            "容"
+          ],
+          "alternatePinyin": [
+            "zheng3rong2"
+          ]
+        },
+        {
+          "id": "w-zuo4-3",
+          "prompt": "sich hinsetzen, sitzen",
+          "pinyin": "zuò",
+          "characters": [
+            "坐"
+          ],
+          "alternatePinyin": [
+            "zuo4"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 20,
+      "words": [
+        {
+          "id": "w-cha4",
+          "prompt": "schlecht",
+          "pinyin": "chà",
+          "characters": [
+            "差"
+          ],
+          "alternatePinyin": [
+            "cha4"
+          ]
+        },
+        {
+          "id": "w-de5",
+          "prompt": "müssen (Strukturpartikel)",
+          "pinyin": "de",
+          "characters": [
+            "得"
+          ],
+          "alternatePinyin": [
+            "de5"
+          ]
+        },
+        {
+          "id": "w-fa1yin1",
+          "prompt": "aussprechen",
+          "pinyin": "fāyīn",
+          "characters": [
+            "发",
+            "音"
+          ],
+          "alternatePinyin": [
+            "fa1yin1"
+          ]
+        },
+        {
+          "id": "w-fei1chang2",
+          "prompt": "sehr, außerordentlich",
+          "pinyin": "fēicháng",
+          "characters": [
+            "非",
+            "常"
+          ],
+          "alternatePinyin": [
+            "fei1chang2"
+          ]
+        },
+        {
+          "id": "w-hao3jiu3",
+          "prompt": "eine lange Zeit",
+          "pinyin": "hǎojiǔ",
+          "characters": [
+            "好",
+            "久"
+          ],
+          "alternatePinyin": [
+            "hao3jiu3"
+          ]
+        },
+        {
+          "id": "w-jie2",
+          "prompt": "(Zähleinheitswort für Unterrichtsstunde)",
+          "pinyin": "jié",
+          "characters": [
+            "节"
+          ],
+          "alternatePinyin": [
+            "jie2"
+          ]
+        },
+        {
+          "id": "w-kou3yu3",
+          "prompt": "gesprochene Sprache",
+          "pinyin": "kǒuyǔ",
+          "characters": [
+            "口",
+            "语"
+          ],
+          "alternatePinyin": [
+            "kou3yu3"
+          ]
+        },
+        {
+          "id": "w-lei4",
+          "prompt": "erschöpft, müde",
+          "pinyin": "lèi",
+          "characters": [
+            "累"
+          ],
+          "alternatePinyin": [
+            "lei4"
+          ]
+        },
+        {
+          "id": "w-liao2tian1",
+          "prompt": "plaudern, sich unterhalten",
+          "pinyin": "liáotiān",
+          "characters": [
+            "聊",
+            "天"
+          ],
+          "alternatePinyin": [
+            "liao2tian1"
+          ]
+        },
+        {
+          "id": "w-liu2li4",
+          "prompt": "fließend",
+          "pinyin": "liúlì",
+          "characters": [
+            "流",
+            "利"
+          ],
+          "alternatePinyin": [
+            "liu2li4"
+          ]
+        },
+        {
+          "id": "w-mang2",
+          "prompt": "beschäftigt",
+          "pinyin": "máng",
+          "characters": [
+            "忙"
+          ],
+          "alternatePinyin": [
+            "mang2"
+          ]
+        },
+        {
+          "id": "w-na3li5",
+          "prompt": "ach was (höfliche Reaktion auf ein Kompliment)",
+          "pinyin": "nǎlǐ",
+          "characters": [
+            "哪",
+            "里"
+          ],
+          "alternatePinyin": [
+            "na3li5"
+          ]
+        },
+        {
+          "id": "w-shang1wu4ke4",
+          "prompt": "Unterrichtsfach Handel",
+          "pinyin": "shāngwù kè",
+          "characters": [
+            "商",
+            "务",
+            "课"
+          ],
+          "alternatePinyin": [
+            "shang1wu4 ke4"
+          ]
+        },
+        {
+          "id": "w-sheng1diao4",
+          "prompt": "Ton, Wortton (einer chinesischen Silbe)",
+          "pinyin": "shēngdiào",
+          "characters": [
+            "声",
+            "调"
+          ],
+          "alternatePinyin": [
+            "sheng1diao4"
+          ]
+        },
+        {
+          "id": "w-shuo1",
+          "prompt": "sprechen",
+          "pinyin": "shuō",
+          "characters": [
+            "说"
+          ],
+          "alternatePinyin": [
+            "shuo1"
+          ]
+        },
+        {
+          "id": "w-si3",
+          "prompt": "tot, zu Tode",
+          "pinyin": "sǐ",
+          "characters": [
+            "死"
+          ],
+          "alternatePinyin": [
+            "si3"
+          ]
+        },
+        {
+          "id": "w-te4bie2",
+          "prompt": "äußerst, besonders",
+          "pinyin": "tèbié",
+          "characters": [
+            "特",
+            "别"
+          ],
+          "alternatePinyin": [
+            "te4bie2"
+          ]
+        },
+        {
+          "id": "w-ting1li4",
+          "prompt": "Hörverständnis, Hören",
+          "pinyin": "tīnglì",
+          "characters": [
+            "听",
+            "力"
+          ],
+          "alternatePinyin": [
+            "ting1li4"
+          ]
+        },
+        {
+          "id": "w-wen2hua4ke4",
+          "prompt": "Unterrichtsfach Kultur",
+          "pinyin": "wénhuà kè",
+          "characters": [
+            "文",
+            "化",
+            "课"
+          ],
+          "alternatePinyin": [
+            "wen2hua4 ke4"
+          ]
+        },
+        {
+          "id": "w-xi3ezuo4ke4",
+          "prompt": "Unterrichtsfach Schreiben",
+          "pinyin": "xǐezuò kè",
+          "characters": [
+            "写",
+            "作",
+            "课"
+          ],
+          "alternatePinyin": [
+            "xi3ezuo4 ke4"
+          ]
+        },
+        {
+          "id": "w-yi3hou4",
+          "prompt": "nachher, später",
+          "pinyin": "yǐhòu",
+          "characters": [
+            "以",
+            "后"
+          ],
+          "alternatePinyin": [
+            "yi3hou4"
+          ]
+        },
+        {
+          "id": "w-yin1",
+          "prompt": "Ton, Laut",
+          "pinyin": "yīn",
+          "characters": [
+            "音"
+          ],
+          "alternatePinyin": [
+            "yin1"
+          ]
+        },
+        {
+          "id": "w-yue4du2",
+          "prompt": "Lesen",
+          "pinyin": "yuèdú",
+          "characters": [
+            "阅",
+            "读"
+          ],
+          "alternatePinyin": [
+            "yue4du2"
+          ]
+        },
+        {
+          "id": "w-yue4lai2yue4",
+          "prompt": "immer mehr",
+          "pinyin": "yuè lái yuè",
+          "characters": [
+            "越",
+            "来",
+            "越"
+          ],
+          "alternatePinyin": [
+            "yue4 lai2 yue4"
+          ]
+        },
+        {
+          "id": "w-zhe4me5-2",
+          "prompt": "so",
+          "pinyin": "zhème",
+          "characters": [
+            "这",
+            "么"
+          ],
+          "alternatePinyin": [
+            "zhe4me5"
+          ]
+        },
+        {
+          "id": "w-zhun3",
+          "prompt": "exakt",
+          "pinyin": "zhǔn",
+          "characters": [
+            "准"
+          ],
+          "alternatePinyin": [
+            "zhun3"
+          ]
+        },
+        {
+          "id": "w-zong1he2",
+          "prompt": "umfassend",
+          "pinyin": "zōnghé",
+          "characters": [
+            "综",
+            "合"
+          ],
+          "alternatePinyin": [
+            "zong1he2"
+          ]
+        },
+        {
+          "id": "w-zui4jin4",
+          "prompt": "neulich, kürzlich",
+          "pinyin": "zuìjìn",
+          "characters": [
+            "最",
+            "近"
+          ],
+          "alternatePinyin": [
+            "zui4jin4"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 21,
+      "words": [
+        {
+          "id": "w-ai1ya5",
+          "prompt": "ah",
+          "pinyin": "āiya",
+          "characters": [
+            "哎",
+            "呀"
+          ],
+          "alternatePinyin": [
+            "ai1ya5"
+          ]
+        },
+        {
+          "id": "w-biao3",
+          "prompt": "Liste",
+          "pinyin": "biǎo",
+          "characters": [
+            "表"
+          ],
+          "alternatePinyin": [
+            "biao3"
+          ]
+        },
+        {
+          "id": "w-ce4",
+          "prompt": "(Zähleinheitswort für Heft, Buch)",
+          "pinyin": "cè",
+          "characters": [
+            "册"
+          ],
+          "alternatePinyin": [
+            "ce4"
+          ]
+        },
+        {
+          "id": "w-cha2",
+          "prompt": "nachschlagen",
+          "pinyin": "chá",
+          "characters": [
+            "查"
+          ],
+          "alternatePinyin": [
+            "cha2"
+          ]
+        },
+        {
+          "id": "w-ci2",
+          "prompt": "Wort",
+          "pinyin": "cí",
+          "characters": [
+            "词"
+          ],
+          "alternatePinyin": [
+            "ci2"
+          ]
+        },
+        {
+          "id": "w-ci2dian3-2",
+          "prompt": "Wörterbuch",
+          "pinyin": "cídiǎn",
+          "characters": [
+            "词",
+            "典"
+          ],
+          "alternatePinyin": [
+            "ci2dian3"
+          ]
+        },
+        {
+          "id": "w-cuo4",
+          "prompt": "falsch",
+          "pinyin": "cuò",
+          "characters": [
+            "错"
+          ],
+          "alternatePinyin": [
+            "cuo4"
+          ]
+        },
+        {
+          "id": "w-dao4-2",
+          "prompt": "(Zähleinheitswort für eine Übungsaufgabe)",
+          "pinyin": "dào",
+          "characters": [
+            "道"
+          ],
+          "alternatePinyin": [
+            "dao4"
+          ]
+        },
+        {
+          "id": "w-di4yi1ce4",
+          "prompt": "Band I",
+          "pinyin": "dì yī cè",
+          "characters": [
+            "第",
+            "一",
+            "册"
+          ],
+          "alternatePinyin": [
+            "di4 yi1 ce4"
+          ]
+        },
+        {
+          "id": "w-fu2wu4yuan2-2",
+          "prompt": "Kellner(in)",
+          "pinyin": "fúwùyuán",
+          "characters": [
+            "服",
+            "务",
+            "员"
+          ],
+          "alternatePinyin": [
+            "fu2wu4yuan2"
+          ]
+        },
+        {
+          "id": "w-gang1",
+          "prompt": "gerade eben",
+          "pinyin": "gāng",
+          "characters": [
+            "刚"
+          ],
+          "alternatePinyin": [
+            "gang1"
+          ]
+        },
+        {
+          "id": "w-jian3cha2",
+          "prompt": "kontrollieren, Kontrolle",
+          "pinyin": "jiănchá",
+          "characters": [
+            "检",
+            "查"
+          ],
+          "alternatePinyin": [
+            "jian3cha2"
+          ]
+        },
+        {
+          "id": "w-kuang4quan2shui3",
+          "prompt": "Mineralwasser",
+          "pinyin": "kuàngquánshuǐ",
+          "characters": [
+            "矿",
+            "泉",
+            "水"
+          ],
+          "alternatePinyin": [
+            "kuang4quan2shui3"
+          ]
+        },
+        {
+          "id": "w-li3",
+          "prompt": "inmitten, in",
+          "pinyin": "lǐ",
+          "characters": [
+            "里"
+          ],
+          "alternatePinyin": [
+            "li3"
+          ]
+        },
+        {
+          "id": "w-nian4",
+          "prompt": "aussprechen",
+          "pinyin": "niàn",
+          "characters": [
+            "念"
+          ],
+          "alternatePinyin": [
+            "nian4"
+          ]
+        },
+        {
+          "id": "w-o2",
+          "prompt": "oh",
+          "pinyin": "ò",
+          "characters": [
+            "哦"
+          ],
+          "alternatePinyin": [
+            "o2"
+          ]
+        },
+        {
+          "id": "w-sheng1ci2",
+          "prompt": "neues Wort, Vokabel",
+          "pinyin": "shēngcí",
+          "characters": [
+            "生",
+            "词"
+          ],
+          "alternatePinyin": [
+            "sheng1ci2"
+          ]
+        },
+        {
+          "id": "w-ti2",
+          "prompt": "Aufgabe, Frage",
+          "pinyin": "tí",
+          "characters": [
+            "题"
+          ],
+          "alternatePinyin": [
+            "ti2"
+          ]
+        },
+        {
+          "id": "w-ting1xie3",
+          "prompt": "diktieren, ein Diktat schreiben, Diktat",
+          "pinyin": "tīngxiĕ",
+          "characters": [
+            "听",
+            "写"
+          ],
+          "alternatePinyin": [
+            "ting1xie3"
+          ]
+        },
+        {
+          "id": "w-wan2",
+          "prompt": "fertig, zu Ende, beenden",
+          "pinyin": "wán",
+          "characters": [
+            "完"
+          ],
+          "alternatePinyin": [
+            "wan2"
+          ]
+        },
+        {
+          "id": "w-yi4si5",
+          "prompt": "Bedeutung",
+          "pinyin": "yìsi",
+          "characters": [
+            "意",
+            "思"
+          ],
+          "alternatePinyin": [
+            "yi4si5"
+          ]
+        },
+        {
+          "id": "w-yu4xi2",
+          "prompt": "vorbereiten",
+          "pinyin": "yùxí",
+          "characters": [
+            "预",
+            "习"
+          ],
+          "alternatePinyin": [
+            "yu4xi2"
+          ]
+        },
+        {
+          "id": "w-zhen1",
+          "prompt": "wirklich",
+          "pinyin": "zhēn",
+          "characters": [
+            "真"
+          ],
+          "alternatePinyin": [
+            "zhen1"
+          ]
+        },
+        {
+          "id": "w-zuo4ye4",
+          "prompt": "Hausaufgabe",
+          "pinyin": "zuòyè",
+          "characters": [
+            "作",
+            "业"
+          ],
+          "alternatePinyin": [
+            "zuo4ye4"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 22,
+      "words": [
+        {
+          "id": "w-cai2",
+          "prompt": "gerade erst, soeben",
+          "pinyin": "cái",
+          "characters": [
+            "才"
+          ],
+          "alternatePinyin": [
+            "cai2"
+          ]
+        },
+        {
+          "id": "w-chang2",
+          "prompt": "lang",
+          "pinyin": "cháng",
+          "characters": [
+            "长"
+          ],
+          "alternatePinyin": [
+            "chang2"
+          ]
+        },
+        {
+          "id": "w-De2yu3",
+          "prompt": "Deutsch",
+          "pinyin": "Déyǔ",
+          "characters": [
+            "德",
+            "语"
+          ],
+          "alternatePinyin": [
+            "De2yu3"
+          ]
+        },
+        {
+          "id": "w-dong3",
+          "prompt": "verstehen",
+          "pinyin": "dǒng",
+          "characters": [
+            "懂"
+          ],
+          "alternatePinyin": [
+            "dong3"
+          ]
+        },
+        {
+          "id": "w-du3che1",
+          "prompt": "Stau",
+          "pinyin": "dǔchē",
+          "characters": [
+            "堵",
+            "车"
+          ],
+          "alternatePinyin": [
+            "du3che1"
+          ]
+        },
+        {
+          "id": "w-E2yu3",
+          "prompt": "Russisch",
+          "pinyin": "Éyǔ",
+          "characters": [
+            "俄",
+            "语"
+          ],
+          "alternatePinyin": [
+            "E2yu3"
+          ]
+        },
+        {
+          "id": "w-fang1fa3",
+          "prompt": "Methode, Art und Weise",
+          "pinyin": "fāngfǎ",
+          "characters": [
+            "方",
+            "法"
+          ],
+          "alternatePinyin": [
+            "fang1fa3"
+          ]
+        },
+        {
+          "id": "w-Fa3yu3",
+          "prompt": "Französisch",
+          "pinyin": "Fǎyǔ",
+          "characters": [
+            "法",
+            "语"
+          ],
+          "alternatePinyin": [
+            "Fa3yu3"
+          ]
+        },
+        {
+          "id": "w-fu3dao3",
+          "prompt": "Nachhilfe, Nachhilfe geben",
+          "pinyin": "fǔdǎo",
+          "characters": [
+            "辅",
+            "导"
+          ],
+          "alternatePinyin": [
+            "fu3dao3"
+          ]
+        },
+        {
+          "id": "w-gao4su5",
+          "prompt": "mitteilen, erzählen, sagen",
+          "pinyin": "gàosu",
+          "characters": [
+            "告",
+            "诉"
+          ],
+          "alternatePinyin": [
+            "gao4su5"
+          ]
+        },
+        {
+          "id": "w-guo4jiang3",
+          "prompt": "übertrieben loben",
+          "pinyin": "guòjiǎng",
+          "characters": [
+            "过",
+            "奖"
+          ],
+          "alternatePinyin": [
+            "guo4jiang3"
+          ]
+        },
+        {
+          "id": "w-jiang3",
+          "prompt": "sagen, erklären",
+          "pinyin": "jiǎng",
+          "characters": [
+            "讲"
+          ],
+          "alternatePinyin": [
+            "jiang3"
+          ]
+        },
+        {
+          "id": "w-jie4shao4",
+          "prompt": "sich vorstellen",
+          "pinyin": "jièshào",
+          "characters": [
+            "介",
+            "绍"
+          ],
+          "alternatePinyin": [
+            "jie4shao4"
+          ]
+        },
+        {
+          "id": "w-kai1shi3",
+          "prompt": "anfangen, beginnen",
+          "pinyin": "kāishǐ",
+          "characters": [
+            "开",
+            "始"
+          ],
+          "alternatePinyin": [
+            "kai1shi3"
+          ]
+        },
+        {
+          "id": "w-ke4wen2",
+          "prompt": "Lektion, Text",
+          "pinyin": "kèwén",
+          "characters": [
+            "课",
+            "文"
+          ],
+          "alternatePinyin": [
+            "ke4wen2"
+          ]
+        },
+        {
+          "id": "w-lu4shang5",
+          "prompt": "unterwegs, auf dem Weg",
+          "pinyin": "lùshang",
+          "characters": [
+            "路",
+            "上"
+          ],
+          "alternatePinyin": [
+            "lu4shang5"
+          ]
+        },
+        {
+          "id": "w-lu4yin1",
+          "prompt": "aufnehmen, aufzeichnen",
+          "pinyin": "lùyīn",
+          "characters": [
+            "录",
+            "音"
+          ],
+          "alternatePinyin": [
+            "lu4yin1"
+          ]
+        },
+        {
+          "id": "w-mei3",
+          "prompt": "jeder, jede, jedes",
+          "pinyin": "měi",
+          "characters": [
+            "每"
+          ],
+          "alternatePinyin": [
+            "mei3"
+          ]
+        },
+        {
+          "id": "w-ping2shi2",
+          "prompt": "normalerweise, meistens",
+          "pinyin": "píngshí",
+          "characters": [
+            "平",
+            "时"
+          ],
+          "alternatePinyin": [
+            "ping2shi2"
+          ]
+        },
+        {
+          "id": "w-Ri4yu3",
+          "prompt": "Japanisch",
+          "pinyin": "Rìyǔ",
+          "characters": [
+            "日",
+            "语"
+          ],
+          "alternatePinyin": [
+            "Ri4yu3"
+          ]
+        },
+        {
+          "id": "w-shi2jian1",
+          "prompt": "Zeit",
+          "pinyin": "shíjiān",
+          "characters": [
+            "时",
+            "间"
+          ],
+          "alternatePinyin": [
+            "shi2jian1"
+          ]
+        },
+        {
+          "id": "w-ting1",
+          "prompt": "hören",
+          "pinyin": "tīng",
+          "characters": [
+            "听"
+          ],
+          "alternatePinyin": [
+            "ting1"
+          ]
+        },
+        {
+          "id": "w-wan3-2",
+          "prompt": "spät",
+          "pinyin": "wǎn",
+          "characters": [
+            "晚"
+          ],
+          "alternatePinyin": [
+            "wan3"
+          ]
+        },
+        {
+          "id": "w-xian1",
+          "prompt": "zuerst",
+          "pinyin": "xiān",
+          "characters": [
+            "先"
+          ],
+          "alternatePinyin": [
+            "xian1"
+          ]
+        },
+        {
+          "id": "w-Xi1ban1ya2yu3",
+          "prompt": "Spanisch",
+          "pinyin": "Xībānyáyǔ",
+          "characters": [
+            "西",
+            "班",
+            "牙",
+            "语"
+          ],
+          "alternatePinyin": [
+            "Xi1ban1ya2yu3"
+          ]
+        },
+        {
+          "id": "w-yao1qiu2",
+          "prompt": "fordern, verlangen",
+          "pinyin": "yāoqiú",
+          "characters": [
+            "要",
+            "求"
+          ],
+          "alternatePinyin": [
+            "yao1qiu2"
+          ]
+        },
+        {
+          "id": "w-yi2huir4",
+          "prompt": "einen Moment",
+          "pinyin": "yíhuìr",
+          "characters": [
+            "一",
+            "会",
+            "儿"
+          ],
+          "alternatePinyin": [
+            "yi2huir4"
+          ]
+        },
+        {
+          "id": "w-yi3wei2",
+          "prompt": "glauben, meinen",
+          "pinyin": "yǐweí",
+          "characters": [
+            "以",
+            "为"
+          ],
+          "alternatePinyin": [
+            "yi3wei2"
+          ]
+        },
+        {
+          "id": "w-yu3fa3",
+          "prompt": "Grammatik",
+          "pinyin": "yǔfǎ",
+          "characters": [
+            "语",
+            "法"
+          ],
+          "alternatePinyin": [
+            "yu3fa3"
+          ]
+        },
+        {
+          "id": "w-zhi3-2",
+          "prompt": "nur",
+          "pinyin": "zhǐ",
+          "characters": [
+            "只"
+          ],
+          "alternatePinyin": [
+            "zhi3"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 23,
+      "words": [
+        {
+          "id": "w-ba3",
+          "prompt": "(Präposition, zur Voranstellung des Objekts)",
+          "pinyin": "bă",
+          "characters": [
+            "把"
+          ],
+          "alternatePinyin": [
+            "ba3"
+          ]
+        },
+        {
+          "id": "w-ben3zi5",
+          "prompt": "Heft",
+          "pinyin": "bĕnzi",
+          "characters": [
+            "本",
+            "子"
+          ],
+          "alternatePinyin": [
+            "ben3zi5"
+          ]
+        },
+        {
+          "id": "w-chuang1hu5",
+          "prompt": "Fenster",
+          "pinyin": "chuānghu",
+          "characters": [
+            "窗",
+            "户"
+          ],
+          "alternatePinyin": [
+            "chuang1hu5"
+          ]
+        },
+        {
+          "id": "w-chu1lai2",
+          "prompt": "herauskommen",
+          "pinyin": "chūlái",
+          "characters": [
+            "出",
+            "来"
+          ],
+          "alternatePinyin": [
+            "chu1lai2"
+          ]
+        },
+        {
+          "id": "w-chu1qu4",
+          "prompt": "hinausgehen",
+          "pinyin": "chūqù",
+          "characters": [
+            "出",
+            "去"
+          ],
+          "alternatePinyin": [
+            "chu1qu4"
+          ]
+        },
+        {
+          "id": "w-da3-2",
+          "prompt": "(Bücher) öffnen, schlagen, spielen",
+          "pinyin": "dǎ",
+          "characters": [
+            "打"
+          ],
+          "alternatePinyin": [
+            "da3"
+          ]
+        },
+        {
+          "id": "w-da4jia1",
+          "prompt": "alle, jedermann",
+          "pinyin": "dàjiā",
+          "characters": [
+            "大",
+            "家"
+          ],
+          "alternatePinyin": [
+            "da4jia1"
+          ]
+        },
+        {
+          "id": "w-deng1",
+          "prompt": "Lampe, Licht",
+          "pinyin": "dēng",
+          "characters": [
+            "灯"
+          ],
+          "alternatePinyin": [
+            "deng1"
+          ]
+        },
+        {
+          "id": "w-gai1…le5",
+          "prompt": "es ist Zeit für …",
+          "pinyin": "gāi … le",
+          "characters": [
+            "该",
+            "了"
+          ],
+          "alternatePinyin": [
+            "gai1 … le5"
+          ]
+        },
+        {
+          "id": "w-guo4",
+          "prompt": "herüberkommen, passieren, überqueren",
+          "pinyin": "guò",
+          "characters": [
+            "过"
+          ],
+          "alternatePinyin": [
+            "guo4"
+          ]
+        },
+        {
+          "id": "w-hao3haor1",
+          "prompt": "ordentlich, gründlich, gut",
+          "pinyin": "hǎohǎor",
+          "characters": [
+            "好",
+            "好",
+            "儿"
+          ],
+          "alternatePinyin": [
+            "hao3haor1"
+          ]
+        },
+        {
+          "id": "w-jiao1-2",
+          "prompt": "abgeben, überreichen",
+          "pinyin": "jiāo",
+          "characters": [
+            "交"
+          ],
+          "alternatePinyin": [
+            "jiao1"
+          ]
+        },
+        {
+          "id": "w-jie1",
+          "prompt": "empfangen, abholen",
+          "pinyin": "jiē",
+          "characters": [
+            "接"
+          ],
+          "alternatePinyin": [
+            "jie1"
+          ]
+        },
+        {
+          "id": "w-jin4lai2",
+          "prompt": "hereinkommen",
+          "pinyin": "jìnlái",
+          "characters": [
+            "进",
+            "来"
+          ],
+          "alternatePinyin": [
+            "jin4lai2"
+          ]
+        },
+        {
+          "id": "w-kai1",
+          "prompt": "offen",
+          "pinyin": "kāi",
+          "characters": [
+            "开"
+          ],
+          "alternatePinyin": [
+            "kai1"
+          ]
+        },
+        {
+          "id": "w-la1",
+          "prompt": "ziehen",
+          "pinyin": "lā",
+          "characters": [
+            "拉"
+          ],
+          "alternatePinyin": [
+            "la1"
+          ]
+        },
+        {
+          "id": "w-li3bian5",
+          "prompt": "innen",
+          "pinyin": "lǐbiān",
+          "characters": [
+            "里",
+            "边"
+          ],
+          "alternatePinyin": [
+            "li3bian5"
+          ]
+        },
+        {
+          "id": "w-shang4",
+          "prompt": "oben, über, schließen (Komplement des Resultats)",
+          "pinyin": "shàng",
+          "characters": [
+            "上"
+          ],
+          "alternatePinyin": [
+            "shang4"
+          ]
+        },
+        {
+          "id": "w-shang4bian5",
+          "prompt": "oben",
+          "pinyin": "shàngbiān",
+          "characters": [
+            "上",
+            "边"
+          ],
+          "alternatePinyin": [
+            "shang4bian5"
+          ]
+        },
+        {
+          "id": "w-shang4lai2",
+          "prompt": "heraufkommen",
+          "pinyin": "shànglái",
+          "characters": [
+            "上",
+            "来"
+          ],
+          "alternatePinyin": [
+            "shang4lai2"
+          ]
+        },
+        {
+          "id": "w-shi2hou5",
+          "prompt": "Zeit",
+          "pinyin": "shíhou",
+          "characters": [
+            "时",
+            "候"
+          ],
+          "alternatePinyin": [
+            "shi2hou5"
+          ]
+        },
+        {
+          "id": "w-wai4bian5-2",
+          "prompt": "draußen",
+          "pinyin": "wàibiān",
+          "characters": [
+            "外",
+            "边"
+          ],
+          "alternatePinyin": [
+            "wai4bian5"
+          ]
+        },
+        {
+          "id": "w-xia4",
+          "prompt": "unten, unter, nächster, nächste, nächstes",
+          "pinyin": "xià",
+          "characters": [
+            "下"
+          ],
+          "alternatePinyin": [
+            "xia4"
+          ]
+        },
+        {
+          "id": "w-xia4bian5",
+          "prompt": "unten",
+          "pinyin": "xiàbiān",
+          "characters": [
+            "下",
+            "边"
+          ],
+          "alternatePinyin": [
+            "xia4bian5"
+          ]
+        },
+        {
+          "id": "w-xia4lai2",
+          "prompt": "hinuntergehen",
+          "pinyin": "xiàlái",
+          "characters": [
+            "下",
+            "去"
+          ],
+          "alternatePinyin": [
+            "xia4lai2"
+          ]
+        },
+        {
+          "id": "w-ye4",
+          "prompt": "Seite",
+          "pinyin": "yè",
+          "characters": [
+            "页"
+          ],
+          "alternatePinyin": [
+            "ye4"
+          ]
+        },
+        {
+          "id": "w-yi2ding4",
+          "prompt": "bestimmt, sicher",
+          "pinyin": "yídìng",
+          "characters": [
+            "一",
+            "定"
+          ],
+          "alternatePinyin": [
+            "yi2ding4"
+          ]
+        },
+        {
+          "id": "w-yv3",
+          "prompt": "Regen",
+          "pinyin": "yǚ",
+          "characters": [
+            "雨"
+          ],
+          "alternatePinyin": [
+            "yv3"
+          ]
+        },
+        {
+          "id": "w-zhe4xie1",
+          "prompt": "diese (pl.)",
+          "pinyin": "zhèxiē",
+          "characters": [
+            "这",
+            "些"
+          ],
+          "alternatePinyin": [
+            "zhe4xie1"
+          ]
+        },
+        {
+          "id": "w-zhe4yang4",
+          "prompt": "so, auf diese Weise",
+          "pinyin": "zhèyàng",
+          "characters": [
+            "这",
+            "样"
+          ],
+          "alternatePinyin": [
+            "zhe4yang4"
+          ]
+        },
+        {
+          "id": "w-zhou1mo4",
+          "prompt": "Wochenende",
+          "pinyin": "zhōumò",
+          "characters": [
+            "周",
+            "末"
+          ],
+          "alternatePinyin": [
+            "zhou1mo4"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 24,
+      "words": [
+        {
+          "id": "w-bao4ming2",
+          "prompt": "sich anmelden, sich registrieren lassen",
+          "pinyin": "bàomíng",
+          "characters": [
+            "报",
+            "名"
+          ],
+          "alternatePinyin": [
+            "bao4ming2"
+          ]
+        },
+        {
+          "id": "w-bi3",
+          "prompt": "vergleichen, im Vergleich zu, als (Vergleichspartikel)",
+          "pinyin": "bǐ",
+          "characters": [
+            "比"
+          ],
+          "alternatePinyin": [
+            "bi3"
+          ]
+        },
+        {
+          "id": "w-bi3sai4",
+          "prompt": "Wettbewerb",
+          "pinyin": "bǐsài",
+          "characters": [
+            "比",
+            "赛"
+          ],
+          "alternatePinyin": [
+            "bi3sai4"
+          ]
+        },
+        {
+          "id": "w-bu4ru2",
+          "prompt": "nicht so gut wie …",
+          "pinyin": "bùrú",
+          "characters": [
+            "不",
+            "如"
+          ],
+          "alternatePinyin": [
+            "bu4ru2"
+          ]
+        },
+        {
+          "id": "w-can1jia1",
+          "prompt": "teilnehmen, Teilnahme",
+          "pinyin": "cānjiā",
+          "characters": [
+            "参",
+            "加"
+          ],
+          "alternatePinyin": [
+            "can1jia1"
+          ]
+        },
+        {
+          "id": "w-chao1guo4",
+          "prompt": "übertreffen",
+          "pinyin": "chāoguò",
+          "characters": [
+            "超",
+            "过"
+          ],
+          "alternatePinyin": [
+            "chao1guo4"
+          ]
+        },
+        {
+          "id": "w-cheng2ji4",
+          "prompt": "Leistung, Ergebnis",
+          "pinyin": "chéngjì",
+          "characters": [
+            "成",
+            "绩"
+          ],
+          "alternatePinyin": [
+            "cheng2ji4"
+          ]
+        },
+        {
+          "id": "w-de2",
+          "prompt": "bekommen, erhalten",
+          "pinyin": "dé",
+          "characters": [
+            "得"
+          ],
+          "alternatePinyin": [
+            "de2"
+          ]
+        },
+        {
+          "id": "w-fen1-2",
+          "prompt": "Punkt",
+          "pinyin": "fēn",
+          "characters": [
+            "分"
+          ],
+          "alternatePinyin": [
+            "fen1"
+          ]
+        },
+        {
+          "id": "w-gao1",
+          "prompt": "hoch",
+          "pinyin": "gāo",
+          "characters": [
+            "高"
+          ],
+          "alternatePinyin": [
+            "gao1"
+          ]
+        },
+        {
+          "id": "w-jia1you2",
+          "prompt": "anfeuern, schneller!",
+          "pinyin": "jiā yóu",
+          "characters": [
+            "加",
+            "油"
+          ],
+          "alternatePinyin": [
+            "jia1 you2"
+          ]
+        },
+        {
+          "id": "w-ji1hui4",
+          "prompt": "Gelegenheit, Chance",
+          "pinyin": "jīhuì",
+          "characters": [
+            "机",
+            "会"
+          ],
+          "alternatePinyin": [
+            "ji1hui4"
+          ]
+        },
+        {
+          "id": "w-ju3xing2",
+          "prompt": "veranstalten",
+          "pinyin": "jǔxíng",
+          "characters": [
+            "举",
+            "行"
+          ],
+          "alternatePinyin": [
+            "ju3xing2"
+          ]
+        },
+        {
+          "id": "w-kao3",
+          "prompt": "geprüft werden, eine Prüfung ablegen, prüfen",
+          "pinyin": "kǎo",
+          "characters": [
+            "考"
+          ],
+          "alternatePinyin": [
+            "kao3"
+          ]
+        },
+        {
+          "id": "w-kao3shi4",
+          "prompt": "Prüfung",
+          "pinyin": "kǎoshì",
+          "characters": [
+            "考",
+            "试"
+          ],
+          "alternatePinyin": [
+            "kao3shi4"
+          ]
+        },
+        {
+          "id": "w-man4",
+          "prompt": "langsam",
+          "pinyin": "màn",
+          "characters": [
+            "慢"
+          ],
+          "alternatePinyin": [
+            "man4"
+          ]
+        },
+        {
+          "id": "w-sheng1",
+          "prompt": "Ton",
+          "pinyin": "shēng",
+          "characters": [
+            "声"
+          ],
+          "alternatePinyin": [
+            "sheng1"
+          ]
+        },
+        {
+          "id": "w-ting1shuo1",
+          "prompt": "es wird gesagt, man sagt, von etwas hören",
+          "pinyin": "tīngshuō",
+          "characters": [
+            "听",
+            "说"
+          ],
+          "alternatePinyin": [
+            "ting1shuo1"
+          ]
+        },
+        {
+          "id": "w-yan3jiang3",
+          "prompt": "eine Rede, einen Vortrag halten, vortragen",
+          "pinyin": "yǎnjiǎng",
+          "characters": [
+            "演",
+            "讲"
+          ],
+          "alternatePinyin": [
+            "yan3jiang3"
+          ]
+        },
+        {
+          "id": "w-yi4bian1…yi4bian1",
+          "prompt": "während",
+          "pinyin": "yìbiān … yìbiān",
+          "characters": [
+            "一",
+            "边",
+            "一",
+            "边"
+          ],
+          "alternatePinyin": [
+            "yi4bian1 … yi4bian1"
+          ]
+        },
+        {
+          "id": "w-zong3(shi4)",
+          "prompt": "immer",
+          "pinyin": "zǒng (shì)",
+          "characters": [
+            "总",
+            "是"
+          ],
+          "alternatePinyin": [
+            "zong3 (shi4)"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1056 @@
+{
+  "version": 1,
+  "chapter": "HSK1",
+  "words": [
+    {
+      "id": "w-wo3",
+      "prompt": "I, me",
+      "pinyin": "wǒ",
+      "characters": ["我"],
+      "alternatePinyin": ["wo3"]
+    },
+    {
+      "id": "w-wo3men5",
+      "prompt": "we, us (pl.)",
+      "pinyin": "wǒmen",
+      "characters": ["我", "们"],
+      "alternatePinyin": ["wo3men5"]
+    },
+    {
+      "id": "w-ni3",
+      "prompt": "you",
+      "pinyin": "nǐ",
+      "characters": ["你"],
+      "alternatePinyin": ["ni3"]
+    },
+    {
+      "id": "w-ta1-he",
+      "prompt": "he, him",
+      "pinyin": "tā",
+      "characters": ["他"],
+      "alternatePinyin": ["ta1"]
+    },
+    {
+      "id": "w-ta1-she",
+      "prompt": "she, her",
+      "pinyin": "tā",
+      "characters": ["她"],
+      "alternatePinyin": ["ta1"]
+    },
+    {
+      "id": "w-zhe4(r5)",
+      "prompt": "this (here)",
+      "pinyin": "zhè(r)",
+      "characters": ["这", "儿"],
+      "alternatePinyin": ["zhe4(r5)"]
+    },
+    {
+      "id": "w-na4(r5)",
+      "prompt": "that (there)",
+      "pinyin": "nà(r)",
+      "characters": ["那", "儿"],
+      "alternatePinyin": ["na4(r5)"]
+    },
+    {
+      "id": "w-na3",
+      "prompt": "which",
+      "pinyin": "nǎ",
+      "characters": ["哪"],
+      "alternatePinyin": ["na3"]
+    },
+    {
+      "id": "w-na3(r5)",
+      "prompt": "where",
+      "pinyin": "nǎ(r)",
+      "characters": ["哪", "儿"],
+      "alternatePinyin": ["na3(r5)"]
+    },
+    {
+      "id": "w-shei2",
+      "prompt": "who",
+      "pinyin": "shéi",
+      "characters": ["谁"],
+      "alternatePinyin": ["shei2"]
+    },
+    {
+      "id": "w-shen2me5",
+      "prompt": "what, why",
+      "pinyin": "shénme",
+      "characters": ["什", "么"],
+      "alternatePinyin": ["shen2me5"]
+    },
+    {
+      "id": "w-duo1shao5",
+      "prompt": "how many, how much",
+      "pinyin": "duōshǎo",
+      "characters": ["多", "少"],
+      "alternatePinyin": ["duo1shao3"]
+    },
+    {
+      "id": "w-ji3",
+      "prompt": "a few, how many",
+      "pinyin": "jǐ",
+      "characters": ["几"],
+      "alternatePinyin": ["ji3"]
+    },
+    {
+      "id": "w-zen3me5",
+      "prompt": "how",
+      "pinyin": "zěnme",
+      "characters": ["怎", "么"],
+      "alternatePinyin": ["zen3me5"]
+    },
+    {
+      "id": "w-zen3meyang4",
+      "prompt": "how about",
+      "pinyin": "zěnmeyàng",
+      "characters": ["怎", "么", "样"],
+      "alternatePinyin": ["zen3me5yang4"]
+    },
+    {
+      "id": "w-yi1",
+      "prompt": "one",
+      "pinyin": "yī",
+      "characters": ["一"],
+      "alternatePinyin": ["yi1"]
+    },
+    {
+      "id": "w-er4",
+      "prompt": "two",
+      "pinyin": "èr",
+      "characters": ["二"],
+      "alternatePinyin": ["er4"]
+    },
+    {
+      "id": "w-san1",
+      "prompt": "three",
+      "pinyin": "sān",
+      "characters": ["三"],
+      "alternatePinyin": ["san1"]
+    },
+    {
+      "id": "w-si4",
+      "prompt": "four",
+      "pinyin": "sì",
+      "characters": ["四"],
+      "alternatePinyin": ["si4"]
+    },
+    {
+      "id": "w-wu3",
+      "prompt": "five",
+      "pinyin": "wǔ",
+      "characters": ["五"],
+      "alternatePinyin": ["wu3"]
+    },
+    {
+      "id": "w-liu4",
+      "prompt": "six",
+      "pinyin": "liù",
+      "characters": ["六"],
+      "alternatePinyin": ["liu4"]
+    },
+    {
+      "id": "w-qi1",
+      "prompt": "seven",
+      "pinyin": "qī",
+      "characters": ["七"],
+      "alternatePinyin": ["qi1"]
+    },
+    {
+      "id": "w-ba1",
+      "prompt": "eight",
+      "pinyin": "bā",
+      "characters": ["八"],
+      "alternatePinyin": ["ba1"]
+    },
+    {
+      "id": "w-jiu3",
+      "prompt": "nine",
+      "pinyin": "jiǔ",
+      "characters": ["九"],
+      "alternatePinyin": ["jiu3"]
+    },
+    {
+      "id": "w-shi2",
+      "prompt": "ten",
+      "pinyin": "shí",
+      "characters": ["十"],
+      "alternatePinyin": ["shi2"]
+    },
+    {
+      "id": "w-ge4",
+      "prompt": "(for normal objects)",
+      "pinyin": "gè",
+      "characters": ["个"],
+      "alternatePinyin": ["ge4"]
+    },
+    {
+      "id": "w-sui4",
+      "prompt": "(for age)",
+      "pinyin": "suì",
+      "characters": ["岁"],
+      "alternatePinyin": ["sui4"]
+    },
+    {
+      "id": "w-ben3",
+      "prompt": "(for books)",
+      "pinyin": "běn",
+      "characters": ["本"],
+      "alternatePinyin": ["ben3"]
+    },
+    {
+      "id": "w-xie1",
+      "prompt": "some",
+      "pinyin": "xiē",
+      "characters": ["些"],
+      "alternatePinyin": ["xie1"]
+    },
+    {
+      "id": "w-kuai4",
+      "prompt": "piece, chunk",
+      "pinyin": "kuài",
+      "characters": ["块"],
+      "alternatePinyin": ["kuai4"]
+    },
+    {
+      "id": "w-bu4",
+      "prompt": "no",
+      "pinyin": "bù",
+      "characters": ["不"],
+      "alternatePinyin": ["bu4"]
+    },
+    {
+      "id": "w-mei2",
+      "prompt": "no",
+      "pinyin": "méi",
+      "characters": ["没"],
+      "alternatePinyin": ["mei2"]
+    },
+    {
+      "id": "w-hen3",
+      "prompt": "quite, very",
+      "pinyin": "hěn",
+      "characters": ["很"],
+      "alternatePinyin": ["hen3"]
+    },
+    {
+      "id": "w-tai4",
+      "prompt": "too",
+      "pinyin": "tài",
+      "characters": ["太"],
+      "alternatePinyin": ["tai4"]
+    },
+    {
+      "id": "w-dou1",
+      "prompt": "all",
+      "pinyin": "dōu",
+      "characters": ["都"],
+      "alternatePinyin": ["dou1"]
+    },
+    {
+      "id": "w-yi4dian3r5",
+      "prompt": "a little bit",
+      "pinyin": "yìdiǎnr",
+      "characters": ["一", "点", "儿"],
+      "alternatePinyin": ["yi4dian3r5"]
+    },
+    {
+      "id": "w-he2",
+      "prompt": "and",
+      "pinyin": "hé",
+      "characters": ["和"],
+      "alternatePinyin": ["he2"]
+    },
+    {
+      "id": "w-zai4",
+      "prompt": "in, at",
+      "pinyin": "zài",
+      "characters": ["在"],
+      "alternatePinyin": ["zai4"]
+    },
+    {
+      "id": "w-de5",
+      "prompt": "",
+      "pinyin": "de",
+      "characters": ["的"],
+      "alternatePinyin": ["de5"]
+    },
+    {
+      "id": "w-le5",
+      "prompt": "",
+      "pinyin": "le",
+      "characters": ["了"],
+      "alternatePinyin": ["le5"]
+    },
+    {
+      "id": "w-ma5",
+      "prompt": "",
+      "pinyin": "ma",
+      "characters": ["吗"],
+      "alternatePinyin": ["ma5"]
+    },
+    {
+      "id": "w-ne5",
+      "prompt": "",
+      "pinyin": "ne",
+      "characters": ["呢"],
+      "alternatePinyin": ["ne5"]
+    },
+    {
+      "id": "w-wei4",
+      "prompt": "hello",
+      "pinyin": "wèi",
+      "characters": ["喂"],
+      "alternatePinyin": ["wei4"]
+    },
+    {
+      "id": "w-jia1",
+      "prompt": "home",
+      "pinyin": "jiā",
+      "characters": ["家"],
+      "alternatePinyin": ["jia1"]
+    },
+    {
+      "id": "w-xue2xiao4",
+      "prompt": "school",
+      "pinyin": "xuéxiào",
+      "characters": ["学", "校"],
+      "alternatePinyin": ["xue2xiao4"]
+    },
+    {
+      "id": "w-fan4dian4",
+      "prompt": "restaurant",
+      "pinyin": "fàndiàn",
+      "characters": ["饭", "店"],
+      "alternatePinyin": ["fan4dian4"]
+    },
+    {
+      "id": "w-shang1dian4",
+      "prompt": "store",
+      "pinyin": "shāngdiàn",
+      "characters": ["商", "店"],
+      "alternatePinyin": ["shang1dian4"]
+    },
+    {
+      "id": "w-yi1yuan4",
+      "prompt": "hospital",
+      "pinyin": "yīyuàn",
+      "characters": ["医", "院"],
+      "alternatePinyin": ["yi1yuan4"]
+    },
+    {
+      "id": "w-Zhong1guo2",
+      "prompt": "China",
+      "pinyin": "Zhōngguó",
+      "characters": ["中", "国"],
+      "alternatePinyin": ["Zhong1guo2"]
+    },
+    {
+      "id": "w-Bei3jing1",
+      "prompt": "Beijing",
+      "pinyin": "Běijīng",
+      "characters": ["北", "京"],
+      "alternatePinyin": ["Bei3jing1"]
+    },
+    {
+      "id": "w-shang4",
+      "prompt": "up",
+      "pinyin": "shàng",
+      "characters": ["上"],
+      "alternatePinyin": ["shang4"]
+    },
+    {
+      "id": "w-xia4",
+      "prompt": "down",
+      "pinyin": "xià",
+      "characters": ["下"],
+      "alternatePinyin": ["xia4"]
+    },
+    {
+      "id": "w-qian2mian4",
+      "prompt": "front",
+      "pinyin": "qiánmiàn",
+      "characters": ["前", "面"],
+      "alternatePinyin": ["qian2mian4"]
+    },
+    {
+      "id": "w-hou4mian4",
+      "prompt": "behind",
+      "pinyin": "hòumiàn",
+      "characters": ["后", "面"],
+      "alternatePinyin": ["hou4mian4"]
+    },
+    {
+      "id": "w-li3mian4",
+      "prompt": "inside",
+      "pinyin": "lǐmiàn",
+      "characters": ["里", "面"],
+      "alternatePinyin": ["li3mian4"]
+    },
+    {
+      "id": "w-jin1tian1",
+      "prompt": "today",
+      "pinyin": "jīntiān",
+      "characters": ["今", "天"],
+      "alternatePinyin": ["jin1tian1"]
+    },
+    {
+      "id": "w-ming2tian1",
+      "prompt": "tomorrow",
+      "pinyin": "míngtiān",
+      "characters": ["明", "天"],
+      "alternatePinyin": ["ming2tian1"]
+    },
+    {
+      "id": "w-zuo2tian1",
+      "prompt": "yesterday",
+      "pinyin": "zuótiān",
+      "characters": ["昨", "天"],
+      "alternatePinyin": ["zuo2tian1"]
+    },
+    {
+      "id": "w-shang4wu3",
+      "prompt": "morning",
+      "pinyin": "shàngwǔ",
+      "characters": ["上", "午"],
+      "alternatePinyin": ["shang4wu3"]
+    },
+    {
+      "id": "w-zhong1wu3",
+      "prompt": "noon",
+      "pinyin": "zhōngwǔ",
+      "characters": ["中", "午"],
+      "alternatePinyin": ["zhong1wu3"]
+    },
+    {
+      "id": "w-xia4wu3",
+      "prompt": "afternoon",
+      "pinyin": "xiàwǔ",
+      "characters": ["下", "午"],
+      "alternatePinyin": ["xia4wu3"]
+    },
+    {
+      "id": "w-nian2",
+      "prompt": "year",
+      "pinyin": "nián",
+      "characters": ["年"],
+      "alternatePinyin": ["nian2"]
+    },
+    {
+      "id": "w-yue4",
+      "prompt": "month",
+      "pinyin": "yuè",
+      "characters": ["月"],
+      "alternatePinyin": ["yue4"]
+    },
+    {
+      "id": "w-hao4",
+      "prompt": "number/date",
+      "pinyin": "hào",
+      "characters": ["号"],
+      "alternatePinyin": ["hao4"]
+    },
+    {
+      "id": "w-xing1qi1",
+      "prompt": "week",
+      "pinyin": "xīngqī",
+      "characters": ["星", "期"],
+      "alternatePinyin": ["xing1qi1"]
+    },
+    {
+      "id": "w-dian3",
+      "prompt": "o’clock",
+      "pinyin": "diǎn",
+      "characters": ["点"],
+      "alternatePinyin": ["dian3"]
+    },
+    {
+      "id": "w-fen1zhong1",
+      "prompt": "minute",
+      "pinyin": "fēnzhōng",
+      "characters": ["分", "钟"],
+      "alternatePinyin": ["fen1zhong1"]
+    },
+    {
+      "id": "w-xian4zai4",
+      "prompt": "now",
+      "pinyin": "xiànzài",
+      "characters": ["现", "在"],
+      "alternatePinyin": ["xian4zai4"]
+    },
+    {
+      "id": "w-shi2hou5",
+      "prompt": "time",
+      "pinyin": "shíhou",
+      "characters": ["时", "候"],
+      "alternatePinyin": ["shi2hou5"]
+    },
+    {
+      "id": "w-ba4ba5",
+      "prompt": "father",
+      "pinyin": "bàba",
+      "characters": ["爸", "爸"],
+      "alternatePinyin": ["ba4ba5"]
+    },
+    {
+      "id": "w-ma1ma5",
+      "prompt": "mother",
+      "pinyin": "māma",
+      "characters": ["妈", "妈"],
+      "alternatePinyin": ["ma1ma5"]
+    },
+    {
+      "id": "w-er2zi5",
+      "prompt": "son",
+      "pinyin": "érzi",
+      "characters": ["儿", "子"],
+      "alternatePinyin": ["er2zi5"]
+    },
+    {
+      "id": "w-nv3er2",
+      "prompt": "daughter",
+      "pinyin": "nǚér",
+      "characters": ["女", "儿"],
+      "alternatePinyin": ["nv3er2"]
+    },
+    {
+      "id": "w-lao3shi1",
+      "prompt": "teacher",
+      "pinyin": "lǎoshī",
+      "characters": ["老", "师"],
+      "alternatePinyin": ["lao3shi1"]
+    },
+    {
+      "id": "w-xue2sheng5",
+      "prompt": "student",
+      "pinyin": "xuéshēng",
+      "characters": ["学", "生"],
+      "alternatePinyin": ["xue2sheng1"]
+    },
+    {
+      "id": "w-tong2xue2",
+      "prompt": "classmate",
+      "pinyin": "tóngxué",
+      "characters": ["同", "学"],
+      "alternatePinyin": ["tong2xue2"]
+    },
+    {
+      "id": "w-peng2you5",
+      "prompt": "friend",
+      "pinyin": "péngyǒu",
+      "characters": ["朋", "友"],
+      "alternatePinyin": ["peng2you3"]
+    },
+    {
+      "id": "w-yi1sheng1",
+      "prompt": "doctor",
+      "pinyin": "yīshēng",
+      "characters": ["医", "生"],
+      "alternatePinyin": ["yi1sheng1"]
+    },
+    {
+      "id": "w-xian1sheng5",
+      "prompt": "sir",
+      "pinyin": "xiānsheng",
+      "characters": ["先", "生"],
+      "alternatePinyin": ["xian1sheng5"]
+    },
+    {
+      "id": "w-xiao3jie3",
+      "prompt": "Miss",
+      "pinyin": "xiǎojiě",
+      "characters": ["小", "姐"],
+      "alternatePinyin": ["xiao3jie3"]
+    },
+    {
+      "id": "w-yi1fu5",
+      "prompt": "cloth",
+      "pinyin": "yīfu",
+      "characters": ["衣", "服"],
+      "alternatePinyin": ["yi1fu5"]
+    },
+    {
+      "id": "w-shui3",
+      "prompt": "water",
+      "pinyin": "shuǐ",
+      "characters": ["水"],
+      "alternatePinyin": ["shui3"]
+    },
+    {
+      "id": "w-cai4",
+      "prompt": "dish",
+      "pinyin": "cài",
+      "characters": ["菜"],
+      "alternatePinyin": ["cai4"]
+    },
+    {
+      "id": "w-mi3fan4",
+      "prompt": "rice",
+      "pinyin": "mǐfàn",
+      "characters": ["米", "饭"],
+      "alternatePinyin": ["mi3fan4"]
+    },
+    {
+      "id": "w-shui3guo3",
+      "prompt": "fruit",
+      "pinyin": "shuǐguǒ",
+      "characters": ["水", "果"],
+      "alternatePinyin": ["shui3guo3"]
+    },
+    {
+      "id": "w-ping2guo3",
+      "prompt": "apple",
+      "pinyin": "píngguǒ",
+      "characters": ["苹", "果"],
+      "alternatePinyin": ["ping2guo3"]
+    },
+    {
+      "id": "w-cha2",
+      "prompt": "tea",
+      "pinyin": "chá",
+      "characters": ["茶"],
+      "alternatePinyin": ["cha2"]
+    },
+    {
+      "id": "w-bei1zi5",
+      "prompt": "cup",
+      "pinyin": "bēizi",
+      "characters": ["杯", "子"],
+      "alternatePinyin": ["bei1zi5"]
+    },
+    {
+      "id": "w-qian2",
+      "prompt": "money",
+      "pinyin": "qián",
+      "characters": ["钱"],
+      "alternatePinyin": ["qian2"]
+    },
+    {
+      "id": "w-fei1ji1",
+      "prompt": "airplane",
+      "pinyin": "fēijī",
+      "characters": ["飞", "机"],
+      "alternatePinyin": ["fei1ji1"]
+    },
+    {
+      "id": "w-chu1zu1che1",
+      "prompt": "taxi",
+      "pinyin": "chūzūchē",
+      "characters": ["出", "租", "车"],
+      "alternatePinyin": ["chu1zu1che1"]
+    },
+    {
+      "id": "w-dian4shi4",
+      "prompt": "television",
+      "pinyin": "diànshì",
+      "characters": ["电", "视"],
+      "alternatePinyin": ["dian4shi4"]
+    },
+    {
+      "id": "w-dian4nao3",
+      "prompt": "computer",
+      "pinyin": "diànnǎo",
+      "characters": ["电", "脑"],
+      "alternatePinyin": ["dian4nao3"]
+    },
+    {
+      "id": "w-dian4ying3",
+      "prompt": "movie",
+      "pinyin": "diànyǐng",
+      "characters": ["电", "影"],
+      "alternatePinyin": ["dian4ying3"]
+    },
+    {
+      "id": "w-tian1qi4",
+      "prompt": "weather",
+      "pinyin": "tiānqì",
+      "characters": ["天", "气"],
+      "alternatePinyin": ["tian1qi4"]
+    },
+    {
+      "id": "w-mao1",
+      "prompt": "cat",
+      "pinyin": "māo",
+      "characters": ["猫"],
+      "alternatePinyin": ["mao1"]
+    },
+    {
+      "id": "w-gou3",
+      "prompt": "dog",
+      "pinyin": "gǒu",
+      "characters": ["狗"],
+      "alternatePinyin": ["gou3"]
+    },
+    {
+      "id": "w-dong1xi5",
+      "prompt": "thing",
+      "pinyin": "dōngxi",
+      "characters": ["东", "西"],
+      "alternatePinyin": ["dong1xi5"]
+    },
+    {
+      "id": "w-ren2",
+      "prompt": "person",
+      "pinyin": "rén",
+      "characters": ["人"],
+      "alternatePinyin": ["ren2"]
+    },
+    {
+      "id": "w-ming2zi5",
+      "prompt": "name",
+      "pinyin": "míngzi",
+      "characters": ["名", "字"],
+      "alternatePinyin": ["ming2zi5"]
+    },
+    {
+      "id": "w-shu1",
+      "prompt": "book",
+      "pinyin": "shū",
+      "characters": ["书"],
+      "alternatePinyin": ["shu1"]
+    },
+    {
+      "id": "w-han4yu3",
+      "prompt": "mandarin Chinese",
+      "pinyin": "hànyǔ",
+      "characters": ["汉", "语"],
+      "alternatePinyin": ["han4yu3"]
+    },
+    {
+      "id": "w-zi4",
+      "prompt": "character",
+      "pinyin": "zì",
+      "characters": ["字"],
+      "alternatePinyin": ["zi4"]
+    },
+    {
+      "id": "w-zhuo1zi5",
+      "prompt": "desk",
+      "pinyin": "zhuōzi",
+      "characters": ["桌", "子"],
+      "alternatePinyin": ["zhuo1zi5"]
+    },
+    {
+      "id": "w-yi3zi5",
+      "prompt": "chair",
+      "pinyin": "yǐzi",
+      "characters": ["椅", "子"],
+      "alternatePinyin": ["yi3zi5"]
+    },
+    {
+      "id": "w-xie4xie5",
+      "prompt": "thank",
+      "pinyin": "xièxie",
+      "characters": ["谢", "谢"],
+      "alternatePinyin": ["xie4xie5"]
+    },
+    {
+      "id": "w-bu2ke4qi5",
+      "prompt": "you are welcome",
+      "pinyin": "búkèqi",
+      "characters": ["不", "客", "气"],
+      "alternatePinyin": ["bu2ke4qi5"]
+    },
+    {
+      "id": "w-zai4jian4",
+      "prompt": "good-bye",
+      "pinyin": "zàijiàn",
+      "characters": ["再", "见"],
+      "alternatePinyin": ["zai4jian4"]
+    },
+    {
+      "id": "w-qing3",
+      "prompt": "please",
+      "pinyin": "qǐng",
+      "characters": ["请"],
+      "alternatePinyin": ["qing3"]
+    },
+    {
+      "id": "w-dui4bu5qi3",
+      "prompt": "sorry",
+      "pinyin": "duìbuqǐ",
+      "characters": ["对", "不", "起"],
+      "alternatePinyin": ["dui4bu5qi3"]
+    },
+    {
+      "id": "w-mei2guan1xi5",
+      "prompt": "It doesn’t matter",
+      "pinyin": "méiguānxi",
+      "characters": ["没", "关", "系"],
+      "alternatePinyin": ["mei2guan1xi5"]
+    },
+    {
+      "id": "w-shi4",
+      "prompt": "be (am, is, are)",
+      "pinyin": "shì",
+      "characters": ["是"],
+      "alternatePinyin": ["shi4"]
+    },
+    {
+      "id": "w-you3",
+      "prompt": "have",
+      "pinyin": "yǒu",
+      "characters": ["有"],
+      "alternatePinyin": ["you3"]
+    },
+    {
+      "id": "w-kan4",
+      "prompt": "look",
+      "pinyin": "kàn",
+      "characters": ["看"],
+      "alternatePinyin": ["kan4"]
+    },
+    {
+      "id": "w-ting1",
+      "prompt": "listen",
+      "pinyin": "tīng",
+      "characters": ["听"],
+      "alternatePinyin": ["ting1"]
+    },
+    {
+      "id": "w-shuo1",
+      "prompt": "speak",
+      "pinyin": "shuō",
+      "characters": ["说"],
+      "alternatePinyin": ["shuo1"]
+    },
+    {
+      "id": "w-du2",
+      "prompt": "read",
+      "pinyin": "dú",
+      "characters": ["读"],
+      "alternatePinyin": ["du2"]
+    },
+    {
+      "id": "w-xie3",
+      "prompt": "write",
+      "pinyin": "xiě",
+      "characters": ["写"],
+      "alternatePinyin": ["xie3"]
+    },
+    {
+      "id": "w-kan4jian4",
+      "prompt": "see",
+      "pinyin": "kànjiàn",
+      "characters": ["看", "见"],
+      "alternatePinyin": ["kan4jian4"]
+    },
+    {
+      "id": "w-jiao4",
+      "prompt": "call",
+      "pinyin": "jiào",
+      "characters": ["叫"],
+      "alternatePinyin": ["jiao4"]
+    },
+    {
+      "id": "w-lai2",
+      "prompt": "come",
+      "pinyin": "lái",
+      "characters": ["来"],
+      "alternatePinyin": ["lai2"]
+    },
+    {
+      "id": "w-hui2",
+      "prompt": "return",
+      "pinyin": "huí",
+      "characters": ["回"],
+      "alternatePinyin": ["hui2"]
+    },
+    {
+      "id": "w-qu4",
+      "prompt": "go",
+      "pinyin": "qù",
+      "characters": ["去"],
+      "alternatePinyin": ["qu4"]
+    },
+    {
+      "id": "w-chi1",
+      "prompt": "eat",
+      "pinyin": "chī",
+      "characters": ["吃"],
+      "alternatePinyin": ["chi1"]
+    },
+    {
+      "id": "w-he1",
+      "prompt": "drink",
+      "pinyin": "hē",
+      "characters": ["喝"],
+      "alternatePinyin": ["he1"]
+    },
+    {
+      "id": "w-shui4jiao4",
+      "prompt": "sleep",
+      "pinyin": "shuìjiào",
+      "characters": ["睡", "觉"],
+      "alternatePinyin": ["shui4jiao4"]
+    },
+    {
+      "id": "w-da3dian4hua4",
+      "prompt": "make phone call",
+      "pinyin": "dǎdiànhuà",
+      "characters": ["打", "电", "话"],
+      "alternatePinyin": ["da3dian4hua4"]
+    },
+    {
+      "id": "w-zuo4",
+      "prompt": "do",
+      "pinyin": "zuò",
+      "characters": ["做"],
+      "alternatePinyin": ["zuo4"]
+    },
+    {
+      "id": "w-mai3",
+      "prompt": "buy",
+      "pinyin": "mǎi",
+      "characters": ["买"],
+      "alternatePinyin": ["mai3"]
+    },
+    {
+      "id": "w-kai1",
+      "prompt": "open",
+      "pinyin": "kāi",
+      "characters": ["开"],
+      "alternatePinyin": ["kai1"]
+    },
+    {
+      "id": "w-zuo4-(sit)",
+      "prompt": "sit",
+      "pinyin": "zuò",
+      "characters": ["坐"],
+      "alternatePinyin": ["zuo4"]
+    },
+    {
+      "id": "w-zhu4",
+      "prompt": "live",
+      "pinyin": "zhù",
+      "characters": ["住"],
+      "alternatePinyin": ["zhu4"]
+    },
+    {
+      "id": "w-xue2xi2",
+      "prompt": "study",
+      "pinyin": "xuéxí",
+      "characters": ["学", "习"],
+      "alternatePinyin": ["xue2xi2"]
+    },
+    {
+      "id": "w-gong1zuo4",
+      "prompt": "work",
+      "pinyin": "gōngzuò",
+      "characters": ["工", "作"],
+      "alternatePinyin": ["gong1zuo4"]
+    },
+    {
+      "id": "w-xia4yu3",
+      "prompt": "rain",
+      "pinyin": "xiàyǔ",
+      "characters": ["下", "雨"],
+      "alternatePinyin": ["xia4yu3"]
+    },
+    {
+      "id": "w-ai4",
+      "prompt": "love",
+      "pinyin": "ài",
+      "characters": ["爱"],
+      "alternatePinyin": ["ai4"]
+    },
+    {
+      "id": "w-xi3huan5",
+      "prompt": "love, like",
+      "pinyin": "xǐhuān",
+      "characters": ["喜", "欢"],
+      "alternatePinyin": ["xi3huan1"]
+    },
+    {
+      "id": "w-xiang3",
+      "prompt": "want",
+      "pinyin": "xiǎng",
+      "characters": ["想"],
+      "alternatePinyin": ["xiang3"]
+    },
+    {
+      "id": "w-ren4shi5",
+      "prompt": "know",
+      "pinyin": "rènshi",
+      "characters": ["认", "识"],
+      "alternatePinyin": ["ren4shi5"]
+    },
+    {
+      "id": "w-hui4",
+      "prompt": "can",
+      "pinyin": "huì",
+      "characters": ["会"],
+      "alternatePinyin": ["hui4"]
+    },
+    {
+      "id": "w-neng2",
+      "prompt": "can, be able to",
+      "pinyin": "néng",
+      "characters": ["能"],
+      "alternatePinyin": ["neng2"]
+    },
+    {
+      "id": "w-hao3",
+      "prompt": "good",
+      "pinyin": "hǎo",
+      "characters": ["好"],
+      "alternatePinyin": ["hao3"]
+    },
+    {
+      "id": "w-da4",
+      "prompt": "big",
+      "pinyin": "dà",
+      "characters": ["大"],
+      "alternatePinyin": ["da4"]
+    },
+    {
+      "id": "w-xiao3",
+      "prompt": "small",
+      "pinyin": "xiǎo",
+      "characters": ["小"],
+      "alternatePinyin": ["xiao3"]
+    },
+    {
+      "id": "w-duo1",
+      "prompt": "many, much",
+      "pinyin": "duō",
+      "characters": ["多"],
+      "alternatePinyin": ["duo1"]
+    },
+    {
+      "id": "w-shao3",
+      "prompt": "few, little",
+      "pinyin": "shǎo",
+      "characters": ["少"],
+      "alternatePinyin": ["shao3"]
+    },
+    {
+      "id": "w-leng3",
+      "prompt": "cold",
+      "pinyin": "lěng",
+      "characters": ["冷"],
+      "alternatePinyin": ["leng3"]
+    },
+    {
+      "id": "w-re4",
+      "prompt": "hot",
+      "pinyin": "rè",
+      "characters": ["热"],
+      "alternatePinyin": ["re4"]
+    },
+    {
+      "id": "w-gao1xing4",
+      "prompt": "happy",
+      "pinyin": "gāoxìng",
+      "characters": ["高", "兴"],
+      "alternatePinyin": ["gao1xing4"]
+    },
+    {
+      "id": "w-piao4liang5",
+      "prompt": "beautiful",
+      "pinyin": "piàoliang",
+      "characters": ["漂", "亮"],
+      "alternatePinyin": ["piao4liang5"]
+    }
+  ]
+}

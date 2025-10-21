@@ -21,8 +21,14 @@ import type {
 } from '../types';
 import { defaultWords } from '../data/defaultWords';
 import { klettChapters, totalKlettWords } from '../data/klett';
+import { 
+	availableLibraries, 
+	getChaptersForLibrary, 
+	getWordsForChapters,
+	type LibraryType 
+} from '../data/libraries';
 import { scheduleNextReview, selectNextCandidate } from '../scheduler/spaced-repetition';
-import { exportSnapshotSchema, wordPackSchema } from './schema';
+import { exportSnapshotSchema, wordPackSchema, chaptersPackSchema } from './schema';
 
 export async function initializeRepository(): Promise<void> {
 	await db.open();
@@ -137,17 +143,28 @@ export async function loadSession(): Promise<SessionState | null> {
 }
 
 export async function importWordPack(
-	pack: WordPack,
+	pack: WordPack | { version: number; chapters: Array<{ chapter: number; words: WordEntry[] }> },
 	source: WordRecord['source'] = 'custom'
 ): Promise<{ inserted: number }> {
-	const parsed = wordPackSchema.safeParse(pack);
-	if (!parsed.success) {
-		throw new Error('Ungültiges Wortpaket – bitte das JSON-Format prüfen.');
+	// Check if it's a chapters-based pack (like klett2.json)
+	const chaptersResult = chaptersPackSchema.safeParse(pack);
+	let words: WordEntry[] = [];
+
+	if (chaptersResult.success) {
+		// Flatten chapters into words array
+		words = chaptersResult.data.chapters.flatMap((chapter) => chapter.words);
+	} else {
+		// Try regular word pack format
+		const wordPackResult = wordPackSchema.safeParse(pack);
+		if (!wordPackResult.success) {
+			throw new Error('Ungültiges Wortpaket – bitte das JSON-Format prüfen.');
+		}
+		words = wordPackResult.data.words;
 	}
 
 	let inserted = 0;
 	await db.transaction('rw', db.words, db.progress, async () => {
-		for (const word of parsed.data.words) {
+		for (const word of words) {
 			const existingWord = await db.words.get(word.id);
 			const existingProgress = await db.progress.get(word.id);
 			const now = Date.now();
@@ -345,6 +362,58 @@ export async function suspendKlettChapters(selection: 'all' | number | number[])
 	const wordIds = klettChapters
 		.filter((chapter) => chapterNumbers.includes(chapter.chapter))
 		.flatMap((chapter) => chapter.words.map((word) => word.id));
+
+	if (wordIds.length === 0) {
+		return 0;
+	}
+
+	let affected = 0;
+	await db.transaction('rw', db.progress, async () => {
+		for (const wordId of wordIds) {
+			const progress = await db.progress.get(wordId);
+			if (!progress || progress.suspended) continue;
+			await db.progress.put({ ...progress, suspended: true });
+			affected += 1;
+		}
+	});
+
+	return affected;
+}
+
+// New generic library functions
+export function getAvailableLibraries() {
+	return availableLibraries;
+}
+
+export function getLibraryChapters(libraryId: LibraryType) {
+	return getChaptersForLibrary(libraryId);
+}
+
+export async function importLibraryChapters(
+	libraryId: LibraryType, 
+	chapterIds: string[]
+): Promise<{ inserted: number }> {
+	const words = getWordsForChapters(libraryId, chapterIds);
+	
+	if (words.length === 0) {
+		return { inserted: 0 };
+	}
+
+	return importWordPack(
+		{
+			version: 1,
+			words
+		},
+		'built-in'
+	);
+}
+
+export async function suspendLibraryChapters(
+	libraryId: LibraryType,
+	chapterIds: string[]
+): Promise<number> {
+	const words = getWordsForChapters(libraryId, chapterIds);
+	const wordIds = words.map((word) => word.id);
 
 	if (wordIds.length === 0) {
 		return 0;
