@@ -138,7 +138,7 @@ onMount(() => {
 	<div class="pointer-events-none fixed bottom-4 left-1/2 z-30 w-full max-w-sm -translate-x-1/2 px-4">
 		<div class="pointer-events-auto rounded-2xl bg-slate-900/95 p-4 text-white shadow-2xl ring-1 ring-slate-700/60">
 			<h2 class="text-base font-semibold">App installieren?</h2>
-			<p class="mt-2 text-sm text-slate-200">Füge den Trainer zum Startbildschirm hinzu, um auch offline schnell zu üben.</p>
+			<p class="mt-2 text-sm text-slate-200">Füge den Zettelkasten zum Startbildschirm hinzu, um auch offline schnell zu üben.</p>
 			<div class="mt-3 flex items-center justify-between gap-2">
 				<button
 					class="rounded-lg border border-white/20 px-3 py-1.5 text-sm text-white/80 transition hover:border-white/40 hover:text-white"
