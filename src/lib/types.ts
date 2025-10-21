@@ -32,6 +32,7 @@ export interface WordProgress {
 	pinyinAttempts: number;
 	writingAttempts: number;
 	lastResult: 'success' | 'failure';
+	reviewCount?: number;
 	suspended?: boolean;
 }
 

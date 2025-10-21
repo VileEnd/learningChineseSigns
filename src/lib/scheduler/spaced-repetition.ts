@@ -2,44 +2,40 @@ import type { LearningBucket, LessonSummary, WordProgress } from '../types';
 
 const BUCKET_SEQUENCE: LearningBucket[] = ['learning', 'reinforce', 'known'];
 
-const BUCKET_INTERVALS: Record<LearningBucket, number> = {
-	learning: 1000 * 60 * 60, // 1 hour
-	reinforce: 1000 * 60 * 60 * 12, // 12 hours
-	known: 1000 * 60 * 60 * 24 * 5 // 5 days
-};
-
-export function advanceBucket(current: LearningBucket, success: boolean): LearningBucket {
-	if (!success) {
-		return 'learning';
+function bucketFromStreak(streak: number): LearningBucket {
+	if (streak >= 5) {
+		return 'known';
 	}
 
-	const index = BUCKET_SEQUENCE.indexOf(current);
-	const nextIndex = Math.min(index + 1, BUCKET_SEQUENCE.length - 1);
-	return BUCKET_SEQUENCE[nextIndex] ?? 'known';
-}
-
-export function regressBucket(current: LearningBucket): LearningBucket {
-	if (current === 'learning') {
-		return 'learning';
+	if (streak >= 2) {
+		return 'reinforce';
 	}
 
 	return 'learning';
 }
+
+const bucketWeights: Record<LearningBucket, number> = {
+	learning: 0,
+	reinforce: 1,
+	known: 2
+};
 
 export function scheduleNextReview(
 	progress: WordProgress,
 	summary: LessonSummary
 ): WordProgress {
 	const success = summary.success;
-	const bucket = success ? advanceBucket(progress.bucket, true) : regressBucket(progress.bucket);
-	const nextDueAt = Date.now() + BUCKET_INTERVALS[bucket];
+	const streak = success ? progress.streak + 1 : 0;
+	const bucket = bucketFromStreak(streak);
+	const reviewCount = (progress.reviewCount ?? 0) + 1;
 
 	return {
 		...progress,
 		bucket,
-		streak: success ? progress.streak + 1 : 0,
+		streak,
 		lastReviewedAt: summary.timestamp,
-		nextDueAt,
+		nextDueAt: reviewCount,
+		reviewCount,
 		lastResult: success ? 'success' : 'failure',
 		pinyinAttempts: summary.pinyinAttempts,
 		writingAttempts: summary.writingAttempts,
@@ -48,20 +44,22 @@ export function scheduleNextReview(
 }
 
 export function selectNextCandidate(progressList: WordProgress[]): WordProgress | null {
-	const available = progressList.filter((item) => !item.suspended);
-	const pool = available.length > 0 ? available : progressList;
-	if (pool.length === 0) {
+	if (progressList.length === 0) {
 		return null;
 	}
 
-	const now = Date.now();
-	const due = pool
-		.filter((item) => item.nextDueAt <= now)
-		.sort((a, b) => a.nextDueAt - b.nextDueAt);
+	return [...progressList]
+		.sort((a, b) => {
+			const bucketDelta = bucketWeights[a.bucket] - bucketWeights[b.bucket];
+			if (bucketDelta !== 0) return bucketDelta;
 
-	if (due.length > 0) {
-		return due[0];
-	}
+			const failureBiasA = a.lastResult === 'failure' ? 0 : 1;
+			const failureBiasB = b.lastResult === 'failure' ? 0 : 1;
+			if (failureBiasA !== failureBiasB) return failureBiasA - failureBiasB;
 
-	return pool.sort((a, b) => a.nextDueAt - b.nextDueAt)[0] ?? null;
+			const reviewDelta = (a.reviewCount ?? 0) - (b.reviewCount ?? 0);
+			if (reviewDelta !== 0) return reviewDelta;
+
+			return (a.lastReviewedAt ?? 0) - (b.lastReviewedAt ?? 0);
+		})[0] ?? null;
 }

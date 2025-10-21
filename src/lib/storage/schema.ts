@@ -38,6 +38,7 @@ export const progressSchema = z.object({
 	pinyinAttempts: z.number().int().min(0),
 	writingAttempts: z.number().int().min(0),
 	lastResult: z.enum(['success', 'failure']),
+	reviewCount: z.number().int().min(0).optional(),
 	suspended: z.boolean().optional()
 });
 

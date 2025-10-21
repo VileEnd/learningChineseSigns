@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
+	import { browser } from '$app/environment';
 	import HandwritingQuiz from '$lib/components/HandwritingQuiz.svelte';
 	import { comparePinyin } from '$lib/utils/pinyin';
 	import {
@@ -17,6 +18,9 @@
 		getKlettChapterSummaries,
 		getKlettTotalWordCount,
 		importKlettChapters,
+		suspendKlettChapters,
+		resumeWord,
+		searchWordsByPrompt,
 		suspendWord
 	} from '$lib/storage/repository';
 	import { loadSettings, saveSettings, settings } from '$lib/state/settings';
@@ -52,6 +56,18 @@
 	let selectedKlettChapters: number[] = [];
 	let klettImporting = false;
 	let unloadingWord = false;
+	let showKlettPicker = false;
+	let searchQuery = '';
+	let searchResults: WordRecord[] = [];
+	let searchLoading = false;
+	let searchOpen = false;
+	let searchDebounce: ReturnType<typeof setTimeout> | null = null;
+	let searchRequestId = 0;
+	let searchContainer: HTMLDivElement | null = null;
+	let headerElement: HTMLElement | null = null;
+	let headerHeight = 0;
+	let removeResizeListener: (() => void) | null = null;
+	let isMobileViewport = false;
 	$: allKlettChaptersSelected =
 		klettChapterSummaries.length > 0 && selectedKlettChapters.length === klettChapterSummaries.length;
 	$: selectedKlettWordCount = allKlettChaptersSelected
@@ -59,6 +75,11 @@
 		: klettChapterSummaries
 				.filter((item) => selectedKlettChapters.includes(item.chapter))
 				.reduce((sum, item) => sum + item.wordCount, 0);
+	$: selectedKlettChapterCount = selectedKlettChapters.length;
+	const headerActionClass =
+		'inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200/70 shadow-sm transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500';
+	const headerPrimaryActionClass =
+		'inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 disabled:opacity-60';
 	const importExample = JSON.stringify(
 		{
 			version: 1,
@@ -92,11 +113,125 @@
 		selectedKlettChapters = [];
 	}
 
+	function closeSearchResults() {
+		searchOpen = false;
+	}
+
+	function clearSearchField() {
+		if (searchDebounce) {
+			clearTimeout(searchDebounce);
+			searchDebounce = null;
+		}
+		searchRequestId += 1;
+		searchQuery = '';
+		searchResults = [];
+		searchLoading = false;
+		closeSearchResults();
+	}
+
+	function updateHeaderHeight() {
+		if (!browser) {
+			return;
+		}
+		const nextHeight = headerElement?.getBoundingClientRect().height ?? 0;
+		if (Math.abs(nextHeight - headerHeight) > 0.5) {
+			headerHeight = nextHeight;
+		}
+		isMobileViewport = window.innerWidth < 768;
+	}
+
+	$: headerOffset = headerHeight > 0 ? headerHeight : 96;
+	$: dialogPaddingTop = `${headerOffset}px`;
+	$: dialogMinHeight = isMobileViewport ? `calc(100vh - ${headerOffset}px)` : 'auto';
+	$: if (browser && showKlettPicker) {
+		updateHeaderHeight();
+	}
+
+	function handleSearchFocus() {
+		if (searchResults.length > 0 || searchQuery.trim().length > 0) {
+			searchOpen = true;
+		}
+	}
+
+	async function performSearch(term: string, requestId: number) {
+		try {
+			const matches = await searchWordsByPrompt(term);
+			if (requestId !== searchRequestId) {
+				return;
+			}
+			searchResults = matches;
+			searchOpen = true;
+		} finally {
+			if (requestId === searchRequestId) {
+				searchLoading = false;
+				searchDebounce = null;
+			}
+		}
+	}
+
+	function handleSearchInput(event: Event) {
+		const value = (event.target as HTMLInputElement).value;
+		searchQuery = value;
+		if (searchDebounce) {
+			clearTimeout(searchDebounce);
+			searchDebounce = null;
+		}
+		const trimmed = value.trim();
+		if (!trimmed) {
+			searchResults = [];
+			searchLoading = false;
+			closeSearchResults();
+			return;
+		}
+		searchLoading = true;
+		searchOpen = true;
+		const requestId = ++searchRequestId;
+		searchDebounce = setTimeout(() => {
+			void performSearch(trimmed, requestId);
+		}, 200);
+	}
+
+	function handleSearchKeydown(event: KeyboardEvent) {
+		if (event.key === 'Escape') {
+			clearSearchField();
+		}
+	}
+
+	async function handleSearchSubmit() {
+		if (searchLoading || searchResults.length === 0) {
+			return;
+		}
+		await selectSearchResult(searchResults[0]);
+	}
+
+	async function selectSearchResult(word: WordRecord) {
+		await loadSpecificWord(word.id);
+		clearSearchField();
+	}
+
+	function handleGlobalSearchClick(event: MouseEvent) {
+		if (!searchContainer) {
+			return;
+		}
+		if (searchContainer.contains(event.target as Node)) {
+			return;
+		}
+		clearSearchField();
+	}
+
+	function klettChapterFromWordId(wordId: string): number | null {
+		const match = /-c(\d+)-\d+$/.exec(wordId);
+		return match ? Number(match[1]) : null;
+	}
+
 	let unsubscribe: (() => void) | null = null;
 
 	const currentLearningMode = (): Settings['learningMode'] => activeSettings?.learningMode ?? 'prompt-to-pinyin';
 
 	onMount(async () => {
+		if (!browser) {
+			return;
+		}
 		await initializeRepository();
 		const loaded = await loadSettings();
 		activeSettings = loaded;
@@ -106,10 +241,25 @@
 			await loadNextWord();
 		}
 		summaryHistory = await listRecentSummaries();
+		document.addEventListener('click', handleGlobalSearchClick, true);
+		updateHeaderHeight();
+		const handleResize = () => updateHeaderHeight();
+		window.addEventListener('resize', handleResize);
+		removeResizeListener = () => window.removeEventListener('resize', handleResize);
 	});
 
 	onDestroy(() => {
 		if (unsubscribe) unsubscribe();
+		if (searchDebounce) {
+			clearTimeout(searchDebounce);
+		}
+		if (browser) {
+			if (removeResizeListener) {
+				removeResizeListener();
+				removeResizeListener = null;
+			}
+			document.removeEventListener('click', handleGlobalSearchClick, true);
+		}
 	});
 
 	function subscribeToSettings() {
@@ -150,6 +300,77 @@
 		await saveSession(serializeSession());
 	}
 
+	function resetBeforeLoadingWord() {
+		loading = true;
+		errorMessage = '';
+		pinyinInput = '';
+		pinyinAttempts = 0;
+		pinyinSolved = false;
+		writingAttemptCounter = 0;
+		guidedRepetitions = 0;
+		totalWritingAttempts = 0;
+		attemptKey += 1;
+		message = '';
+		toneMessage = '';
+		sessionFinished = false;
+		writingMode = 'free';
+	}
+
+	async function applyActiveWord(word: WordRecord, progress: WordProgress | null) {
+		if (!progress) {
+			throw new Error('Es existiert kein Lernfortschritt für dieses Wort.');
+		}
+		currentWord = word;
+		currentProgress = progress;
+		characterIndex = 0;
+		const mode = currentLearningMode();
+		stage = mode === 'prompt-to-pinyin' ? 'pinyin' : 'writing';
+		pinyinSolved = mode !== 'prompt-to-pinyin';
+		if (stage === 'writing') {
+			writingMode = 'free';
+			attemptKey += 1;
+			message =
+				mode === 'pinyin-to-character'
+					? 'Zeichne das Schriftzeichen zum angegebenen Pinyin.'
+					: 'Zeichne das Schriftzeichen.';
+		}
+		loading = false;
+		await persistSession();
+	}
+
+	async function loadSpecificWord(wordId: string) {
+		resetBeforeLoadingWord();
+		const word = await getWordById(wordId);
+		if (!word) {
+			errorMessage = 'Wort konnte nicht geladen werden.';
+			currentWord = null;
+			currentProgress = null;
+			loading = false;
+			await persistSession();
+			return;
+		}
+		let progress = await getProgressByWordId(wordId);
+		if (!progress) {
+			progress = {
+				wordId: word.id,
+				bucket: 'learning',
+				streak: 0,
+				lastReviewedAt: 0,
+				nextDueAt: 0,
+				pinyinAttempts: 0,
+				writingAttempts: 0,
+				lastResult: 'failure',
+				reviewCount: 0,
+				suspended: false
+			};
+		} else if (progress.suspended) {
+			await resumeWord(word.id);
+			progress = { ...progress, suspended: false };
+		}
+		await applyActiveWord(word, progress);
+		importFeedback = `Trainiere jetzt: ${word.prompt}`;
+	}
+
 	async function hydrateSession(): Promise<boolean> {
 		const snapshot = await loadSession();
 		if (!snapshot) {
@@ -188,41 +409,18 @@
 	}
 
 	async function loadNextWord() {
-		loading = true;
-		errorMessage = '';
-		pinyinInput = '';
-		pinyinAttempts = 0;
-		pinyinSolved = false;
-		writingAttemptCounter = 0;
-		guidedRepetitions = 0;
-		totalWritingAttempts = 0;
-		attemptKey += 1;
-		message = '';
-		toneMessage = '';
-		sessionFinished = false;
-		writingMode = 'free';
-
+		resetBeforeLoadingWord();
 		const candidate = await getNextLessonCandidate();
 		if (!candidate) {
 			errorMessage = 'Keine Lernkarten gefunden. Bitte importiere neue Wörter.';
 			currentWord = null;
+			currentProgress = null;
 			loading = false;
 			await persistSession();
 			return;
 		}
 
-		currentWord = candidate.word;
-		characterIndex = 0;
-		currentProgress = candidate.progress;
-		const mode = currentLearningMode();
-		stage = mode === 'prompt-to-pinyin' ? 'pinyin' : 'writing';
-		pinyinSolved = mode !== 'prompt-to-pinyin';
-		if (stage === 'writing') {
-			attemptKey += 1;
-			message = mode === 'pinyin-to-character' ? 'Zeichne das Schriftzeichen zum angegebenen Pinyin.' : 'Zeichne das Schriftzeichen.';
-		}
-		loading = false;
-		await persistSession();
+		await applyActiveWord(candidate.word, candidate.progress);
 	}
 
 	async function handleHintRequest() {
@@ -475,25 +673,50 @@
 		void persistSession();
 	}
 
-	async function handleKlettImport() {
-		if (klettImporting) return;
-		if (selectedKlettChapters.length === 0) {
-			importFeedback = 'Bitte wähle mindestens ein Kapitel aus.';
-			return;
-		}
+	async function handleKlettImport(): Promise<boolean> {
+		if (klettImporting) return false;
 		klettImporting = true;
 		try {
+			if (selectedKlettChapters.length === 0) {
+				const paused = await suspendKlettChapters('all');
+				importFeedback = paused
+					? `Alle Klett-Wörter wurden pausiert (${paused}).`
+					: 'Keine aktiven Klett-Wörter zum Pausieren gefunden.';
+				if (currentWord && klettChapterFromWordId(currentWord.id) !== null) {
+					await loadNextWord();
+				}
+				return true;
+			}
+
 			const selection = allKlettChaptersSelected ? 'all' : selectedKlettChapters;
 			const result = await importKlettChapters(selection);
-			importFeedback = result.inserted
-				? `Klett-Wörter importiert: ${result.inserted}.`
-				: 'Keine neuen Klett-Wörter importiert – vermutlich schon vorhanden.';
+			const excludedChapters = allKlettChaptersSelected
+				? []
+				: klettChapterSummaries
+						.map((item) => item.chapter)
+						.filter((chapter) => !selectedKlettChapters.includes(chapter));
+			const paused = excludedChapters.length > 0 ? await suspendKlettChapters(excludedChapters) : 0;
+			const feedbackParts = [
+				result.inserted
+					? `Klett-Wörter importiert: ${result.inserted}.`
+					: 'Keine neuen Klett-Wörter importiert – vermutlich schon vorhanden.',
+				paused ? `Pausiert: ${paused} Wörter außerhalb der Auswahl.` : ''
+			].filter(Boolean);
+			importFeedback = feedbackParts.join(' ');
+
 			if (!currentWord) {
 				await loadNextWord();
+			} else {
+				const currentChapter = klettChapterFromWordId(currentWord.id);
+				if (currentChapter !== null && (excludedChapters.length === 0 ? false : excludedChapters.includes(currentChapter))) {
+					await loadNextWord();
+				}
 			}
+			return true;
 		} catch (error) {
 			console.error(error);
 			importFeedback = 'Klett-Import fehlgeschlagen.';
+			return false;
 		} finally {
 			klettImporting = false;
 		}
@@ -537,72 +760,109 @@
 </script>
 
 <section class="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-10">
-	<header class="flex flex-wrap items-center justify-between gap-4">
-		<div>
-			<h1 class="text-3xl font-semibold text-slate-900">Chinesisch Wiederholungstrainer</h1>
-			<p class="text-sm text-slate-600">Übe Pinyin und Schriftzeichen im eigenen Tempo.</p>
-		</div>
-		<div class="flex items-center gap-3">
-			<button class="rounded-md border border-slate-300 px-4 py-2 text-sm" on:click={() => (showSettings = true)}>
-				Einstellungen
-			</button>
-			<button class="rounded-md border border-slate-300 px-4 py-2 text-sm" type="button" on:click={() => (showImportHelp = true)}>
-				Hilfe
-			</button>
-			<label class="flex cursor-pointer flex-col items-center gap-1 text-xs text-slate-600">
-				<span class="rounded-md border border-dashed border-slate-300 px-3 py-2 text-sm">Import</span>
-				<input class="hidden" type="file" accept="application/json" on:change={handleImport} />
-			</label>
-			<form class="flex items-center gap-2" on:submit|preventDefault={handleKlettImport}>
-				<div class="flex flex-col gap-2 text-left text-xs text-slate-600">
-					<span class="text-sm font-medium text-slate-700">Klett Kapitel wählen</span>
-					<div class="grid max-h-40 grid-cols-1 gap-1 overflow-y-auto rounded-md border border-slate-200 bg-white p-2">
-						<button
-							type="button"
-							class="rounded border border-slate-200 bg-slate-50 px-2 py-1 text-left text-xs font-medium text-slate-600 hover:bg-slate-100"
-							on:click={selectAllKlettChapters}
-						>
-							Alle Kapitel auswählen
-						</button>
-
-						<button
-							type="button"
-							class="rounded border border-slate-200 bg-slate-50 px-2 py-1 text-left text-xs font-medium text-slate-600 hover:bg-slate-100"
-							on:click={clearKlettChapterSelection}
-						>
-							Auswahl löschen
-						</button>
-
-						{#each klettChapterSummaries as item}
-							<label class="flex items-center gap-2 rounded px-2 py-1 text-xs text-slate-700 hover:bg-slate-50">
-								<input
-									type="checkbox"
-									checked={selectedKlettChapters.includes(item.chapter)}
-									on:change={() => toggleKlettChapter(item.chapter)}
-								/>
-								<span>Kapitel {item.chapter} ({item.wordCount} Wörter)</span>
-							</label>
-						{/each}
+	<header class="sticky top-4 z-20" bind:this={headerElement}>
+			<nav class="flex flex-col gap-3 rounded-3xl bg-white/85 p-5 shadow-lg ring-1 ring-slate-200/70 backdrop-blur">
+				<div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
+					<div>
+						<h1 class="text-3xl font-semibold text-slate-900">Chinesischer Zettelkaster</h1>
+						<p class="text-sm text-slate-600">Deutsch - zu Pinyin & Schrift</p>
 					</div>
-					<span class="text-xs text-slate-500">Ausgewählt: {selectedKlettWordCount} Wörter</span>
+					<div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-end md:gap-2">
+						<div class="relative w-full md:w-72" bind:this={searchContainer}>
+							<form class="relative" on:submit|preventDefault={handleSearchSubmit}>
+								<input
+									class="w-full rounded-full border border-slate-300 bg-white/90 px-4 py-2 pr-10 text-sm text-slate-800 shadow-inner focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400"
+									type="search"
+									placeholder="Wort auf Deutsch suchen"
+									autocomplete="off"
+									spellcheck={false}
+									on:input={handleSearchInput}
+									on:focus={handleSearchFocus}
+									on:keydown={handleSearchKeydown}
+									bind:value={searchQuery}
+								/>
+								{#if searchQuery}
+									<button
+										type="button"
+										class="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-slate-200 text-xs text-slate-600 transition hover:bg-slate-300"
+										on:click={clearSearchField}
+									>
+										✕
+									</button>
+								{/if}
+							</form>
+							{#if searchOpen}
+								<div class="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-white/95 shadow-2xl backdrop-blur">
+									{#if searchLoading}
+										<p class="px-4 py-3 text-sm text-slate-500">Suche läuft …</p>
+									{:else if searchResults.length === 0}
+										<p class="px-4 py-3 text-sm text-slate-500">Keine Treffer für „{searchQuery.trim()}“.</p>
+									{:else}
+										<ul class="max-h-64 overflow-y-auto text-sm text-slate-700">
+											{#each searchResults as word (word.id)}
+												<li class="border-b border-slate-100 last:border-b-0">
+													<button
+														type="button"
+														on:mousedown|preventDefault
+														on:click={() => void selectSearchResult(word)}
+														class="flex w-full items-start justify-between gap-3 px-4 py-3 text-left hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+													>
+														<span>
+															<span class="block font-semibold text-slate-900">{word.prompt}</span>
+															<span class="block text-xs text-slate-500">{word.pinyin}</span>
+															{#if word.characters?.length}
+																<span class="block text-xs text-slate-400">{word.characters.join('')}</span>
+															{/if}
+														</span>
+														<span class="text-xs font-medium text-slate-500">
+															{#if klettChapterFromWordId(word.id)}Kapitel {klettChapterFromWordId(word.id)}{/if}
+														</span>
+													</button>
+												</li>
+											{/each}
+										</ul>
+									{/if}
+								</div>
+							{/if}
+						</div>
+						<div class="flex flex-wrap items-center gap-2 md:justify-end">
+							<button class={headerActionClass} type="button" on:click={() => (showSettings = true)}>
+								<span class="text-sm font-medium">Einstellungen</span>
+							</button>
+							<button class={headerActionClass} type="button" on:click={() => (showImportHelp = true)}>
+								<span class="text-sm font-medium">Hilfe</span>
+							</button>
+							<label class={`${headerActionClass} cursor-pointer`}>
+								<span class="text-sm font-medium">Import</span>
+								<input class="hidden" type="file" accept="application/json" on:change={handleImport} />
+							</label>
+							<button
+								type="button"
+								class={`${headerActionClass} justify-between`}
+								on:click={() => (showKlettPicker = true)}
+								aria-expanded={showKlettPicker}
+							>
+								<span class="text-sm font-medium">Klett Kapitel</span>
+								<span class="flex items-center gap-1 rounded-full bg-slate-900 px-2 py-0.5 text-xs font-semibold text-white">
+									{selectedKlettChapterCount ? `${selectedKlettChapterCount}×` : '0×'}
+									<span class="hidden sm:inline">{selectedKlettWordCount} Wörter</span>
+								</span>
+							</button>
+							<button
+								type="button"
+								class={headerPrimaryActionClass}
+								on:click={handleExport}
+								disabled={exporting}
+							>
+								{exporting ? 'Export läuft …' : 'Export'}
+							</button>
+						</div>
+					</div>
 				</div>
-				<button
-					type="submit"
-					class="rounded-md border border-slate-300 px-3 py-2 text-sm disabled:opacity-60"
-					disabled={klettImporting || selectedKlettChapters.length === 0}
-				>
-					{klettImporting ? 'Importiert …' : 'Klett hinzufügen'}
-				</button>
-			</form>
-			<button
-				type="button"
-				class="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
-				on:click={handleExport}
-				disabled={exporting}
-			>
-				{exporting ? 'Export läuft …' : 'Export'}
-			</button>
-		</div>
+			<div class="text-xs font-medium text-slate-500">
+				Klett-Auswahl: {selectedKlettChapterCount ? `${selectedKlettChapterCount} Kapitel, ${selectedKlettWordCount} Wörter` : 'Keine Kapitel ausgewählt'}
+			</div>
+		</nav>
 	</header>
 
 	{#if loading}
@@ -725,6 +985,85 @@
 				</section>
 			</aside>
 		</article>
+	{/if}
+
+	{#if showKlettPicker}
+		<div
+			class="fixed inset-0 z-[80] isolate flex flex-col bg-white/80 backdrop-blur-sm md:items-center md:justify-center md:px-4 md:pb-10"
+			style={`padding-top: ${dialogPaddingTop};`}
+			role="dialog"
+			aria-modal="true"
+			tabindex="-1"
+			on:keydown={(event) => {
+				if (event.key === 'Escape' || event.key === 'Enter' || event.key === ' ') {
+					event.preventDefault();
+					showKlettPicker = false;
+				}
+			}}
+		>
+			<button
+				type="button"
+				class="absolute inset-0 z-0 h-full w-full cursor-pointer"
+				aria-label="Klett-Auswahl schließen"
+				on:click={() => (showKlettPicker = false)}
+			></button>
+			<div
+				data-state="open"
+				class="relative z-10 flex w-full flex-1 flex-col translate-y-6 overflow-y-auto rounded-t-3xl bg-white p-6 opacity-0 shadow-2xl ring-1 ring-slate-200 transition-all duration-300 ease-out data-[state=open]:translate-y-0 data-[state=open]:opacity-100 md:mt-0 md:h-auto md:max-w-2xl md:flex-none md:rounded-2xl md:p-8"
+				style={`min-height: ${dialogMinHeight};`}
+			>
+				<header class="mb-4 flex items-center justify-between">
+					<h2 class="text-base font-semibold text-slate-900">Klett Kapitel wählen</h2>
+					<button class="text-sm text-slate-500" type="button" on:click={() => (showKlettPicker = false)}>Schließen</button>
+				</header>
+				<form
+					class="flex flex-col gap-4"
+					on:submit|preventDefault={async () => {
+						const imported = await handleKlettImport();
+						if (imported) {
+							showKlettPicker = false;
+						}
+					}}
+				>
+					<div class="flex items-center justify-between text-sm text-slate-600">
+						<button type="button" class="rounded border border-slate-200 px-3 py-1" on:click={selectAllKlettChapters}>
+							Alle auswählen
+						</button>
+						<button type="button" class="rounded border border-slate-200 px-3 py-1" on:click={clearKlettChapterSelection}>
+							Zurücksetzen
+						</button>
+					</div>
+					<div class="grid max-h-[55vh] grid-cols-1 gap-2 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3">
+						{#each klettChapterSummaries as item}
+							<label class="flex items-center justify-between gap-3 rounded-md bg-white px-3 py-2 text-sm text-slate-700 shadow-sm">
+								<span>Kapitel {item.chapter}</span>
+								<span class="text-xs text-slate-500">{item.wordCount} Wörter</span>
+								<input
+									type="checkbox"
+									class="h-5 w-5"
+									checked={selectedKlettChapters.includes(item.chapter)}
+									on:change={() => toggleKlettChapter(item.chapter)}
+								/>
+							</label>
+						{/each}
+					</div>
+					<div class="flex flex-col gap-2 text-sm text-slate-600">
+						<span>Ausgewählt: {selectedKlettWordCount} Wörter</span>
+						<button
+							type="submit"
+							class="rounded-md bg-slate-900 px-4 py-2 text-white disabled:opacity-60"
+							disabled={klettImporting}
+						>
+							{klettImporting
+								? 'Wird übernommen …'
+								: selectedKlettChapters.length === 0
+									? 'Klett pausieren'
+									: 'Klett übernehmen'}
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
 	{/if}
 
 	{#if showSettings && activeSettings}

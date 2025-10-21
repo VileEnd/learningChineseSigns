@@ -57,12 +57,17 @@ export async function saveSettings(settings: Settings): Promise<void> {
 }
 
 export async function getNextLessonCandidate(): Promise<{ word: WordRecord; progress: WordProgress } | null> {
-	const progressList = (await db.progress.toArray()).filter((item) => !item.suspended);
+	const progressList = (await db.progress.toArray()).map((item) => ({
+		...item,
+		reviewCount: item.reviewCount ?? 0,
+		suspended: item.suspended ?? false
+	}));
+	const activeProgress = progressList.filter((item) => !item.suspended);
 	if (progressList.length === 0) {
 		return null;
 	}
 
-	const nextProgress = selectNextCandidate(progressList);
+	const nextProgress = selectNextCandidate(activeProgress.length > 0 ? activeProgress : progressList);
 	if (!nextProgress) {
 		return null;
 	}
@@ -111,7 +116,11 @@ export async function getProgressByWordId(id: string): Promise<WordProgress | nu
 	if (!record) {
 		return null;
 	}
-	return { ...record, suspended: record.suspended ?? false };
+	return {
+		...record,
+		reviewCount: record.reviewCount ?? 0,
+		suspended: record.suspended ?? false
+	};
 }
 
 export async function saveSession(state: SessionState | null): Promise<void> {
@@ -151,7 +160,8 @@ export async function importWordPack(
 			if (existingProgress) {
 				await db.progress.put({
 					...existingProgress,
-					suspended: false
+					suspended: false,
+					reviewCount: existingProgress.reviewCount ?? 0
 				});
 			} else {
 				await db.progress.put({
@@ -163,6 +173,7 @@ export async function importWordPack(
 					pinyinAttempts: 0,
 					writingAttempts: 0,
 					lastResult: 'failure',
+					reviewCount: 0,
 					suspended: false
 				});
 			}
@@ -232,7 +243,11 @@ export async function importSnapshot(snapshot: ExportSnapshot): Promise<void> {
 		await db.settings.put({ id: 'default', payload: data.settings, updatedAt: Date.now() });
 
 		for (const progress of data.progress) {
-			await db.progress.put({ ...progress, suspended: progress.suspended ?? false });
+			await db.progress.put({
+				...progress,
+				suspended: progress.suspended ?? false,
+				reviewCount: progress.reviewCount ?? 0
+			});
 		}
 
 		for (const word of data.customWords) {
@@ -256,6 +271,28 @@ export async function suspendWord(wordId: string): Promise<void> {
 		if (!record) return;
 		await db.progress.put({ ...record, suspended: true });
 	});
+}
+
+export async function resumeWord(wordId: string): Promise<void> {
+	await db.transaction('rw', db.progress, async () => {
+		const record = await db.progress.get(wordId);
+		if (!record) return;
+		await db.progress.put({ ...record, suspended: false });
+	});
+}
+
+export async function searchWordsByPrompt(query: string, limit = 8): Promise<WordRecord[]> {
+	const term = query.trim().toLowerCase();
+	if (!term) {
+		return [];
+	}
+
+	return db.words
+		.where('promptLanguage')
+		.equals('de')
+		.and((word) => word.prompt.toLowerCase().includes(term))
+		.limit(limit)
+		.toArray();
 }
 
 export interface KlettChapterSummary {
@@ -295,4 +332,33 @@ export async function importKlettChapters(selection: 'all' | number | number[]):
 		},
 		'built-in'
 	);
+}
+
+export async function suspendKlettChapters(selection: 'all' | number | number[]): Promise<number> {
+	const chapterNumbers =
+		selection === 'all'
+			? klettChapters.map((chapter) => chapter.chapter)
+			: Array.isArray(selection)
+				? selection
+				: [selection];
+
+	const wordIds = klettChapters
+		.filter((chapter) => chapterNumbers.includes(chapter.chapter))
+		.flatMap((chapter) => chapter.words.map((word) => word.id));
+
+	if (wordIds.length === 0) {
+		return 0;
+	}
+
+	let affected = 0;
+	await db.transaction('rw', db.progress, async () => {
+		for (const wordId of wordIds) {
+			const progress = await db.progress.get(wordId);
+			if (!progress || progress.suspended) continue;
+			await db.progress.put({ ...progress, suspended: true });
+			affected += 1;
+		}
+	});
+
+	return affected;
 }

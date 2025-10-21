@@ -147,6 +147,7 @@ export async function bootstrapWords(words: WordEntry[], source: WordRecord['sou
 				pinyinAttempts: 0,
 				writingAttempts: 0,
 				lastResult: 'failure',
+				reviewCount: 0,
 				suspended: false
 			};
 			await db.progress.put(progress);

@@ -26,6 +26,7 @@
 	let outlineHintActive = false;
 	let lastOutlineVisible = false;
 	let restorePassiveListeners: (() => void) | null = null;
+	let hintRunning = false;
 
 	const PASSIVE_TOUCH_EVENTS = new Set(['touchstart', 'touchmove', 'touchend', 'touchcancel']);
 
@@ -69,6 +70,22 @@
 	function getStrokeCount(): number {
 		const internal = writer as unknown as { _character?: { strokes: unknown[] } };
 		return internal?._character?.strokes?.length ?? 8;
+	}
+
+	function delay(ms: number): Promise<void> {
+		return new Promise((resolve) => {
+			setTimeout(resolve, ms);
+		});
+	}
+
+	async function playStrokeHint(strokeCount: number) {
+		if (!writer) return;
+		await writer.hideCharacter();
+		const total = getStrokeCount();
+		const limit = Math.min(total, Math.max(1, strokeCount));
+		for (let i = 0; i < limit; i += 1) {
+			await writer.animateStroke(i);
+		}
 	}
 
 	async function showHint(level: Mode) {
@@ -193,9 +210,33 @@
 	}
 
 export async function revealOutline(): Promise<void> {
-	outlineHintActive = true;
-	await syncOutline(true);
-	await showHint('guided-half');
+	if (!writer || hintRunning) {
+		return;
+	}
+	const previousOutlineActive = outlineHintActive;
+	const previousVisible = shouldShowOutline();
+	const quizController = 'cancelQuiz' in (writer as object) ? (writer as unknown as { cancelQuiz: () => void }) : null;
+	hintRunning = true;
+	try {
+		if (quizController) {
+			try {
+				quizController.cancelQuiz();
+			} catch (error) {
+				console.warn('Failed to cancel quiz before hint animation', error);
+			}
+		}
+		outlineHintActive = true;
+		await syncOutline(true);
+		await playStrokeHint(3);
+		await delay(350);
+		await writer.hideCharacter();
+		outlineHintActive = previousOutlineActive;
+		await syncOutline(previousVisible);
+		dispatch('hint', { level: 'guided-half' });
+		await restartQuiz();
+	} finally {
+		hintRunning = false;
+	}
 }
 </script>
 
