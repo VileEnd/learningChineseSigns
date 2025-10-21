@@ -60,6 +60,9 @@
 	// Library management
 	const availableLibraries = getAvailableLibraries();
 	let selectedLibrary: LibraryType = 'klett';
+	if (!availableLibraries.some((library) => library.id === selectedLibrary) && availableLibraries.length > 0) {
+		selectedLibrary = availableLibraries[0].id as LibraryType;
+	}
 	let selectedChapterIds: string[] = [];
 	let libraryImporting = false;
 	let showLibraryPicker = false;
@@ -84,6 +87,9 @@
 	let removeResizeListener: (() => void) | null = null;
 	let isMobileViewport = false;
 	let headerExpanded = true; // New: Track header expanded state
+	let dialogTopGap = 32;
+	let dialogPaddingTop = '32px';
+	let dialogHeight = 'calc(100dvh - 32px - 1rem)';
 	
 	// Reactive statements for library selection
 	$: currentLibraryChapters = getLibraryChapters(selectedLibrary);
@@ -208,10 +214,10 @@ Format 2 - Mit Kapiteln (wie Klett):
 
 	$: headerOffset = headerHeight > 0 ? headerHeight : 96;
 	$: dialogTopGap = isMobileViewport
-		? Math.max(16, Math.min(headerOffset, 80))
-		: headerOffset;
+		? Math.max(12, Math.min(headerOffset, 44))
+		: Math.max(20, Math.min(headerOffset, 48));
 	$: dialogPaddingTop = `${dialogTopGap}px`;
-	$: dialogMinHeight = isMobileViewport ? `calc(100vh - ${dialogTopGap}px)` : 'auto';
+	$: dialogHeight = `calc(100dvh - ${dialogPaddingTop} - 1rem)`;
 	$: if (browser && showLibraryPicker) {
 		updateHeaderHeight();
 	}
@@ -1185,7 +1191,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 
 	{#if showLibraryPicker}
 		<div
-			class="fixed inset-0 z-[80] isolate flex flex-col bg-white/80 backdrop-blur-sm md:items-center md:justify-center md:px-4 md:pb-10"
+			class="fixed inset-0 z-[80] isolate flex flex-col bg-white/80 backdrop-blur-sm md:items-center md:px-4"
 			style={`padding-top: ${dialogPaddingTop};`}
 			role="dialog"
 			aria-modal="true"
@@ -1205,15 +1211,15 @@ Format 2 - Mit Kapiteln (wie Klett):
 			></button>
 			<div
 				data-state="open"
-				class="relative z-10 flex w-full flex-1 flex-col translate-y-6 overflow-y-auto rounded-t-3xl bg-white p-6 opacity-0 shadow-2xl ring-1 ring-slate-200 transition-all duration-300 ease-out data-[state=open]:translate-y-0 data-[state=open]:opacity-100 md:mt-0 md:h-auto md:max-w-2xl md:flex-none md:rounded-2xl md:p-8"
-				style={`min-height: ${dialogMinHeight};`}
+				class="relative z-10 flex w-full flex-1 min-h-0 flex-col translate-y-6 overflow-hidden rounded-t-3xl bg-white p-6 opacity-0 shadow-2xl ring-1 ring-slate-200 transition-all duration-300 ease-out data-[state=open]:translate-y-0 data-[state=open]:opacity-100 md:mt-0 md:max-w-2xl md:flex-none md:rounded-2xl md:p-8"
+				style={`height: ${dialogHeight}; max-height: ${dialogHeight};`}
 			>
 				<header class="mb-4 flex items-center justify-between">
 					<h2 class="text-base font-semibold text-slate-900">Bibliothek & Kapitel wählen</h2>
 					<button class="text-sm text-slate-500" type="button" on:click={() => (showLibraryPicker = false)}>Schließen</button>
 				</header>
 				<form
-					class="flex flex-col gap-4"
+					class="flex flex-1 min-h-0 flex-col gap-4 overflow-hidden"
 					on:submit|preventDefault={async () => {
 						const imported = await handleLibraryImport();
 						if (imported) {
@@ -1257,7 +1263,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 								Zurücksetzen
 							</button>
 						</div>
-						<div class="grid max-h-[50vh] grid-cols-1 gap-2 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3">
+						<div class="grid flex-1 min-h-0 grid-cols-1 gap-2 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3 pr-2">
 							{#each currentLibraryChapters as chapter}
 								<label class="flex items-center justify-between gap-3 rounded-md bg-white px-3 py-2 text-sm text-slate-700 shadow-sm cursor-pointer hover:bg-slate-50 transition">
 									<span class="font-medium">{chapter.label}</span>
@@ -1272,12 +1278,12 @@ Format 2 - Mit Kapiteln (wie Klett):
 							{/each}
 						</div>
 					{:else}
-						<div class="rounded-lg border border-slate-200 bg-slate-50 p-4 text-center text-sm text-slate-600">
+						<div class="flex-1 rounded-lg border border-slate-200 bg-slate-50 p-4 text-center text-sm text-slate-600">
 							Keine Kapitel verfügbar für diese Bibliothek.
 						</div>
 					{/if}
 
-					<div class="flex flex-col gap-2 text-sm text-slate-600">
+					<div class="mt-auto flex flex-col gap-2 border-t border-slate-200/70 pt-3 text-sm text-slate-600">
 						<span>Ausgewählt: {selectedWordCount} Wörter aus {selectedChapterIds.length} Kapitel(n)</span>
 						<button
 							type="submit"
@@ -1298,7 +1304,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 
 	{#if showKlettPicker}
 		<div
-			class="fixed inset-0 z-[80] isolate flex flex-col bg-white/80 backdrop-blur-sm md:items-center md:justify-center md:px-4 md:pb-10"
+			class="fixed inset-0 z-[80] isolate flex flex-col bg-white/80 backdrop-blur-sm md:items-center md:px-4"
 			style={`padding-top: ${dialogPaddingTop};`}
 			role="dialog"
 			aria-modal="true"
@@ -1318,15 +1324,15 @@ Format 2 - Mit Kapiteln (wie Klett):
 			></button>
 			<div
 				data-state="open"
-				class="relative z-10 flex w-full flex-1 flex-col translate-y-6 overflow-y-auto rounded-t-3xl bg-white p-6 opacity-0 shadow-2xl ring-1 ring-slate-200 transition-all duration-300 ease-out data-[state=open]:translate-y-0 data-[state=open]:opacity-100 md:mt-0 md:h-auto md:max-w-2xl md:flex-none md:rounded-2xl md:p-8"
-				style={`min-height: ${dialogMinHeight};`}
+				class="relative z-10 flex w-full flex-1 min-h-0 flex-col translate-y-6 overflow-hidden rounded-t-3xl bg-white p-6 opacity-0 shadow-2xl ring-1 ring-slate-200 transition-all duration-300 ease-out data-[state=open]:translate-y-0 data-[state=open]:opacity-100 md:mt-0 md:max-w-2xl md:flex-none md:rounded-2xl md:p-8"
+				style={`height: ${dialogHeight}; max-height: ${dialogHeight};`}
 			>
 				<header class="mb-4 flex items-center justify-between">
 					<h2 class="text-base font-semibold text-slate-900">Klett Kapitel wählen</h2>
 					<button class="text-sm text-slate-500" type="button" on:click={() => (showKlettPicker = false)}>Schließen</button>
 				</header>
 				<form
-					class="flex flex-col gap-4"
+					class="flex flex-1 min-h-0 flex-col gap-4 overflow-hidden"
 					on:submit|preventDefault={async () => {
 						const imported = await handleKlettImport();
 						if (imported) {
@@ -1342,9 +1348,9 @@ Format 2 - Mit Kapiteln (wie Klett):
 							Zurücksetzen
 						</button>
 					</div>
-					<div class="grid max-h-[55vh] grid-cols-1 gap-2 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3">
+					<div class="grid flex-1 min-h-0 grid-cols-1 gap-2 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3 pr-2">
 						{#each klettChapterSummaries as item}
-							<label class="flex items-center justify-between gap-3 rounded-md bg-white px-3 py-2 text-sm text-slate-700 shadow-sm">
+							<label class="flex items-center justify-between gap-3 rounded-md bg-white px-3 py-2 text-sm text-slate-700 shadow-sm cursor-pointer transition hover:bg-slate-50">
 								<span>Kapitel {item.chapter}</span>
 								<span class="text-xs text-slate-500">{item.wordCount} Wörter</span>
 								<input
@@ -1356,7 +1362,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 							</label>
 						{/each}
 					</div>
-					<div class="flex flex-col gap-2 text-sm text-slate-600">
+					<div class="mt-auto flex flex-col gap-2 border-t border-slate-200/70 pt-3 text-sm text-slate-600">
 						<span>Ausgewählt: {selectedKlettWordCount} Wörter</span>
 						<button
 							type="submit"

@@ -1,5 +1,8 @@
 {
   "version": 1,
+  "libraryId": "hsk",
+  "name": "HSK Stufe 1",
+  "promptLanguage": "en",
   "chapter": "HSK1",
   "words": [
     {

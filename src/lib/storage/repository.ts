@@ -20,12 +20,13 @@ import type {
 	WordPack
 } from '../types';
 import { defaultWords } from '../data/defaultWords';
-import { klettChapters, totalKlettWords } from '../data/klett';
-import { 
-	availableLibraries, 
-	getChaptersForLibrary, 
+import {
+	availableLibraries,
+	getChaptersForLibrary,
 	getWordsForChapters,
-	type LibraryType 
+	getLibraryMetadata,
+	getLibraryTotalWordCount,
+	type LibraryType
 } from '../data/libraries';
 import { scheduleNextReview, selectNextCandidate } from '../scheduler/spaced-repetition';
 import { exportSnapshotSchema, wordPackSchema, chaptersPackSchema } from './schema';
@@ -317,67 +318,87 @@ export interface KlettChapterSummary {
 	wordCount: number;
 }
 
+const KLETT_LIBRARY_ID: LibraryType = 'klett';
+
 export function getKlettChapterSummaries(): KlettChapterSummary[] {
-	return klettChapters.map((chapter) => ({
-		chapter: chapter.chapter,
-		wordCount: chapter.words.length
-	}));
+	const library = getLibraryMetadata(KLETT_LIBRARY_ID);
+	if (!library) {
+		return [];
+	}
+
+	return library.chapters
+		.filter((chapter) => typeof chapter.numericChapter === 'number')
+		.map((chapter) => ({
+			chapter: chapter.numericChapter as number,
+			wordCount: chapter.wordCount
+		}))
+		.sort((a, b) => a.chapter - b.chapter);
 }
 
 export function getKlettTotalWordCount(): number {
-	return totalKlettWords;
+	return getLibraryTotalWordCount(KLETT_LIBRARY_ID);
 }
 
 export async function importKlettChapters(selection: 'all' | number | number[]): Promise<{ inserted: number }> {
-	const numbers =
-		selection === 'all'
-			? klettChapters.map((chapter) => chapter.chapter)
-			: Array.isArray(selection)
-				? selection
-				: [selection];
-
-	const selected = klettChapters.filter((chapter) => numbers.includes(chapter.chapter));
-	const words = selected.flatMap((chapter) => chapter.words);
-	if (words.length === 0) {
+	const library = getLibraryMetadata(KLETT_LIBRARY_ID);
+	if (!library) {
 		return { inserted: 0 };
 	}
 
-	return importWordPack(
-		{
-			version: 1,
-			words
-		},
-		'built-in'
-	);
-}
+	const chapterIdByNumber = new Map<number, string>();
+	library.chapters.forEach((chapter) => {
+		if (typeof chapter.numericChapter === 'number') {
+			chapterIdByNumber.set(chapter.numericChapter, chapter.id);
+		}
+	});
 
-export async function suspendKlettChapters(selection: 'all' | number | number[]): Promise<number> {
-	const chapterNumbers =
+	const numbers =
 		selection === 'all'
-			? klettChapters.map((chapter) => chapter.chapter)
+			? Array.from(chapterIdByNumber.keys())
 			: Array.isArray(selection)
 				? selection
 				: [selection];
 
-	const wordIds = klettChapters
-		.filter((chapter) => chapterNumbers.includes(chapter.chapter))
-		.flatMap((chapter) => chapter.words.map((word) => word.id));
+	const chapterIds = numbers
+		.map((number) => chapterIdByNumber.get(number))
+		.filter((id): id is string => Boolean(id));
 
-	if (wordIds.length === 0) {
+	if (chapterIds.length === 0) {
+		return { inserted: 0 };
+	}
+
+	return importLibraryChapters(KLETT_LIBRARY_ID, chapterIds);
+}
+
+export async function suspendKlettChapters(selection: 'all' | number | number[]): Promise<number> {
+	const library = getLibraryMetadata(KLETT_LIBRARY_ID);
+	if (!library) {
 		return 0;
 	}
 
-	let affected = 0;
-	await db.transaction('rw', db.progress, async () => {
-		for (const wordId of wordIds) {
-			const progress = await db.progress.get(wordId);
-			if (!progress || progress.suspended) continue;
-			await db.progress.put({ ...progress, suspended: true });
-			affected += 1;
+	const chapterIdByNumber = new Map<number, string>();
+	library.chapters.forEach((chapter) => {
+		if (typeof chapter.numericChapter === 'number') {
+			chapterIdByNumber.set(chapter.numericChapter, chapter.id);
 		}
 	});
 
-	return affected;
+	const numbers =
+		selection === 'all'
+			? Array.from(chapterIdByNumber.keys())
+			: Array.isArray(selection)
+				? selection
+				: [selection];
+
+	const chapterIds = numbers
+		.map((number) => chapterIdByNumber.get(number))
+		.filter((id): id is string => Boolean(id));
+
+	if (chapterIds.length === 0) {
+		return 0;
+	}
+
+	return suspendLibraryChapters(KLETT_LIBRARY_ID, chapterIds);
 }
 
 // New generic library functions

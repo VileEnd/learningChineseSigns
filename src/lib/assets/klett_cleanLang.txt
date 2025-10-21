@@ -117,7 +117,6 @@ nián 年 Jahr
 qiántiān 前天 vorgestern
 shēngrì 生日 Geburtstag
 shǔ 属 im Jahr des ...
-geboren sein
 wǎnshang 晚上 Abend, Nacht
 wǒmen 我们 wir, uns
 xīngqī 星期 Woche
@@ -182,8 +181,7 @@ zuò fēijī 坐飞机 mit dem Flugzeug
 zuò gōnggòng qìchē 坐公共 汽车 mit dem Bus
 zuò huǒchē 坐火车 mit der Eisenbahn
 Lektion 10
-bié de 别的 anderer, andere,
-anderes, weitere
+bié de 别的 anderer, andere,anderes, weitere
 cǎoméi 草莓 Erdbeere
 dài 袋 Beutel, Tasche
 gěi 给 geben
@@ -261,8 +259,7 @@ nǚ xié 女鞋 Damenschuhe
 piányi 便宜 billig
 píxié 皮鞋 Lederschuhe
 qiǎn lánsè 浅蓝色 hellblau
-shì 试 anprobieren, probie-
-ren, versuchen
+shì 试 anprobieren, probieren, versuchen
 shì yī jiān 试衣间 Umkleidekabine
 shuāng 双 Paar
 xiǎo 小 klein
@@ -274,8 +271,7 @@ yǒudiǎnr 有点儿 ein bisschen
 zhèng 正 richtig
 zǐsè 紫色 violett
 Lektion 13
-bāozi 包子 Baozi (gedämpfte
-Teigtasche mit Füllung)
+bāozi 包子 Baozi (gedämpfte Teigtasche mit Füllung)
 Běijīng kǎoyā 北京烤鸭 Pekingente
 cài 菜 Gericht
 chángcháng 常常 oft
@@ -356,8 +352,7 @@ xiǎojiě 小姐 Fräulein
 xiǎoshí 小时 Stunde
 yīngbàng 英镑 Britisches Pfund
 yínháng 银行 Bank
-yuán 元 Yuan (größte Einheit der
-chinesischen Währung)
+yuán 元 Yuan (größte Einheit der chinesischen Währung)
 zì 字 Schriftzeichen
 zìdòng qǔkuǎnjī 自动取 款机 Geldautomat
 Lektion 16
@@ -454,8 +449,7 @@ guānglín 光临 besuchen, kommen
 Hànyǔ 汉语 Chinesisch
 hòubian 后边 hinten, hinter
 huáng 黄 gelb
-huānyíng 欢迎 Willkommen,
-willkommen heißen
+huānyíng 欢迎 Willkommen,willkommen heißen
 jiǎn 剪 schneiden
 jiēfà 接发 die Haare verlängern
 
@@ -524,8 +518,7 @@ kuàngquánshuǐ 矿泉水 Mineralwasser
 lǐ 里 inmitten, in
 niàn 念 aussprechen
 ò 哦 oh
-shēngcí 生词 neues Wort,
-Vokabel
+shēngcí 生词 neues Wort,Vokabel
 tí 题 Aufgabe, Frage
 tīngxiĕ 听写 diktieren, ein Diktat schreiben, Diktat
 wán 完 fertig, zu Ende, beenden
@@ -565,14 +558,12 @@ yǐweí 以为 glauben, meinen
 yǔfǎ 语法 Grammatik
 zhǐ 只 nur
 Lektion 23
-bă 把 (Präposition, zur Voranstel-
-lung des Objekts)
+bă 把 (Präposition, zur Voranstellung des Objekts)
 bĕnzi 本子 Heft
 chuānghu 窗户 Fenster
 chūlái 出来 herauskommen
 chūqù 出去 hinausgehen
-dǎ 打 (Bücher) öffnen,
-schlagen, spielen
+dǎ 打 (Bücher) öffnen, schlagen, spielen
 dàjiā 大家 alle, jedermann
 dēng 灯 Lampe, Licht
 gāi … le 该⋯了 es ist Zeit für …
@@ -615,9 +606,7 @@ HSK (standardisierter chinesischer Sprachtest)
 jiā yóu 加油 anfeuern, schneller!
 jīhuì 机会 Gelegenheit, Chance
 jǔxíng 举行 veranstalten
-kǎo 考 geprüft werden,
-eine Prüfung able-
-gen, prüfen
+kǎo 考 geprüft werden,eine Prüfung ablegen, prüfen
 kǎoshì 考试 Prüfung
 màn 慢 langsam
 shēng 声 Ton
