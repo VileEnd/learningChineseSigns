@@ -52,6 +52,7 @@
 	let pinyinAttempts = 0;
 	let message = '';
 	let toneMessage = '';
+	let revealedPinyin = '';
 	let currentWord: WordRecord | null = null;
 	let currentProgress: WordProgress | null = null;
 	let stage: LessonStage = 'pinyin';
@@ -644,6 +645,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 		attemptKey += 1;
 		message = '';
 		toneMessage = '';
+		revealedPinyin = '';
 		sessionFinished = false;
 		writingMode = 'free';
 	}
@@ -661,6 +663,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 		const mode = currentLearningMode();
 		stage = mode === 'prompt-to-pinyin' ? 'pinyin' : 'writing';
 		pinyinSolved = mode !== 'prompt-to-pinyin';
+		revealedPinyin = pinyinSolved ? word.pinyin : '';
 		if (stage === 'writing') {
 			writingMode = 'free';
 			attemptKey += 1;
@@ -885,7 +888,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 
 		const comparison = comparePinyin(input, currentWord, {
 			enforceTone: activeSettings.enforceTones,
-			allowNeutralToneMismatch: true
+			allowNeutralToneMismatch: !activeSettings.enforceTones
 		});
 
 		if (!comparison.lettersMatch) {
@@ -893,6 +896,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 			message = `Nicht ganz richtig. Verbleibende Versuche: ${remainingAttempts(pinyinAttempts)}`;
 			if (pinyinAttempts >= 3) {
 				message = `Richtige Antwort: ${currentWord.pinyin}`;
+				revealedPinyin = currentWord.pinyin;
 				stage = 'writing';
 				writingMode = 'free';
 				attemptKey += 1;
@@ -910,6 +914,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 
 		toneMessage = comparison.toneMismatch ? 'Tonabweichung akzeptiert (Tonprüfung deaktiviert).' : '';
 		pinyinSolved = true;
+		revealedPinyin = comparison.normalizedTarget;
 		message = 'Pinyin korrekt! Weiter geht es mit dem Schriftzeichen.';
 		stage = 'writing';
 		writingMode = 'free';
@@ -1630,6 +1635,9 @@ Format 2 - Mit Kapiteln (wie Klett):
 				<div class="space-y-2">
 					{#if message}
 						<p class="rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-slate-700">{message}</p>
+					{/if}
+					{#if revealedPinyin}
+						<p class="rounded-md border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-700">Pinyin: {revealedPinyin}</p>
 					{/if}
 					{#if toneMessage}
 						<p class="rounded-md border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">{toneMessage}</p>

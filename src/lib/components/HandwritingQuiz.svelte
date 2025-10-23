@@ -30,25 +30,105 @@
 
 	const PASSIVE_TOUCH_EVENTS = new Set(['touchstart', 'touchmove', 'touchend', 'touchcancel']);
 
-	function ensurePassiveTouchListeners(target: HTMLElement): () => void {
-		const originalAdd = target.addEventListener;
-		const patchedAdd: typeof target.addEventListener = (type: any, listener: any, options?: any) => {
+	type RenderTargetLike = {
+		node?: EventTarget | null;
+		_eventify?: (evt: Event, pointFunc: (event: Event) => { x: number; y: number }) => {
+			getPoint: () => { x: number; y: number };
+			preventDefault: () => void;
+		};
+	};
+
+	const PASSIVE_PATCHED_FLAG = Symbol('passiveTouchPatched');
+
+	type EventifyFn = (evt: Event, pointFunc: (event: Event) => { x: number; y: number }) => {
+		getPoint: () => { x: number; y: number };
+		preventDefault: () => void;
+	};
+
+	function applyPassiveHandlingToRenderTarget(target: RenderTargetLike | null | undefined): (() => void) | null {
+		if (!target || (target as Record<symbol, unknown>)[PASSIVE_PATCHED_FLAG]) {
+			return null;
+		}
+
+		const restorers: Array<() => void> = [];
+
+		const node = 'node' in target ? (target.node as EventTarget | null | undefined) : null;
+		const nodeRestorer = ensurePassiveTouchListeners(node);
+		if (nodeRestorer) {
+			restorers.push(nodeRestorer);
+		}
+
+		const maybeEventify = target._eventify as EventifyFn | undefined;
+		if (typeof maybeEventify === 'function') {
+			const patchedEventify: EventifyFn = function patchedEventify(
+				evt: Event,
+				pointFunc: (event: Event) => { x: number; y: number }
+			) {
+				const result = maybeEventify.call(target, evt, pointFunc);
+				const originalPrevent = result.preventDefault;
+				return {
+					getPoint: result.getPoint,
+					preventDefault: () => {
+						const cancelable = typeof evt === 'object' && evt !== null && 'cancelable' in evt ? (evt as Event).cancelable : true;
+						if (cancelable) {
+							try {
+								originalPrevent();
+							} catch (error) {
+								console.warn('preventDefault failed on passive touch event', error);
+							}
+						}
+					}
+				};
+			};
+			(target as RenderTargetLike & { _eventify: EventifyFn })._eventify = patchedEventify;
+			restorers.push(() => {
+				(target as RenderTargetLike & { _eventify: EventifyFn })._eventify = maybeEventify;
+			});
+		}
+
+		(target as Record<symbol, unknown>)[PASSIVE_PATCHED_FLAG] = true;
+
+		return restorers.length
+			? () => {
+				for (const restore of restorers) {
+					try {
+						restore();
+					} catch (error) {
+						console.warn('Failed to restore passive render target patch', error);
+					}
+				}
+				delete (target as Record<symbol, unknown>)[PASSIVE_PATCHED_FLAG];
+			}
+			: null;
+	}
+
+	type EventTargetWithAdd = EventTarget & {
+		addEventListener: (type: string, listener: EventListenerOrEventListenerObject | null, options?: boolean | AddEventListenerOptions) => void;
+	};
+
+	function ensurePassiveTouchListeners(target: EventTarget | null | undefined): (() => void) | null {
+		const candidate = target as EventTargetWithAdd | null;
+		if (!candidate || typeof candidate.addEventListener !== 'function') {
+			return null;
+		}
+		const originalAdd = candidate.addEventListener.bind(candidate);
+		const patchedAdd: typeof candidate.addEventListener = (type, listener, options) => {
 			if (typeof type === 'string' && PASSIVE_TOUCH_EVENTS.has(type)) {
 				if (options === undefined) {
-					return originalAdd.call(target, type, listener, { passive: true });
+					return originalAdd(type, listener, { passive: true });
 				}
 				if (typeof options === 'boolean') {
-					return originalAdd.call(target, type, listener, { capture: options, passive: true });
+					return originalAdd(type, listener, { capture: options, passive: true });
 				}
 				if (options && typeof options === 'object' && !('passive' in options)) {
-					return originalAdd.call(target, type, listener, { ...options, passive: true });
+					return originalAdd(type, listener, { ...options, passive: true });
 				}
 			}
-			return originalAdd.call(target, type, listener, options);
+			return originalAdd(type, listener, options);
 		};
-		target.addEventListener = patchedAdd;
+		(candidate as EventTargetWithAdd).addEventListener = patchedAdd;
 		return () => {
-			target.addEventListener = originalAdd;
+			(candidate as EventTargetWithAdd).addEventListener = originalAdd;
 		};
 	}
 
@@ -146,9 +226,25 @@
 	}
 
 	onMount(async () => {
-		if (container) {
-			restorePassiveListeners = ensurePassiveTouchListeners(container);
-		}
+		const restorers: Array<() => void> = [];
+		const containerRestorer = ensurePassiveTouchListeners(container);
+		if (containerRestorer) restorers.push(containerRestorer);
+		const ownerDocument = container?.ownerDocument ?? (typeof document !== 'undefined' ? document : null);
+		const docRestorer = ensurePassiveTouchListeners(ownerDocument);
+		if (docRestorer) restorers.push(docRestorer);
+		const winRestorer = ensurePassiveTouchListeners(ownerDocument?.defaultView ?? (typeof window !== 'undefined' ? window : null));
+		if (winRestorer) restorers.push(winRestorer);
+		restorePassiveListeners = restorers.length
+			? () => {
+				for (const restore of restorers) {
+					try {
+						restore();
+					} catch (error) {
+						console.warn('Failed to restore passive listener patch', error);
+					}
+				}
+			}
+			: null;
 
 		writer = HanziWriter.create(container, character, {
 			showOutline: false,
@@ -159,6 +255,11 @@
 			strokeColor: '#0f172a',
 			highlightColor: '#22c55e'
 		});
+
+		const renderTargetRestorer = applyPassiveHandlingToRenderTarget((writer as unknown as { target?: RenderTargetLike }).target);
+		if (renderTargetRestorer) {
+			restorers.push(renderTargetRestorer);
+		}
 
 		outlineHintActive = alwaysShowOutline;
 		await syncOutline();
@@ -241,5 +342,5 @@ export async function revealOutline(): Promise<void> {
 </script>
 
 <div class="mx-auto max-w-xs" aria-live="polite">
-	<div class="aspect-square border border-slate-300 bg-white" bind:this={container}></div>
+	<div class="aspect-square border border-slate-300 bg-white touch-none select-none" bind:this={container}></div>
 </div>

@@ -44,6 +44,39 @@ const digitToneMap: Record<string, number> = {
 
 export const pinyinDelimiters = /[\s\-··\.]+/g;
 
+const SYLLABLE_SEPARATORS = new Set([' ', '\t', '\n', '\r', '-', '·', '•', '.', ',', ';', ':']);
+
+function splitIntoSyllables(input: string): string[] {
+	const tokens: string[] = [];
+	let buffer = '';
+	const normalized = input.normalize('NFC');
+
+	const pushBuffer = () => {
+		const trimmed = buffer.trim();
+		if (trimmed.length > 0) {
+			tokens.push(trimmed);
+		}
+		buffer = '';
+	};
+
+	for (const rawChar of normalized) {
+		const lower = rawChar.toLowerCase();
+		if (SYLLABLE_SEPARATORS.has(lower) || lower === "'" || lower === '’') {
+			pushBuffer();
+			continue;
+		}
+		if (digitToneMap[lower] !== undefined) {
+			buffer += lower;
+			pushBuffer();
+			continue;
+		}
+		buffer += lower;
+	}
+
+	pushBuffer();
+	return tokens;
+}
+
 export function parseSyllable(raw: string): ParsedSyllable {
 	const normalized = raw
 		.trim()
@@ -91,8 +124,7 @@ export function parseSyllable(raw: string): ParsedSyllable {
 }
 
 export function parsePinyin(input: string): ParsedSyllable[] {
-	return input
-		.split(pinyinDelimiters)
+	return splitIntoSyllables(input)
 		.map((syllable) => parseSyllable(syllable))
 		.filter((syllable) => syllable.letters.length > 0);
 }
