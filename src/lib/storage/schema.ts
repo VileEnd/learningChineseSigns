@@ -33,10 +33,16 @@ export const chaptersPackSchema = z.object({
 
 export const settingsSchema = z.object({
 	interfaceLanguage: z.string().min(2).max(8),
-	learningMode: z.enum(['prompt-to-pinyin', 'prompt-to-character', 'pinyin-to-character']),
+	learningMode: z.enum([
+		'prompt-to-pinyin',
+		'prompt-to-character',
+		'pinyin-to-character',
+		'matching-triplets'
+	]),
 	enforceTones: z.boolean(),
 	showStrokeOrderHints: z.boolean(),
-	leniency: z.number().min(0.2).max(2)
+	leniency: z.number().min(0.2).max(2),
+	librarySelections: z.record(z.string(), z.array(z.string().min(1))).default({})
 });
 
 export const progressSchema = z.object({

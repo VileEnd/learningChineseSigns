@@ -11,10 +11,13 @@ import {
 } from './db';
 import type {
 	ExportSnapshot,
+	MatchingRound,
+	MatchingRoundWord,
 	LessonStage,
 	LessonSummary,
 	SessionState,
 	Settings,
+	LibrarySelectionMap,
 	WordEntry,
 	WordProgress,
 	WordPack
@@ -29,7 +32,7 @@ import {
 	type LibraryType
 } from '../data/libraries';
 import { scheduleNextReview, selectNextCandidate } from '../scheduler/spaced-repetition';
-import { exportSnapshotSchema, wordPackSchema, chaptersPackSchema } from './schema';
+import { exportSnapshotSchema, wordPackSchema, chaptersPackSchema, settingsSchema } from './schema';
 
 export async function initializeRepository(): Promise<void> {
 	await db.open();
@@ -55,12 +58,27 @@ async function removeLegacyDefaultWords(): Promise<void> {
 	});
 }
 
+function shuffle<T>(items: T[]): T[] {
+	const result = [...items];
+	for (let index = result.length - 1; index > 0; index -= 1) {
+		const swapIndex = Math.floor(Math.random() * (index + 1));
+		[result[index], result[swapIndex]] = [result[swapIndex], result[index]];
+	}
+	return result;
+}
+
 export async function getSettings(): Promise<Settings> {
-	return db.ensureSettings().then((record) => record.payload);
+	const record = await db.ensureSettings();
+	const parsed = settingsSchema.parse(record.payload);
+	if (record.payload.librarySelections === undefined) {
+		await saveSettings(parsed);
+	}
+	return parsed;
 }
 
 export async function saveSettings(settings: Settings): Promise<void> {
-	await db.settings.put({ id: 'default', payload: settings, updatedAt: Date.now() });
+	const parsed = settingsSchema.parse(settings);
+	await db.settings.put({ id: 'default', payload: parsed, updatedAt: Date.now() });
 }
 
 export async function getNextLessonCandidate(): Promise<{ word: WordRecord; progress: WordProgress } | null> {
@@ -87,6 +105,60 @@ export async function getNextLessonCandidate(): Promise<{ word: WordRecord; prog
 	return { word, progress: nextProgress };
 }
 
+export async function getMatchingRound(): Promise<MatchingRound | null> {
+	const progressList = (await db.progress.toArray()).map((item) => ({
+		...item,
+		reviewCount: item.reviewCount ?? 0,
+		suspended: item.suspended ?? false
+	}));
+	const activeProgress = progressList.filter((item) => !item.suspended);
+	if (activeProgress.length < 3) {
+		return null;
+	}
+
+	const now = Date.now();
+	const dueProgress = activeProgress.filter((item) => item.nextDueAt <= now);
+	const prioritized = dueProgress.length >= 3 ? dueProgress : activeProgress;
+	const ordered = dueProgress.length >= 3 ? shuffle(dueProgress) : shuffle([...prioritized].sort((a, b) => a.nextDueAt - b.nextDueAt));
+
+	const words: MatchingRoundWord[] = [];
+	const seen = new Set<string>();
+
+	async function appendFrom(progressItems: WordProgress[]): Promise<void> {
+		for (const progress of progressItems) {
+			if (seen.has(progress.wordId)) {
+				continue;
+			}
+			const word = await db.words.get(progress.wordId);
+			if (!word) {
+				continue;
+			}
+			seen.add(progress.wordId);
+			words.push({
+				id: word.id,
+				prompt: word.prompt,
+				pinyin: word.pinyin,
+				characters: word.characters
+			});
+			if (words.length === 3) {
+				return;
+			}
+		}
+	}
+
+	await appendFrom(ordered);
+	if (words.length < 3) {
+		const fallback = shuffle(activeProgress);
+		await appendFrom(fallback);
+	}
+
+	if (words.length < 3) {
+		return null;
+	}
+
+	return { words };
+}
+
 export async function recordLesson(summary: LessonSummary): Promise<void> {
 	const currentProgress = await db.progress.get(summary.wordId);
 	if (!currentProgress) {
@@ -103,6 +175,24 @@ export async function recordLesson(summary: LessonSummary): Promise<void> {
 		writingAttempts: summary.writingAttempts,
 		timestamp: summary.timestamp
 	});
+}
+
+export async function recordMatchingRound(wordIds: string[]): Promise<void> {
+	if (wordIds.length === 0) {
+		return;
+	}
+	const baseTimestamp = Date.now();
+	for (let index = 0; index < wordIds.length; index += 1) {
+		const wordId = wordIds[index];
+		await recordLesson({
+			wordId,
+			success: true,
+			stageReached: 'complete',
+			pinyinAttempts: 0,
+			writingAttempts: 0,
+			timestamp: baseTimestamp + index
+		});
+	}
 }
 
 export async function listRecentSummaries(limit = 10): Promise<LessonSummary[]> {
@@ -411,7 +501,7 @@ export function getLibraryChapters(libraryId: LibraryType) {
 }
 
 export async function importLibraryChapters(
-	libraryId: LibraryType, 
+	libraryId: LibraryType,
 	chapterIds: string[]
 ): Promise<{ inserted: number }> {
 	const words = getWordsForChapters(libraryId, chapterIds);
@@ -451,4 +541,76 @@ export async function suspendLibraryChapters(
 	});
 
 	return affected;
+}
+
+interface LibrarySelectionDetail {
+	libraryId: LibraryType;
+	name: string;
+	selectedChapters: number;
+	totalChapters: number;
+	inserted: number;
+	paused: number;
+}
+
+export async function applyLibrarySelections(
+	selections: LibrarySelectionMap | undefined
+): Promise<{
+	normalizedSelections: LibrarySelectionMap;
+	inserted: number;
+	paused: number;
+	details: LibrarySelectionDetail[];
+}> {
+	const normalizedSelections: LibrarySelectionMap = {};
+	let totalInserted = 0;
+	let totalPaused = 0;
+	const details: LibrarySelectionDetail[] = [];
+
+	for (const library of availableLibraries) {
+		const metadata = getLibraryMetadata(library.id);
+		if (!metadata || metadata.chapters.length === 0) {
+			continue;
+		}
+
+		const selectionSet = new Set((selections?.[library.id] ?? []).filter(Boolean));
+		const selectedChapterIds = metadata.chapters
+			.filter((chapter) => selectionSet.has(chapter.id))
+			.map((chapter) => chapter.id);
+
+		let inserted = 0;
+		let paused = 0;
+
+		if (selectedChapterIds.length > 0) {
+			normalizedSelections[library.id] = selectedChapterIds;
+			const importResult = await importLibraryChapters(library.id, selectedChapterIds);
+			inserted = importResult.inserted;
+			const unselectedIds = metadata.chapters
+				.filter((chapter) => !selectionSet.has(chapter.id))
+				.map((chapter) => chapter.id);
+			paused = unselectedIds.length > 0 ? await suspendLibraryChapters(library.id, unselectedIds) : 0;
+		} else {
+			const allChapterIds = metadata.chapters.map((chapter) => chapter.id);
+			if (allChapterIds.length > 0) {
+				paused = await suspendLibraryChapters(library.id, allChapterIds);
+			}
+		}
+
+		totalInserted += inserted;
+		totalPaused += paused;
+
+		details.push({
+			libraryId: library.id,
+			name: metadata.name,
+			selectedChapters: selectedChapterIds.length,
+			totalChapters: metadata.chapters.length,
+			inserted,
+			paused
+		});
+	}
+
+	return {
+		normalizedSelections,
+		inserted: totalInserted,
+		paused: totalPaused,
+		details
+	};
 }

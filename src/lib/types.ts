@@ -1,4 +1,8 @@
-export type LearningMode = 'prompt-to-pinyin' | 'prompt-to-character' | 'pinyin-to-character';
+export type LearningMode =
+	| 'prompt-to-pinyin'
+	| 'prompt-to-character'
+	| 'pinyin-to-character'
+	| 'matching-triplets';
 
 export type LearningBucket = 'learning' | 'reinforce' | 'known';
 
@@ -63,12 +67,15 @@ export interface SessionState {
 	updatedAt: number;
 }
 
+export type LibrarySelectionMap = Record<string, string[]>;
+
 export interface Settings {
 	interfaceLanguage: string; // UI language (initially de)
 	learningMode: LearningMode;
 	enforceTones: boolean;
 	showStrokeOrderHints: boolean; // show character outline immediately instead of hiding it initially
 	leniency: number; // 0..1 for handwriting leniency (hanzi-writer quiz leniency)
+	librarySelections?: LibrarySelectionMap;
 }
 
 export interface ExportSnapshot {
@@ -76,4 +83,17 @@ export interface ExportSnapshot {
 	progress: WordProgress[];
 	customWords: WordEntry[];
 	lastUpdated: number;
+}
+
+export type MatchingCardKind = 'prompt' | 'pinyin' | 'characters';
+
+export interface MatchingRoundWord {
+	id: string;
+	prompt: string;
+	pinyin: string;
+	characters: string[];
+}
+
+export interface MatchingRound {
+	words: MatchingRoundWord[];
 }

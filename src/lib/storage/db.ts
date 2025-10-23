@@ -36,7 +36,8 @@ const DEFAULT_SETTINGS: Settings = {
 	learningMode: 'prompt-to-pinyin',
 	enforceTones: true,
 	showStrokeOrderHints: false,
-	leniency: 1
+	leniency: 1,
+	librarySelections: {}
 };
 
 class LearningDexie extends Dexie {
@@ -83,6 +84,18 @@ class LearningDexie extends Dexie {
 	async ensureSettings(): Promise<SettingsRecord> {
 		const existing = await this.settings.get('default');
 		if (existing) {
+			if (!existing.payload.librarySelections) {
+				const normalized: SettingsRecord = {
+					...existing,
+					payload: {
+						...existing.payload,
+						librarySelections: {}
+					},
+					updatedAt: Date.now()
+				};
+				await this.settings.put(normalized);
+				return normalized;
+			}
 			return existing;
 		}
 

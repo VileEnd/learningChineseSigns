@@ -2,11 +2,14 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import HandwritingQuiz from '$lib/components/HandwritingQuiz.svelte';
+	import MatchingDrill from '$lib/components/MatchingDrill.svelte';
 	import { comparePinyin } from '$lib/utils/pinyin';
 	import {
 		initializeRepository,
 		getNextLessonCandidate,
+		getMatchingRound,
 		recordLesson,
+		recordMatchingRound,
 		exportSnapshot,
 		importWordPack,
 		importSnapshot,
@@ -25,10 +28,21 @@
 		getAvailableLibraries,
 		getLibraryChapters,
 		importLibraryChapters,
-		suspendLibraryChapters
+		suspendLibraryChapters,
+		applyLibrarySelections
 	} from '$lib/storage/repository';
 	import { loadSettings, saveSettings, settings } from '$lib/state/settings';
-	import type { LessonStage, LessonSummary, SessionState, Settings, WordProgress, WritingMode } from '$lib/types';
+	import type {
+		LessonStage,
+		LessonSummary,
+		MatchingRoundWord,
+		LearningMode,
+		SessionState,
+		Settings,
+		WordProgress,
+		WritingMode,
+		LibrarySelectionMap
+	} from '$lib/types';
 	import type { WordRecord } from '$lib/storage/db';
 	import type { LibraryType } from '$lib/data/libraries';
 
@@ -56,16 +70,33 @@
 	let characterIndex = 0;
 	let quizComponent: InstanceType<typeof HandwritingQuiz> | null = null;
 	let showImportHelp = false;
+
+	// Matching mode state
+	let matchingWords: MatchingRoundWord[] = [];
+	let matchingRoundId = 0;
+	let matchingLoading = false;
+	let matchingError = '';
+	let matchingComplete = false;
+	let matchingRecording = false;
+	let lastMatchedWords: MatchingRoundWord[] = [];
+	let matchingFeedback = '';
+	let fallbackLearningMode: LearningMode = 'prompt-to-pinyin';
+	let togglingMode = false;
+	let matchingModeActive = false;
+	let settingsPreferredMode: Exclude<LearningMode, 'matching-triplets'> = 'prompt-to-pinyin';
+	let settingsWasOpen = false;
 	
 	// Library management
 	const availableLibraries = getAvailableLibraries();
-	let selectedLibrary: LibraryType = 'klett';
-	if (!availableLibraries.some((library) => library.id === selectedLibrary) && availableLibraries.length > 0) {
-		selectedLibrary = availableLibraries[0].id as LibraryType;
-	}
-	let selectedChapterIds: string[] = [];
+	const libraryCatalog = availableLibraries.map((library) => ({
+		...library,
+		chapters: getLibraryChapters(library.id)
+	}));
+	const libraryCatalogMap = new Map(libraryCatalog.map((entry) => [entry.id as LibraryType, entry]));
 	let libraryImporting = false;
 	let showLibraryPicker = false;
+	let librarySelectionDraft: LibrarySelectionMap = {};
+	let storedLibrarySelections: LibrarySelectionMap = {};
 	
 	// Legacy Klett support (for backwards compatibility)
 	const klettChapterSummaries = getKlettChapterSummaries();
@@ -92,14 +123,78 @@
 	let dialogHeight = 'calc(100dvh - 32px - 1rem)';
 	
 	// Reactive statements for library selection
-	$: currentLibraryChapters = getLibraryChapters(selectedLibrary);
-	$: allChaptersSelected = currentLibraryChapters.length > 0 && selectedChapterIds.length === currentLibraryChapters.length;
-	$: selectedWordCount = selectedChapterIds.length === 0 
-		? 0 
-		: currentLibraryChapters
-			.filter((chapter) => selectedChapterIds.includes(chapter.id))
-			.reduce((sum, chapter) => sum + chapter.wordCount, 0);
-	$: selectedLibraryInfo = availableLibraries.find((lib) => lib.id === selectedLibrary);
+	type LibrarySummary = {
+		libraryId: LibraryType;
+		name: string;
+		chapterCount: number;
+		wordCount: number;
+		chapterLabels: string[];
+	};
+	type DraftSummary = {
+		libraryId: LibraryType;
+		name: string;
+		chapterCount: number;
+		wordCount: number;
+	};
+	let librarySummaries: LibrarySummary[] = [];
+	let totalSelectedChapters = 0;
+	let totalSelectedWords = 0;
+	let libraryHeaderLabel = '';
+	let primaryLibraryLabel = '';
+	let librarySelectionDraftSummary: DraftSummary[] = [];
+	let draftSummaryMap = new Map<LibraryType, DraftSummary>();
+	let draftTotalChapters = 0;
+	let draftTotalWords = 0;
+	let draftActiveLibraries = 0;
+
+	$: storedLibrarySelections = activeSettings?.librarySelections ?? {};
+	$: librarySummaries = Object.entries(storedLibrarySelections)
+		.map(([libraryId, chapterIds]) => {
+			const catalog = libraryCatalogMap.get(libraryId as LibraryType);
+			if (!catalog || chapterIds.length === 0) {
+				return null;
+			}
+			const selectedSet = new Set(chapterIds);
+			const selectedChapters = catalog.chapters.filter((chapter) => selectedSet.has(chapter.id));
+			if (selectedChapters.length === 0) {
+				return null;
+			}
+			return {
+				libraryId: libraryId as LibraryType,
+				name: catalog.name,
+				chapterCount: selectedChapters.length,
+				wordCount: selectedChapters.reduce((sum, chapter) => sum + chapter.wordCount, 0),
+				chapterLabels: selectedChapters.map((chapter) => chapter.label)
+			};
+		})
+		.filter((entry): entry is LibrarySummary => entry !== null);
+	$: totalSelectedChapters = librarySummaries.reduce((sum, entry) => sum + entry.chapterCount, 0);
+	$: totalSelectedWords = librarySummaries.reduce((sum, entry) => sum + entry.wordCount, 0);
+	$: libraryHeaderLabel = librarySummaries.length === 0
+		? 'Keine Bibliotheken aktiv'
+		: librarySummaries.length === 1
+			? `${librarySummaries[0].name}: ${librarySummaries[0].chapterCount} Kap., ${librarySummaries[0].wordCount} Wörter`
+			: `${librarySummaries.length} Bibliotheken · ${totalSelectedChapters} Kap., ${totalSelectedWords} Wörter`;
+	$: primaryLibraryLabel = librarySummaries.length === 0
+		? 'Keine Bibliothek'
+		: librarySummaries.length === 1
+			? librarySummaries[0].name
+			: `${librarySummaries[0].name} +${librarySummaries.length - 1}`;
+	$: librarySelectionDraftSummary = libraryCatalog.map((catalog) => {
+		const draftChapters = librarySelectionDraft[catalog.id as LibraryType] ?? [];
+		const selectedSet = new Set(draftChapters);
+		const selectedChapters = catalog.chapters.filter((chapter) => selectedSet.has(chapter.id));
+		return {
+			libraryId: catalog.id as LibraryType,
+			name: catalog.name,
+			chapterCount: draftChapters.length,
+			wordCount: selectedChapters.reduce((sum, chapter) => sum + chapter.wordCount, 0)
+		};
+	});
+	$: draftSummaryMap = new Map(librarySelectionDraftSummary.map((entry) => [entry.libraryId, entry]));
+	$: draftTotalChapters = librarySelectionDraftSummary.reduce((sum, entry) => sum + entry.chapterCount, 0);
+	$: draftTotalWords = librarySelectionDraftSummary.reduce((sum, entry) => sum + entry.wordCount, 0);
+	$: draftActiveLibraries = librarySelectionDraftSummary.filter((entry) => entry.chapterCount > 0).length;
 	
 	// Legacy Klett reactive statements
 	$: allKlettChaptersSelected =
@@ -114,6 +209,10 @@
 		'inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-xs font-medium text-slate-700 ring-1 ring-slate-200/70 shadow-sm transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 md:gap-2 md:px-4 md:py-2 md:text-sm';
 	const headerPrimaryActionClass =
 		'inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 disabled:opacity-60 md:gap-2 md:px-4 md:py-2 md:text-sm';
+	const matchingModeButtonBase =
+		'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 disabled:opacity-60 md:px-4 md:py-2 md:text-sm';
+	const matchingModeInactiveClass = 'bg-amber-400 text-slate-900 hover:bg-amber-300';
+	const matchingModeActiveClass = 'bg-emerald-600 text-white hover:bg-emerald-500';
 	const importExample = `Format 1 - Einfache Wortliste:
 {
   "version": 1,
@@ -150,24 +249,65 @@ Format 2 - Mit Kapiteln (wie Klett):
   ]
 }`;
 
-	// Library management functions
-	function toggleChapter(chapterId: string) {
-		selectedChapterIds = selectedChapterIds.includes(chapterId)
-			? selectedChapterIds.filter((id) => id !== chapterId)
-			: [...selectedChapterIds, chapterId];
+	function cloneLibrarySelections(source: LibrarySelectionMap | undefined): LibrarySelectionMap {
+		const result: LibrarySelectionMap = {};
+		if (!source) {
+			return result;
+		}
+		for (const [libraryId, chapters] of Object.entries(source) as Array<[LibraryType, string[]]>) {
+			result[libraryId] = [...chapters];
+		}
+		return result;
 	}
 
-	function selectAllChapters() {
-		selectedChapterIds = currentLibraryChapters.map((chapter) => chapter.id);
+	function sortChapterIds(libraryId: LibraryType, chapterIds: Iterable<string>): string[] {
+		const catalog = libraryCatalogMap.get(libraryId);
+		if (!catalog) {
+			return Array.from(chapterIds);
+		}
+		const chapterSet = new Set(chapterIds);
+		return catalog.chapters.filter((chapter) => chapterSet.has(chapter.id)).map((chapter) => chapter.id);
 	}
 
-	function clearChapterSelection() {
-		selectedChapterIds = [];
+	function toggleLibraryChapter(libraryId: LibraryType, chapterId: string) {
+		const current = new Set(librarySelectionDraft[libraryId] ?? []);
+		if (current.has(chapterId)) {
+			current.delete(chapterId);
+		} else {
+			current.add(chapterId);
+		}
+		librarySelectionDraft = {
+			...librarySelectionDraft,
+			[libraryId]: sortChapterIds(libraryId, current)
+		};
 	}
 
-	function handleLibraryChange() {
-		// Reset chapter selection when library changes
-		selectedChapterIds = [];
+	function selectAllLibraryChapters(libraryId: LibraryType) {
+		const catalog = libraryCatalogMap.get(libraryId);
+		if (!catalog) {
+			return;
+		}
+		librarySelectionDraft = {
+			...librarySelectionDraft,
+			[libraryId]: catalog.chapters.map((chapter) => chapter.id)
+		};
+	}
+
+	function clearLibraryChapterSelection(libraryId: LibraryType) {
+		if (!(libraryId in librarySelectionDraft)) {
+			return;
+		}
+		const { [libraryId]: _removed, ...rest } = librarySelectionDraft;
+		librarySelectionDraft = rest;
+	}
+
+	function isChapterSelectedInDraft(libraryId: LibraryType, chapterId: string): boolean {
+		return (librarySelectionDraft[libraryId] ?? []).includes(chapterId);
+	}
+
+	function openLibraryPicker() {
+		librarySelectionDraft = cloneLibrarySelections(storedLibrarySelections);
+		showLibraryPicker = true;
 	}
 
 	// Legacy Klett functions (for backwards compatibility)
@@ -306,6 +446,22 @@ Format 2 - Mit Kapiteln (wie Klett):
 	let unsubscribe: (() => void) | null = null;
 
 	const currentLearningMode = (): Settings['learningMode'] => activeSettings?.learningMode ?? 'prompt-to-pinyin';
+	const isMatchingMode = (): boolean => matchingModeActive;
+
+	$: matchingModeActive = activeSettings?.learningMode === 'matching-triplets';
+
+	$: {
+		if (showSettings && !settingsWasOpen) {
+			const baseMode = matchingModeActive
+				? fallbackLearningMode
+				: activeSettings?.learningMode ?? 'prompt-to-pinyin';
+			settingsPreferredMode =
+				baseMode === 'matching-triplets' ? 'prompt-to-pinyin' : baseMode;
+			settingsWasOpen = true;
+		} else if (!showSettings && settingsWasOpen) {
+			settingsWasOpen = false;
+		}
+	}
 
 	onMount(async () => {
 		if (!browser) {
@@ -314,10 +470,39 @@ Format 2 - Mit Kapiteln (wie Klett):
 		await initializeRepository();
 		const loaded = await loadSettings();
 		activeSettings = loaded;
+		const selectionResult = await applyLibrarySelections(loaded.librarySelections);
+		if (selectionResult.inserted > 0 || selectionResult.paused > 0) {
+			importFeedback = selectionResult.details
+				.filter((detail) => detail.inserted > 0 || detail.paused > 0)
+				.map((detail) => {
+					const parts = [];
+					if (detail.inserted > 0) {
+						parts.push(`importiert ${detail.inserted}`);
+					}
+					if (detail.paused > 0) {
+						parts.push(`pausiert ${detail.paused}`);
+					}
+					return `${detail.name}: ${parts.join(', ')}`;
+				})
+				.join(' | ');
+		}
+		const normalizedSettings: Settings = {
+			...loaded,
+			librarySelections: selectionResult.normalizedSelections
+		};
+		if (JSON.stringify(normalizedSettings.librarySelections) !== JSON.stringify(loaded.librarySelections ?? {})) {
+			await saveSettings(normalizedSettings);
+		}
+		librarySelectionDraft = cloneLibrarySelections(selectionResult.normalizedSelections);
 		subscribeToSettings();
-		const restored = await hydrateSession();
-		if (!restored) {
-			await loadNextWord();
+		if (isMatchingMode()) {
+			await saveSession(null);
+			await loadMatchingRound();
+		} else {
+			const restored = await hydrateSession();
+			if (!restored) {
+				await loadNextWord();
+			}
 		}
 		summaryHistory = await listRecentSummaries();
 		document.addEventListener('click', handleGlobalSearchClick, true);
@@ -344,14 +529,75 @@ Format 2 - Mit Kapiteln (wie Klett):
 	function subscribeToSettings() {
 		if (unsubscribe) unsubscribe();
 		unsubscribe = settings.subscribe((value) => {
-			if (value) {
-				activeSettings = value;
+			if (!value) {
+				return;
+			}
+			const previousMode = activeSettings?.learningMode ?? fallbackLearningMode;
+			activeSettings = value;
+			if (value.learningMode !== 'matching-triplets') {
+				fallbackLearningMode = value.learningMode;
+			}
+			if (previousMode !== value.learningMode) {
+				void handleLearningModeChange(value.learningMode, previousMode);
+				return;
+			}
+			if (isMatchingMode()) {
+				void saveSession(null);
+			} else {
 				void persistSession();
 			}
 		});
 	}
 
+	function resetMatchingState(clearWords = false) {
+		if (clearWords) {
+			matchingWords = [];
+		}
+		matchingLoading = false;
+		matchingError = '';
+		matchingFeedback = '';
+		matchingComplete = false;
+		matchingRecording = false;
+		lastMatchedWords = [];
+	}
+
+	async function handleLearningModeChange(
+		nextMode: Settings['learningMode'],
+		previousMode: Settings['learningMode']
+	): Promise<void> {
+		if (!browser) {
+			return;
+		}
+		if (nextMode === 'matching-triplets') {
+			if (previousMode !== 'matching-triplets') {
+				fallbackLearningMode = previousMode;
+			}
+			loading = true;
+			currentWord = null;
+			currentProgress = null;
+			await saveSession(null);
+			resetMatchingState();
+			loading = false;
+			await loadMatchingRound();
+			return;
+		}
+
+		fallbackLearningMode = nextMode;
+		resetMatchingState(true);
+		loading = true;
+		if (previousMode === 'matching-triplets') {
+			await saveSession(null);
+		}
+		const restored = await hydrateSession();
+		if (!restored) {
+			await loadNextWord();
+		}
+	}
+
 	function serializeSession(): SessionState | null {
+		if (isMatchingMode()) {
+			return null;
+		}
 		if (!currentWord) {
 			return null;
 		}
@@ -376,10 +622,17 @@ Format 2 - Mit Kapiteln (wie Klett):
 	}
 
 	async function persistSession() {
+		if (isMatchingMode()) {
+			await saveSession(null);
+			return;
+		}
 		await saveSession(serializeSession());
 	}
 
 	function resetBeforeLoadingWord() {
+		if (isMatchingMode()) {
+			return;
+		}
 		loading = true;
 		errorMessage = '';
 		pinyinInput = '';
@@ -396,6 +649,9 @@ Format 2 - Mit Kapiteln (wie Klett):
 	}
 
 	async function applyActiveWord(word: WordRecord, progress: WordProgress | null) {
+		if (isMatchingMode()) {
+			return;
+		}
 		if (!progress) {
 			throw new Error('Es existiert kein Lernfortschritt für dieses Wort.');
 		}
@@ -451,6 +707,9 @@ Format 2 - Mit Kapiteln (wie Klett):
 	}
 
 	async function hydrateSession(): Promise<boolean> {
+		if (isMatchingMode()) {
+			return false;
+		}
 		const snapshot = await loadSession();
 		if (!snapshot) {
 			return false;
@@ -488,6 +747,9 @@ Format 2 - Mit Kapiteln (wie Klett):
 	}
 
 	async function loadNextWord() {
+		if (isMatchingMode()) {
+			return;
+		}
 		resetBeforeLoadingWord();
 		const candidate = await getNextLessonCandidate();
 		if (!candidate) {
@@ -504,6 +766,88 @@ Format 2 - Mit Kapiteln (wie Klett):
 		// Auto-collapse header on mobile when new word loads
 		if (isMobileViewport && !sessionFinished) {
 			headerExpanded = false;
+		}
+	}
+
+	async function loadMatchingRound(): Promise<void> {
+		resetMatchingState();
+		matchingLoading = true;
+		matchingRoundId += 1;
+		try {
+			const round = await getMatchingRound();
+			if (!round || round.words.length < 3) {
+				matchingWords = [];
+				matchingError =
+					'Nicht genug aktive Wörter für die Matching-Runde. Importiere neue Karten oder reaktiviere pausierte Wörter.';
+				return;
+			}
+			matchingWords = round.words;
+			matchingError = '';
+		} catch (error) {
+			console.error(error);
+			matchingWords = [];
+			matchingError = 'Matching-Runde konnte nicht geladen werden.';
+		} finally {
+			matchingLoading = false;
+			loading = false;
+		}
+	}
+
+	async function completeMatchingRound(wordIds: string[]): Promise<void> {
+		if (matchingRecording) {
+			return;
+		}
+		matchingComplete = true;
+		matchingRecording = true;
+		matchingError = '';
+		matchingFeedback = 'Speichere Lernerfolg...';
+		try {
+			if (wordIds.length > 0) {
+				const matched = matchingWords.filter((word) => wordIds.includes(word.id));
+				lastMatchedWords = matched;
+				await recordMatchingRound(wordIds);
+				summaryHistory = await listRecentSummaries();
+				matchingFeedback = 'Runde gespeichert. Starte eine neue Runde, wenn du bereit bist.';
+			} else {
+				lastMatchedWords = [];
+				matchingFeedback = 'Runde abgeschlossen.';
+			}
+		} catch (error) {
+			console.error(error);
+			matchingError = 'Ergebnisse konnten nicht gespeichert werden.';
+			matchingFeedback = '';
+			matchingComplete = false;
+		} finally {
+			matchingRecording = false;
+		}
+	}
+
+	async function refreshActiveMode(): Promise<void> {
+		if (isMatchingMode()) {
+			await saveSession(null);
+			await loadMatchingRound();
+			return;
+		}
+		await loadNextWord();
+	}
+
+	async function toggleMatchingMode(): Promise<void> {
+		if (!activeSettings || togglingMode) {
+			return;
+		}
+		togglingMode = true;
+		try {
+			const currentMode = activeSettings.learningMode;
+			let nextMode: LearningMode;
+			if (currentMode === 'matching-triplets') {
+				nextMode = fallbackLearningMode === 'matching-triplets' ? 'prompt-to-pinyin' : fallbackLearningMode;
+			} else {
+				nextMode = 'matching-triplets';
+			}
+			const nextSettings: Settings = { ...activeSettings, learningMode: nextMode };
+			await saveSettings(nextSettings);
+		} finally {
+			togglingMode = false;
 		}
 	}
 
@@ -737,8 +1081,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 				importFeedback = 'Benutzerdaten erfolgreich importiert.';
 			}
 
-			await loadNextWord();
-			void persistSession();
+			await refreshActiveMode();
 		} catch (error) {
 			console.error(error);
 			importFeedback = 'Import fehlgeschlagen. Bitte Datei prüfen.';
@@ -753,58 +1096,92 @@ Format 2 - Mit Kapiteln (wie Klett):
 		const formData = new FormData(form);
 		const enforceTones = formData.get('tones') === 'on';
 		const showOutline = formData.get('outline') === 'on';
-		const mode = formData.get('mode') as Settings['learningMode'];
+		const modeInput = formData.get('mode') as
+			| Exclude<LearningMode, 'matching-triplets'>
+			| null;
+		const selectedMode = modeInput ?? settingsPreferredMode;
 		const leniency = Number(formData.get('leniency'));
+		const matchingActive = isMatchingMode();
+		const appliedMode = matchingActive ? 'matching-triplets' : selectedMode;
+
+		if (selectedMode && selectedMode !== fallbackLearningMode) {
+			fallbackLearningMode = selectedMode;
+		}
 
 		const next: Settings = {
 			...activeSettings,
 			enforceTones,
 			showStrokeOrderHints: showOutline,
-			learningMode: mode,
+			learningMode: appliedMode,
 			leniency: Number.isFinite(leniency) ? leniency : activeSettings.leniency
 		};
 
 		await saveSettings(next);
+		settingsPreferredMode = selectedMode;
 		showSettings = false;
 		void persistSession();
 	}
 
 	async function handleLibraryImport(): Promise<boolean> {
-		if (libraryImporting) return false;
+		if (libraryImporting || !activeSettings) return false;
 		libraryImporting = true;
 		try {
-			if (selectedChapterIds.length === 0) {
-				// Suspend all chapters from the selected library
-				const allChapterIds = currentLibraryChapters.map((ch) => ch.id);
-				const paused = await suspendLibraryChapters(selectedLibrary, allChapterIds);
-				importFeedback = paused
-					? `Alle ${selectedLibraryInfo?.name || 'Bibliothek'}-Wörter wurden pausiert (${paused}).`
-					: `Keine aktiven ${selectedLibraryInfo?.name || 'Bibliothek'}-Wörter zum Pausieren gefunden.`;
-				await loadNextWord();
-				return true;
+			let totalInserted = 0;
+			let totalPaused = 0;
+			const feedbackSegments: string[] = [];
+
+			for (const catalog of libraryCatalog) {
+				const libraryId = catalog.id as LibraryType;
+				const validChapters = catalog.chapters.map((chapter) => chapter.id);
+				if (validChapters.length === 0) {
+					continue;
+				}
+				const selectedIds = (librarySelectionDraft[libraryId] ?? []).filter((id) => validChapters.includes(id));
+
+				if (selectedIds.length === 0) {
+					const paused = await suspendLibraryChapters(libraryId, validChapters);
+					if (paused > 0) {
+						totalPaused += paused;
+						feedbackSegments.push(`${catalog.name}: pausiert ${paused}`);
+					}
+					continue;
+				}
+
+				const importResult = await importLibraryChapters(libraryId, selectedIds);
+				const unselectedIds = validChapters.filter((id) => !selectedIds.includes(id));
+				const paused = unselectedIds.length > 0 ? await suspendLibraryChapters(libraryId, unselectedIds) : 0;
+				totalInserted += importResult.inserted;
+				totalPaused += paused;
+				const segmentDetails = [
+					importResult.inserted ? `importiert ${importResult.inserted}` : 'keine neuen Wörter',
+					paused ? `pausiert ${paused}` : ''
+				].filter(Boolean);
+				feedbackSegments.push(`${catalog.name}: ${segmentDetails.join(', ')}`);
 			}
 
-			// Import selected chapters
-			const result = await importLibraryChapters(selectedLibrary, selectedChapterIds);
-			
-			// Suspend chapters not selected
-			const unselectedChapterIds = currentLibraryChapters
-				.map((ch) => ch.id)
-				.filter((id) => !selectedChapterIds.includes(id));
-			
-			const paused = unselectedChapterIds.length > 0 
-				? await suspendLibraryChapters(selectedLibrary, unselectedChapterIds) 
-				: 0;
+			const normalizedSelections = Object.fromEntries(
+				Object.entries(librarySelectionDraft).filter(([, ids]) => ids.length > 0)
+			) as LibrarySelectionMap;
 
-			const feedbackParts = [
-				result.inserted
-					? `${selectedLibraryInfo?.name || 'Bibliothek'}-Wörter importiert: ${result.inserted}.`
-					: 'Keine neuen Wörter importiert – vermutlich schon vorhanden.',
-				paused ? `Pausiert: ${paused} Wörter außerhalb der Auswahl.` : ''
-			].filter(Boolean);
-			importFeedback = feedbackParts.join(' ');
+			const updatedSettings: Settings = {
+				...activeSettings,
+				librarySelections: normalizedSelections
+			};
 
-			await loadNextWord();
+			await saveSettings(updatedSettings);
+			librarySelectionDraft = cloneLibrarySelections(updatedSettings.librarySelections);
+
+			const summaryParts = [];
+			if (totalInserted > 0) {
+				summaryParts.push(`Importiert: ${totalInserted}`);
+			}
+			if (totalPaused > 0) {
+				summaryParts.push(`Pausiert: ${totalPaused}`);
+			}
+			const summary = summaryParts.join(' · ');
+			importFeedback = [summary, ...feedbackSegments].filter(Boolean).join(' | ') || 'Keine Änderungen vorgenommen.';
+
+			await refreshActiveMode();
 			return true;
 		} catch (error) {
 			console.error(error);
@@ -825,7 +1202,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 					? `Alle Klett-Wörter wurden pausiert (${paused}).`
 					: 'Keine aktiven Klett-Wörter zum Pausieren gefunden.';
 				if (currentWord && klettChapterFromWordId(currentWord.id) !== null) {
-					await loadNextWord();
+					await refreshActiveMode();
 				}
 				return true;
 			}
@@ -847,11 +1224,14 @@ Format 2 - Mit Kapiteln (wie Klett):
 			importFeedback = feedbackParts.join(' ');
 
 			if (!currentWord) {
-				await loadNextWord();
+				await refreshActiveMode();
 			} else {
 				const currentChapter = klettChapterFromWordId(currentWord.id);
-				if (currentChapter !== null && (excludedChapters.length === 0 ? false : excludedChapters.includes(currentChapter))) {
-					await loadNextWord();
+				if (
+					currentChapter !== null &&
+					(excludedChapters.length === 0 ? false : excludedChapters.includes(currentChapter))
+				) {
+					await refreshActiveMode();
 				}
 			}
 			return true;
@@ -865,7 +1245,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 	}
 
 	function resetSession() {
-		loadNextWord();
+		void refreshActiveMode();
 	}
 
 	async function unloadCurrentWord() {
@@ -875,7 +1255,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 		try {
 			await suspendWord(currentWord.id);
 			await saveSession(null);
-			await loadNextWord();
+			await refreshActiveMode();
 			importFeedback = `"${removedPrompt}" wird aktuell nicht mehr abgefragt. Fortschritt bleibt gespeichert.`;
 		} catch (error) {
 			console.error(error);
@@ -920,15 +1300,15 @@ Format 2 - Mit Kapiteln (wie Klett):
 						</button>
 						<div>
 							<h1 class="text-base font-semibold text-slate-900">Zettelkasten</h1>
-							<p class="text-xs text-slate-500">{selectedLibraryInfo?.name || 'Bibliothek'}</p>
+							<p class="text-xs text-slate-500">{primaryLibraryLabel}</p>
 						</div>
 					</div>
 					<button
 						type="button"
 						class="rounded-full bg-slate-900 px-2.5 py-1 text-xs font-medium text-white"
-						on:click={() => (showLibraryPicker = true)}
+						on:click={openLibraryPicker}
 					>
-						{selectedChapterIds.length}× / {selectedWordCount}
+						Kap. {totalSelectedChapters} / W {totalSelectedWords}
 					</button>
 				</div>
 			{:else}
@@ -1012,6 +1392,20 @@ Format 2 - Mit Kapiteln (wie Klett):
 							{/if}
 						</div>
 						<div class="flex flex-wrap items-center gap-2 md:justify-end">
+							<button
+								type="button"
+								class={`${matchingModeButtonBase} ${
+								matchingModeActive ? matchingModeActiveClass : matchingModeInactiveClass
+								}`}
+								on:click={() => void toggleMatchingMode()}
+								aria-pressed={matchingModeActive}
+								disabled={togglingMode || matchingLoading || matchingRecording || loading}
+							>
+								<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h2a3 3 0 006 0h2a2 2 0 012 2v2h-1a2 2 0 100 4h1v2a2 2 0 01-2 2h-2a3 3 0 10-6 0H7a2 2 0 01-2-2v-2h1a2 2 0 100-4H5v-2a2 2 0 012-2z" />
+								</svg>
+								<span>{matchingModeActive ? 'Zettelkasten starten' : 'Matching starten'}</span>
+							</button>
 							<button class={headerActionClass} type="button" on:click={() => (showSettings = true)}>
 								<svg class="h-4 w-4 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -1035,7 +1429,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 							<button
 								type="button"
 								class={`${headerActionClass} justify-between`}
-								on:click={() => (showLibraryPicker = true)}
+								on:click={openLibraryPicker}
 								aria-expanded={showLibraryPicker}
 							>
 								<svg class="h-4 w-4 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1043,8 +1437,8 @@ Format 2 - Mit Kapiteln (wie Klett):
 								</svg>
 								<span class="hidden md:inline">Bibliothek</span>
 								<span class="flex items-center gap-1 rounded-full bg-slate-900 px-1.5 py-0.5 text-[10px] font-semibold text-white md:px-2 md:text-xs">
-									{selectedChapterIds.length ? `${selectedChapterIds.length}×` : '0×'}
-									<span class="hidden sm:inline">{selectedWordCount} Wörter</span>
+									Kap. {totalSelectedChapters}
+									<span class="hidden sm:inline">W {totalSelectedWords}</span>
 								</span>
 							</button>
 							<button
@@ -1061,7 +1455,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 						</div>
 					</div>
 					<div class="hidden text-xs font-medium text-slate-500 md:block">
-						{selectedLibraryInfo?.name || 'Bibliothek'}: {selectedChapterIds.length ? `${selectedChapterIds.length} Kapitel, ${selectedWordCount} Wörter` : 'Keine Kapitel ausgewählt'}
+						{libraryHeaderLabel}
 					</div>
 				</div>
 			{/if}
@@ -1069,6 +1463,115 @@ Format 2 - Mit Kapiteln (wie Klett):
 	</header>
 	{#if loading}
 		<p class="text-center text-slate-600">Lade nächste Karte …</p>
+	{:else if matchingModeActive}
+		<article class="grid gap-8 md:grid-cols-[2fr,1fr]">
+			<section class="flex flex-col gap-6">
+				<div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+					<h2 class="text-2xl font-bold text-slate-900">Dreier-Matching</h2>
+					<p class="mt-2 text-sm text-slate-600">
+						Finde zu jedem Wort das passende Deutsch, Pinyin und Schriftzeichen.
+					</p>
+				</div>
+				<div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+					{#if matchingLoading}
+						<p class="text-sm text-slate-500">Matching-Runde wird geladen …</p>
+					{:else if matchingError}
+						<p class="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+							{matchingError}
+						</p>
+						<div class="mt-4 flex gap-3">
+							<button
+								type="button"
+								class="rounded-md bg-slate-900 px-4 py-2 text-white disabled:opacity-60"
+								on:click={() => loadMatchingRound()}
+								disabled={matchingLoading}
+							>
+								Erneut versuchen
+							</button>
+						</div>
+					{:else}
+						<MatchingDrill
+							words={matchingWords}
+							roundId={matchingRoundId}
+							disabled={matchingComplete || matchingRecording}
+							on:complete={(event) => completeMatchingRound(event.detail.wordIds)}
+						/>
+						<div class="mt-4 flex flex-wrap gap-3">
+							<button
+								type="button"
+								class="rounded-md bg-slate-900 px-4 py-2 text-white disabled:opacity-60"
+								on:click={() => loadMatchingRound()}
+								disabled={matchingLoading || matchingRecording}
+							>
+								{matchingComplete ? 'Neue Runde starten' : 'Neu mischen'}
+							</button>
+						</div>
+						{#if matchingFeedback}
+							<p class="mt-4 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+								{matchingFeedback}
+							</p>
+						{/if}
+					{/if}
+				</div>
+			</section>
+
+			<aside class="flex flex-col gap-4">
+				<section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+					<h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Rundenstatus</h3>
+					<ul class="mt-3 space-y-2 text-sm text-slate-700">
+						<li>Aktive Karten: {matchingWords.length}</li>
+						<li>Abgeschlossen: {matchingComplete ? 'Ja' : 'Nein'}</li>
+					</ul>
+				</section>
+				<section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+					<h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Letzte Treffer</h3>
+					{#if lastMatchedWords.length === 0}
+						<p class="mt-2 text-sm text-slate-500">Noch keine abgeschlossene Runde.</p>
+					{:else}
+						<ul class="mt-2 space-y-2 text-sm text-slate-600">
+							{#each lastMatchedWords as word}
+								<li class="rounded-md border border-slate-100 px-3 py-2">
+									<p class="font-semibold text-slate-900">{word.prompt}</p>
+									<p class="text-sm text-slate-600">{word.pinyin}</p>
+									<p class="text-lg text-slate-900">{word.characters.join('')}</p>
+								</li>
+							{/each}
+						</ul>
+					{/if}
+				</section>
+				<section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+					<h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Aktive Bibliotheken</h3>
+					{#if librarySummaries.length === 0}
+						<p class="mt-2 text-sm text-slate-500">Noch keine Auswahl getroffen.</p>
+					{:else}
+						<ul class="mt-2 space-y-2 text-sm text-slate-600">
+							{#each librarySummaries as summary}
+								<li class="rounded-md border border-slate-100 px-3 py-2">
+									<p class="font-semibold text-slate-900">{summary.name}</p>
+									<p class="text-xs text-slate-500">{summary.chapterCount} Kapitel · {summary.wordCount} Wörter</p>
+								</li>
+							{/each}
+						</ul>
+					{/if}
+				</section>
+				<section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+					<h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Letzte Durchgänge</h3>
+					{#if summaryHistory.length === 0}
+						<p class="mt-2 text-sm text-slate-500">Noch keine Einträge.</p>
+					{:else}
+						<ul class="mt-2 space-y-2 text-sm text-slate-600">
+							{#each summaryHistory as item}
+								<li class="rounded-md border border-slate-100 px-3 py-2">
+									<span class="font-medium">{item.wordId}</span>
+									<span class="ml-2">{item.success ? '✔️' : '⏳'}</span>
+									<span class="ml-2 text-xs text-slate-500">{new Date(item.timestamp).toLocaleString()}</span>
+								</li>
+							{/each}
+						</ul>
+					{/if}
+				</section>
+			</aside>
+		</article>
 	{:else if !currentWord}
 		<p class="rounded-md border border-amber-400 bg-amber-50 px-4 py-3 text-slate-700">{errorMessage}</p>
 	{:else}
@@ -1088,7 +1591,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 								placeholder="z. B. nǐ hǎo"
 								autocomplete="off"
 								spellcheck={false}
-						/>
+					/>
 						</label>
 						<div class="mt-4 flex justify-between text-sm text-slate-500">
 							<span>Versuche übrig: {remainingAttempts(pinyinAttempts)}</span>
@@ -1170,6 +1673,21 @@ Format 2 - Mit Kapiteln (wie Klett):
 					</ul>
 				</section>
 				<section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+					<h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Aktive Bibliotheken</h3>
+					{#if librarySummaries.length === 0}
+						<p class="mt-2 text-sm text-slate-500">Noch keine Auswahl getroffen.</p>
+					{:else}
+						<ul class="mt-2 space-y-2 text-sm text-slate-600">
+							{#each librarySummaries as summary}
+								<li class="rounded-md border border-slate-100 px-3 py-2">
+									<p class="font-semibold text-slate-900">{summary.name}</p>
+									<p class="text-xs text-slate-500">{summary.chapterCount} Kapitel · {summary.wordCount} Wörter</p>
+								</li>
+							{/each}
+						</ul>
+					{/if}
+				</section>
+				<section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
 					<h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Letzte Durchgänge</h3>
 					{#if summaryHistory.length === 0}
 						<p class="mt-2 text-sm text-slate-500">Noch keine Einträge.</p>
@@ -1227,74 +1745,63 @@ Format 2 - Mit Kapiteln (wie Klett):
 						}
 					}}
 				>
-					<!-- Library Selection -->
-					<div class="flex flex-col gap-2">
-						<div class="text-sm font-medium text-slate-700">Bibliothek auswählen:</div>
-						<div class="flex gap-2">
-							{#each availableLibraries as library}
-								<button
-									type="button"
-									class="flex-1 rounded-md border px-4 py-2 text-sm font-medium transition"
-									class:bg-slate-900={selectedLibrary === library.id}
-									class:text-white={selectedLibrary === library.id}
-									class:border-slate-900={selectedLibrary === library.id}
-									class:bg-white={selectedLibrary !== library.id}
-									class:text-slate-700={selectedLibrary !== library.id}
-									class:border-slate-200={selectedLibrary !== library.id}
-									on:click={() => {
-										selectedLibrary = library.id;
-										handleLibraryChange();
-									}}
-								>
-									{library.name}
-									<span class="block text-xs opacity-70">{library.totalWords} Wörter</span>
-								</button>
-							{/each}
-						</div>
+					<div class="flex-1 min-h-0 space-y-4 overflow-y-auto pr-1">
+						{#each libraryCatalog as library (library.id)}
+							<section class="rounded-xl border border-slate-200 bg-slate-50">
+								<header class="flex flex-col gap-2 border-b border-slate-200/70 bg-white px-4 py-3 md:flex-row md:items-center md:justify-between">
+									<div>
+										<h3 class="text-sm font-semibold text-slate-900">{library.name}</h3>
+										<p class="text-xs text-slate-500">
+											Kapitel: {draftSummaryMap.get(library.id as LibraryType)?.chapterCount ?? 0} · Wörter: {draftSummaryMap.get(library.id as LibraryType)?.wordCount ?? 0}
+										</p>
+									</div>
+									<div class="flex items-center gap-2 text-xs">
+										<button
+											type="button"
+											class="rounded border border-slate-200 px-2 py-1 text-slate-600 hover:border-slate-300"
+											on:click={() => selectAllLibraryChapters(library.id as LibraryType)}
+										>
+											Alle
+										</button>
+										<button
+											type="button"
+											class="rounded border border-slate-200 px-2 py-1 text-slate-600 hover:border-slate-300"
+											on:click={() => clearLibraryChapterSelection(library.id as LibraryType)}
+										>
+											Keine
+										</button>
+									</div>
+								</header>
+								{#if library.chapters.length === 0}
+									<p class="px-4 py-4 text-sm text-slate-500">Keine Kapitel verfügbar.</p>
+								{:else}
+									<div class="grid max-h-56 grid-cols-1 gap-2 overflow-y-auto px-4 py-3 md:grid-cols-2">
+										{#each library.chapters as chapter}
+											<label class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm transition hover:border-slate-300">
+												<span class="font-medium">{chapter.label}</span>
+												<span class="text-xs text-slate-500">{chapter.wordCount} Wörter</span>
+												<input
+													type="checkbox"
+													class="h-5 w-5 rounded border-slate-300 text-slate-900 focus:ring-slate-500"
+													checked={isChapterSelectedInDraft(library.id as LibraryType, chapter.id)}
+													on:change={() => toggleLibraryChapter(library.id as LibraryType, chapter.id)}
+												/>
+											</label>
+										{/each}
+									</div>
+								{/if}
+							</section>
+						{/each}
 					</div>
 
-					<!-- Chapter Selection -->
-					{#if currentLibraryChapters.length > 0}
-						<div class="flex items-center justify-between text-sm text-slate-600">
-							<button type="button" class="rounded border border-slate-200 px-3 py-1" on:click={selectAllChapters}>
-								Alle auswählen
-							</button>
-							<button type="button" class="rounded border border-slate-200 px-3 py-1" on:click={clearChapterSelection}>
-								Zurücksetzen
-							</button>
-						</div>
-						<div class="grid flex-1 min-h-0 grid-cols-1 gap-2 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3 pr-2">
-							{#each currentLibraryChapters as chapter}
-								<label class="flex items-center justify-between gap-3 rounded-md bg-white px-3 py-2 text-sm text-slate-700 shadow-sm cursor-pointer hover:bg-slate-50 transition">
-									<span class="font-medium">{chapter.label}</span>
-									<span class="text-xs text-slate-500">{chapter.wordCount} Wörter</span>
-									<input
-										type="checkbox"
-										class="h-5 w-5 rounded border-slate-300 text-slate-900 focus:ring-slate-500"
-										checked={selectedChapterIds.includes(chapter.id)}
-										on:change={() => toggleChapter(chapter.id)}
-									/>
-								</label>
-							{/each}
-						</div>
-					{:else}
-						<div class="flex-1 rounded-lg border border-slate-200 bg-slate-50 p-4 text-center text-sm text-slate-600">
-							Keine Kapitel verfügbar für diese Bibliothek.
-						</div>
-					{/if}
-
 					<div class="mt-auto flex flex-col gap-2 border-t border-slate-200/70 pt-3 text-sm text-slate-600">
-						<span>Ausgewählt: {selectedWordCount} Wörter aus {selectedChapterIds.length} Kapitel(n)</span>
+						<span>Aktiv: {draftActiveLibraries} Bibliothek(en) · {draftTotalChapters} Kapitel · {draftTotalWords} Wörter</span>
 						<button
 							type="submit"
 							class="rounded-md bg-slate-900 px-4 py-2 text-white disabled:opacity-60"
 							disabled={libraryImporting}
 						>
-							{libraryImporting
-								? 'Wird übernommen …'
-								: selectedChapterIds.length === 0
-									? `${selectedLibraryInfo?.name || 'Bibliothek'} pausieren`
-									: `${selectedLibraryInfo?.name || 'Bibliothek'} übernehmen`}
+							{libraryImporting ? 'Wird übernommen …' : 'Auswahl anwenden'}
 						</button>
 					</div>
 				</form>
@@ -1402,12 +1909,13 @@ Format 2 - Mit Kapiteln (wie Klett):
 						<select
 							name="mode"
 							class="rounded-md border border-slate-300 px-3 py-2"
-							bind:value={activeSettings.learningMode}
+							bind:value={settingsPreferredMode}
 						>
 							<option value="prompt-to-pinyin">Deutsch → Pinyin</option>
 							<option value="prompt-to-character">Deutsch → Schriftzeichen</option>
 							<option value="pinyin-to-character">Pinyin → Schriftzeichen</option>
 						</select>
+						<p class="text-xs text-slate-500">Matching-Modus über den Button in der Kopfzeile starten.</p>
 					</label>
 					<label class="flex flex-col gap-2 text-sm text-slate-700">
 						<span>Schreib-Lenienz</span>

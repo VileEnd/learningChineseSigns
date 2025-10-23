@@ -1,6 +1,7 @@
 import { writable } from 'svelte/store';
 import type { Settings } from '../types';
 import { getSettings as readSettings, saveSettings as persistSettings } from '../storage/repository';
+import { settingsSchema } from '../storage/schema';
 
 const settingsStore = writable<Settings | null>(null);
 
@@ -25,11 +26,13 @@ export const settings = {
 
 export async function loadSettings(): Promise<Settings> {
 	const data = await readSettings();
-	settingsStore.set(data);
-	return data;
+	const normalized = settingsSchema.parse(data);
+	settingsStore.set(normalized);
+	return normalized;
 }
 
 export async function saveSettings(next: Settings): Promise<void> {
-	settingsStore.set(next);
-	await persistSettings(next);
+	const normalized = settingsSchema.parse(next);
+	settingsStore.set(normalized);
+	await persistSettings(normalized);
 }

@@ -60,6 +60,10 @@ The app is available at http://localhost:5173 by default. Service workers are re
 2. Draw each character. The quiz hides the outline during the first attempts and escalates from free drawing → half-guided → fully-guided tracing with three required repetitions. Use the in-app hint button or enable the settings toggle to reveal the outline immediately.
 3. Correct words move to the “known” bucket with spaced repetition; difficult words stay in the learning queue.
 
+## Matching Mode
+
+Set the Lernmodus to “Matching: Deutsch, Pinyin & Zeichen” for a memory-style drill. Each round shuffles nine Karten (Deutsch, Pinyin und Schriftzeichen zu drei Woertern). Finde die passenden Dreierkombinationen, um den Lernerfolg für alle beteiligten Woerter zu speichern.
+
 ## Testing
 
 Run unit tests:
