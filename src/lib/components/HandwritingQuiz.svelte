@@ -25,7 +25,6 @@
 	let restarting = false;
 	let outlineHintActive = false;
 	let lastOutlineVisible = false;
-	let restorePassiveListeners: (() => void) | null = null;
 	let hintRunning = false;
 
 	const PASSIVE_TOUCH_EVENTS = new Set(['touchstart', 'touchmove', 'touchend', 'touchcancel']);
@@ -39,6 +38,16 @@
 	};
 
 	const PASSIVE_PATCHED_FLAG = Symbol('passiveTouchPatched');
+	const PASSIVE_ADD_STATE = Symbol('passiveTouchAddState');
+
+	type PassiveTouchPatchState = {
+		original: EventTargetWithAdd['addEventListener'];
+		count: number;
+	};
+
+	type PassiveAwareWriter = HanziWriter & {
+		__passiveRestorers?: Array<() => void>;
+	};
 
 	type EventifyFn = (evt: Event, pointFunc: (event: Event) => { x: number; y: number }) => {
 		getPoint: () => { x: number; y: number };
@@ -69,13 +78,19 @@
 				return {
 					getPoint: result.getPoint,
 					preventDefault: () => {
-						const cancelable = typeof evt === 'object' && evt !== null && 'cancelable' in evt ? (evt as Event).cancelable : true;
-						if (cancelable) {
-							try {
-								originalPrevent();
-							} catch (error) {
-								console.warn('preventDefault failed on passive touch event', error);
-							}
+						const isTouchType =
+							typeof evt === 'object' &&
+							evt !== null &&
+							'type' in evt &&
+							typeof (evt as Event).type === 'string' &&
+							(evt as Event).type.startsWith('touch');
+						if (isTouchType) {
+							return;
+						}
+						try {
+							originalPrevent();
+						} catch (error) {
+							console.warn('preventDefault failed on passive event', error);
 						}
 					}
 				};
@@ -104,6 +119,7 @@
 
 	type EventTargetWithAdd = EventTarget & {
 		addEventListener: (type: string, listener: EventListenerOrEventListenerObject | null, options?: boolean | AddEventListenerOptions) => void;
+		[PASSIVE_ADD_STATE]?: PassiveTouchPatchState;
 	};
 
 	function ensurePassiveTouchListeners(target: EventTarget | null | undefined): (() => void) | null {
@@ -111,24 +127,45 @@
 		if (!candidate || typeof candidate.addEventListener !== 'function') {
 			return null;
 		}
-		const originalAdd = candidate.addEventListener.bind(candidate);
-		const patchedAdd: typeof candidate.addEventListener = (type, listener, options) => {
+		const existingState = candidate[PASSIVE_ADD_STATE];
+		if (existingState) {
+			existingState.count += 1;
+			return () => {
+				existingState.count = Math.max(0, existingState.count - 1);
+				if (existingState.count === 0) {
+					candidate.addEventListener = existingState.original;
+					delete candidate[PASSIVE_ADD_STATE];
+				}
+			};
+		}
+		const originalAdd = candidate.addEventListener;
+		const state: PassiveTouchPatchState = { original: originalAdd, count: 1 };
+		const patchedAdd: typeof candidate.addEventListener = function patched(this: EventTarget, type, listener, options) {
 			if (typeof type === 'string' && PASSIVE_TOUCH_EVENTS.has(type)) {
 				if (options === undefined) {
-					return originalAdd(type, listener, { passive: true });
+					return originalAdd.call(this, type, listener, { passive: true });
 				}
 				if (typeof options === 'boolean') {
-					return originalAdd(type, listener, { capture: options, passive: true });
+					return originalAdd.call(this, type, listener, { capture: options, passive: true });
 				}
 				if (options && typeof options === 'object' && !('passive' in options)) {
-					return originalAdd(type, listener, { ...options, passive: true });
+					return originalAdd.call(this, type, listener, { ...options, passive: true });
 				}
 			}
-			return originalAdd(type, listener, options);
+			return originalAdd.call(this, type, listener, options as unknown as boolean | AddEventListenerOptions | undefined);
 		};
-		(candidate as EventTargetWithAdd).addEventListener = patchedAdd;
+		candidate.addEventListener = patchedAdd;
+		candidate[PASSIVE_ADD_STATE] = state;
 		return () => {
-			(candidate as EventTargetWithAdd).addEventListener = originalAdd;
+			const currentState = candidate[PASSIVE_ADD_STATE];
+			if (!currentState) {
+				return;
+			}
+			currentState.count = Math.max(0, currentState.count - 1);
+			if (currentState.count === 0) {
+				candidate.addEventListener = originalAdd;
+				delete candidate[PASSIVE_ADD_STATE];
+			}
 		};
 	}
 
@@ -225,27 +262,8 @@
 		restarting = false;
 	}
 
-	onMount(async () => {
-		const restorers: Array<() => void> = [];
-		const containerRestorer = ensurePassiveTouchListeners(container);
-		if (containerRestorer) restorers.push(containerRestorer);
-		const ownerDocument = container?.ownerDocument ?? (typeof document !== 'undefined' ? document : null);
-		const docRestorer = ensurePassiveTouchListeners(ownerDocument);
-		if (docRestorer) restorers.push(docRestorer);
-		const winRestorer = ensurePassiveTouchListeners(ownerDocument?.defaultView ?? (typeof window !== 'undefined' ? window : null));
-		if (winRestorer) restorers.push(winRestorer);
-		restorePassiveListeners = restorers.length
-			? () => {
-				for (const restore of restorers) {
-					try {
-						restore();
-					} catch (error) {
-						console.warn('Failed to restore passive listener patch', error);
-					}
-				}
-			}
-			: null;
-
+		onMount(async () => {
+		patchHanziWriterForPassiveListeners();
 		writer = HanziWriter.create(container, character, {
 			showOutline: false,
 			showCharacter: false,
@@ -256,11 +274,6 @@
 			highlightColor: '#22c55e'
 		});
 
-		const renderTargetRestorer = applyPassiveHandlingToRenderTarget((writer as unknown as { target?: RenderTargetLike }).target);
-		if (renderTargetRestorer) {
-			restorers.push(renderTargetRestorer);
-		}
-
 		outlineHintActive = alwaysShowOutline;
 		await syncOutline();
 		await restartQuiz(false);
@@ -270,11 +283,18 @@
 		if (writer && 'cancelQuiz' in writer) {
 			(writer as unknown as { cancelQuiz: () => void }).cancelQuiz();
 		}
-		writer = null;
-		if (restorePassiveListeners) {
-			restorePassiveListeners();
-			restorePassiveListeners = null;
+		const passiveWriter = writer as PassiveAwareWriter | null;
+		if (passiveWriter?.__passiveRestorers?.length) {
+			for (const restore of passiveWriter.__passiveRestorers) {
+				try {
+					restore();
+				} catch (error) {
+					console.warn('Failed to restore HanziWriter passive listener patch', error);
+				}
+			}
+			passiveWriter.__passiveRestorers = [];
 		}
+		writer = null;
 	});
 
 	async function handleCharacterChange() {
@@ -338,6 +358,51 @@ export async function revealOutline(): Promise<void> {
 	} finally {
 		hintRunning = false;
 	}
+}
+
+let hanziWriterPassivePatched = false;
+
+function patchHanziWriterForPassiveListeners(): void {
+	if (hanziWriterPassivePatched) {
+		return;
+	}
+	const prototype = HanziWriter.prototype as unknown as PassiveAwareWriter & {
+		_setupListeners?: () => void;
+		__passivePatched?: boolean;
+	};
+	if (!prototype || typeof prototype._setupListeners !== 'function' || prototype.__passivePatched) {
+		hanziWriterPassivePatched = true;
+		return;
+	}
+	const originalSetup = prototype._setupListeners as (this: HanziWriter) => void;
+	prototype._setupListeners = function patchedSetup(this: PassiveAwareWriter) {
+		const restorers: Array<() => void> = [];
+		const target = (this as unknown as { target?: RenderTargetLike }).target ?? null;
+		const targetRestorer = applyPassiveHandlingToRenderTarget(target);
+		if (targetRestorer) restorers.push(targetRestorer);
+		const node = target && 'node' in target ? (target.node as EventTarget | null | undefined) : null;
+		const nodeRestorer = ensurePassiveTouchListeners(node);
+		if (nodeRestorer) restorers.push(nodeRestorer);
+		const ownerDocument = (() => {
+			if (node && 'ownerDocument' in (node as Node)) {
+				return (node as Node).ownerDocument;
+			}
+			if (typeof document !== 'undefined') {
+				return document;
+			}
+			return null;
+		})();
+		const docRestorer = ensurePassiveTouchListeners(ownerDocument);
+		if (docRestorer) restorers.push(docRestorer);
+		const winRestorer = ensurePassiveTouchListeners(ownerDocument?.defaultView ?? (typeof window !== 'undefined' ? window : null));
+		if (winRestorer) restorers.push(winRestorer);
+		if (restorers.length) {
+			this.__passiveRestorers = (this.__passiveRestorers ?? []).concat(restorers);
+		}
+		return originalSetup.call(this as HanziWriter);
+	};
+	prototype.__passivePatched = true;
+	hanziWriterPassivePatched = true;
 }
 </script>
 
