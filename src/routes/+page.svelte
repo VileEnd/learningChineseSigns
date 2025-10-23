@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { onDestroy, onMount } from 'svelte';
+	import { onDestroy, onMount, tick } from 'svelte';
 	import { browser } from '$app/environment';
 	import HandwritingQuiz from '$lib/components/HandwritingQuiz.svelte';
 	import MatchingDrill from '$lib/components/MatchingDrill.svelte';
-	import { comparePinyin } from '$lib/utils/pinyin';
+	import { comparePinyin, convertNumericToToneMarks } from '$lib/utils/pinyin';
 	import {
 		initializeRepository,
 		getNextLessonCandidate,
@@ -736,7 +736,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 		writingMode = snapshot.writingMode;
 		pinyinSolved = snapshot.pinyinSolved;
 		pinyinAttempts = snapshot.pinyinAttempts;
-		pinyinInput = snapshot.pinyinInput;
+		pinyinInput = convertNumericToToneMarks(snapshot.pinyinInput ?? '');
 		message = snapshot.message;
 		toneMessage = snapshot.toneMessage;
 		writingAttemptCounter = snapshot.writingAttemptCounter;
@@ -868,6 +868,28 @@ Format 2 - Mit Kapiteln (wie Klett):
 
 	function remainingAttempts(count: number): number {
 		return Math.max(0, 3 - count);
+	}
+
+	async function handlePinyinInputChange(event: Event) {
+		const target = event.currentTarget as HTMLInputElement | null;
+		if (!target) return;
+		const originalValue = target.value;
+		const caretPosition = target.selectionStart ?? originalValue.length;
+		const converted = convertNumericToToneMarks(originalValue);
+		if (converted === originalValue) {
+			pinyinInput = converted;
+			return;
+		}
+		const lengthDiff = originalValue.length - converted.length;
+		target.value = converted;
+		pinyinInput = converted;
+		await tick();
+		const newCaret = Math.max(0, caretPosition - lengthDiff);
+		try {
+			target.setSelectionRange(newCaret, newCaret);
+		} catch {
+			// Input may have been unmounted; ignore selection errors.
+		}
 	}
 
 	async function handlePinyinSubmit(event: SubmitEvent) {
@@ -1592,11 +1614,12 @@ Format 2 - Mit Kapiteln (wie Klett):
 							Pinyin eingeben
 							<input
 								class="w-full rounded-md border border-slate-300 px-4 py-2 text-base"
+								on:input={handlePinyinInputChange}
 								bind:value={pinyinInput}
 								placeholder="z. B. nǐ hǎo"
 								autocomplete="off"
 								spellcheck={false}
-					/>
+						/>
 						</label>
 						<div class="mt-4 flex justify-between text-sm text-slate-500">
 							<span>Versuche übrig: {remainingAttempts(pinyinAttempts)}</span>
