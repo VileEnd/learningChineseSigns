@@ -26,6 +26,7 @@
 	let outlineHintActive = false;
 	let lastOutlineVisible = false;
 	let hintRunning = false;
+	let scrollGuardCleanup: Array<() => void> = [];
 
 	const PASSIVE_TOUCH_EVENTS = new Set(['touchstart', 'touchmove', 'touchend', 'touchcancel']);
 
@@ -263,6 +264,7 @@
 	}
 
 		onMount(async () => {
+			attachScrollGuards(container);
 		patchHanziWriterForPassiveListeners();
 		writer = HanziWriter.create(container, character, {
 			showOutline: false,
@@ -295,6 +297,16 @@
 			passiveWriter.__passiveRestorers = [];
 		}
 		writer = null;
+		if (scrollGuardCleanup.length) {
+			for (const cleanup of scrollGuardCleanup) {
+				try {
+					cleanup();
+				} catch (error) {
+					console.warn('Failed to remove scroll guard listener', error);
+				}
+			}
+			scrollGuardCleanup = [];
+		}
 	});
 
 	async function handleCharacterChange() {
@@ -357,6 +369,39 @@ export async function revealOutline(): Promise<void> {
 		await restartQuiz();
 	} finally {
 		hintRunning = false;
+	}
+}
+
+function attachScrollGuards(target: HTMLDivElement | null | undefined): void {
+	if (!target) {
+		return;
+	}
+	target.style.touchAction = 'none';
+	target.style.overscrollBehavior = 'contain';
+	target.style.setProperty('-webkit-overflow-scrolling', 'auto');
+	const preventScroll = (event: Event) => {
+		const pointerEvent = event as PointerEvent;
+		if ('pointerType' in pointerEvent && pointerEvent.pointerType) {
+			const type = pointerEvent.pointerType;
+			if (type !== 'touch' && type !== 'pen') {
+				return;
+			}
+		}
+		if ('touches' in (event as TouchEvent) && (event as TouchEvent).touches?.length === 0) {
+			return;
+		}
+		if (event.cancelable) {
+			event.preventDefault();
+		}
+	};
+	const listenerOptions = { passive: false, capture: true } as const;
+	const listeners: Array<[keyof DocumentEventMap, EventListenerOrEventListenerObject]> = [
+		['touchmove', preventScroll],
+		['pointermove', preventScroll]
+	];
+	for (const [type, listener] of listeners) {
+		target.addEventListener(type, listener as EventListener, listenerOptions);
+		scrollGuardCleanup.push(() => target.removeEventListener(type, listener as EventListener, listenerOptions));
 	}
 }
 
