@@ -72,6 +72,9 @@
 	let quizComponent: InstanceType<typeof HandwritingQuiz> | null = null;
 	let showImportHelp = false;
 
+	const featureHighlightsStorageKey = 'featureHighlightsSeen';
+	let showFeatureHighlights = !browser;
+
 	// Matching mode state
 	let matchingWords: MatchingRoundWord[] = [];
 	let matchingRoundId = 0;
@@ -355,6 +358,18 @@ Format 2 - Mit Kapiteln (wie Klett):
 		closeSearchResults();
 	}
 
+	function dismissFeatureHighlights() {
+		showFeatureHighlights = false;
+		if (!browser) {
+			return;
+		}
+		try {
+			window.localStorage.setItem(featureHighlightsStorageKey, 'true');
+		} catch {
+			// ignore storage errors
+		}
+	}
+
 	function updateHeaderHeight() {
 		if (!browser) {
 			return;
@@ -487,6 +502,20 @@ Format 2 - Mit Kapiteln (wie Klett):
 	onMount(async () => {
 		if (!browser) {
 			return;
+		}
+		let highlightsSeen = false;
+		try {
+			highlightsSeen = window.localStorage.getItem(featureHighlightsStorageKey) === 'true';
+		} catch {
+			highlightsSeen = false;
+		}
+		showFeatureHighlights = !highlightsSeen;
+		if (!highlightsSeen) {
+			try {
+				window.localStorage.setItem(featureHighlightsStorageKey, 'true');
+			} catch {
+				// ignore storage errors
+			}
 		}
 		await initializeRepository();
 		const loaded = await loadSettings();
@@ -1572,14 +1601,27 @@ Format 2 - Mit Kapiteln (wie Klett):
 			{/if}
 		</nav>
 	</header>
-	<section class="rounded-2xl border border-slate-200 bg-white/90 p-4 text-sm text-slate-600 shadow-sm">
-		<h2 class="text-sm font-semibold text-slate-900">Was dich erwartet</h2>
-		<ul class="mt-2 space-y-1">
-			<li>✍️ Handschriftliche Zeichenübungen mit Strich-für-Strich-Feedback.</li>
-			<li>🎯 Adaptive Pinyin- und Wortschatz-Abfragen mit persönlichem Wiederholungsplan.</li>
-			<li>🧠 Matching-Runden, um Deutsch, Pinyin und Schriftzeichen zu verknüpfen.</li>
-		</ul>
-	</section>
+	{#if showFeatureHighlights}
+		<section class="relative rounded-2xl border border-slate-200 bg-white/90 p-4 text-sm text-slate-600 shadow-sm">
+			<button
+				type="button"
+				class="absolute right-3 top-3 rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-500 transition hover:bg-slate-200 hover:text-slate-700"
+				on:click={dismissFeatureHighlights}
+				aria-label="Hinweis schließen"
+			>
+				✕
+			</button>
+			<h2 class="text-sm font-semibold text-slate-900">Was dich erwartet</h2>
+			<ul class="mt-2 space-y-1">
+				<li>✍️ Handschriftliche Zeichenübungen mit Strich-für-Strich-Feedback.</li>
+				<li>🎯 Adaptive Pinyin- und Wortschatz-Abfragen mit persönlichem Wiederholungsplan.</li>
+				<li>🧠 Matching-Runden, um Deutsch, Pinyin und Schriftzeichen zu verknüpfen.</li>
+			</ul>
+			<p class="mt-3 text-xs text-slate-500">
+				Tipp: Tippe z. B. <code>ni3 hao3</code> – wir wandeln Zahlen automatisch in Tonzeichen um.
+			</p>
+		</section>
+	{/if}
 	{#if loading}
 		<p class="text-center text-slate-600">Lade nächste Karte …</p>
 	{:else if matchingModeActive}
@@ -1714,6 +1756,9 @@ Format 2 - Mit Kapiteln (wie Klett):
 								spellcheck={false}
 						/>
 						</label>
+						<p class="mt-2 text-xs text-slate-500">
+							Hinweis: Du kannst Zahlen tippen, z. B. <code>ni3 hao3</code>, wir wandeln sie in Tonzeichen um.
+						</p>
 						<div class="mt-4 flex justify-between text-sm text-slate-500">
 							<span>Versuche übrig: {remainingAttempts(pinyinAttempts)}</span>
 							<button class="rounded-md bg-slate-900 px-3 py-2 text-white" type="submit">Prüfen</button>
