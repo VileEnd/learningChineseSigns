@@ -1412,7 +1412,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 			{:else}
 				<!-- Full Header (Desktop oder erweitert) -->
 				<div class="flex flex-col gap-3">
-					<div class="flex items-center justify-between">
+					<div class="flex items-start justify-between gap-3 md:items-center">
 						<div>
 							<h1 class="text-2xl font-semibold text-slate-900 md:text-3xl">Chinesischer Zettelkasten</h1>
 							<p class="text-sm text-slate-600">Deutsch - zu Pinyin & Schrift</p>
@@ -1433,7 +1433,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 						<div class="relative w-full md:w-72" bind:this={searchContainer}>
 							<form class="relative" on:submit|preventDefault={handleSearchSubmit}>
 								<input
-									class="w-full rounded-full border border-slate-300 bg-white/90 px-3 py-1.5 pr-8 text-xs text-slate-800 shadow-inner focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400 md:px-4 md:py-2 md:pr-10 md:text-sm"
+									class="w-full rounded-full border border-slate-300 bg-white/90 px-3 py-2 pr-9 text-sm text-slate-800 shadow-inner focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400 md:px-4 md:py-2 md:pr-10 md:text-sm"
 									type="search"
 									placeholder="Wort suchen"
 									autocomplete="off"
@@ -1446,7 +1446,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 								{#if searchQuery}
 									<button
 										type="button"
-										class="absolute right-1.5 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full bg-slate-200 text-xs text-slate-600 transition hover:bg-slate-300 md:right-2 md:h-6 md:w-6"
+										class="absolute right-1.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-slate-200 text-xs text-slate-600 transition hover:bg-slate-300 md:right-2 md:h-6 md:w-6"
 										on:click={clearSearchField}
 									>
 										✕
@@ -1487,7 +1487,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 								</div>
 							{/if}
 						</div>
-						<div class="flex flex-wrap items-center gap-2 md:justify-end">
+						<div class="flex flex-wrap items-center justify-center gap-2 md:justify-end">
 							<button
 								type="button"
 								class={`${matchingModeButtonBase} ${
