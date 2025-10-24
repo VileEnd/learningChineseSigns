@@ -135,6 +135,7 @@ onMount(() => {
 		name="description"
 		content="Chinesischer Zettelkasten hilft dir beim Üben von Pinyin, Schriftzeichen und Wortschatz mit interaktiven Lektionen, Matching-Spielen und einem intelligenten Wiederholungsplan."
 	/>
+	<title>Chinesischer Zettelkasten – Interaktive Handschrift- & Pinyin-Übungen</title>
 	<meta property="og:title" content="Chinesischer Zettelkasten – effektiv Chinesisch lernen" />
 	<meta
 		property="og:description"
@@ -171,4 +172,6 @@ onMount(() => {
 	</div>
 {/if}
 
-<slot />
+<main class="min-h-screen">
+	<slot />
+</main>
