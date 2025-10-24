@@ -131,6 +131,17 @@ onMount(() => {
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 	<meta name="mobile-web-app-capable" content="yes" />
+	<meta
+		name="description"
+		content="Chinesischer Zettelkasten hilft dir beim Üben von Pinyin, Schriftzeichen und Wortschatz mit interaktiven Lektionen, Matching-Spielen und einem intelligenten Wiederholungsplan."
+	/>
+	<meta property="og:title" content="Chinesischer Zettelkasten – effektiv Chinesisch lernen" />
+	<meta
+		property="og:description"
+		content="Trainiere Schriftzeichen, Pinyin und Wortschatz mit einem interaktiven Zettelkasten, persönlichen Wiederholungen und Matching-Runden."
+	/>
+	<meta property="og:type" content="website" />
+	<meta property="og:locale" content="de_DE" />
 	<link rel="apple-touch-icon" href={favicon} />
 </svelte:head>
 

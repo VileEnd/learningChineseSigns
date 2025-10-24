@@ -198,6 +198,16 @@
 	$: draftActiveLibraries = librarySelectionDraftSummary.filter((entry) => entry.chapterCount > 0).length;
 	$: matchingTargetWordCount = activeSettings?.matchingWordCount ?? 3;
 	$: matchingCardCount = matchingTargetWordCount * 3;
+	$: collapsedLibrarySummary = (() => {
+		if (librarySummaries.length === 0) {
+			return '';
+		}
+		if (librarySummaries.length === 1) {
+			const entry = librarySummaries[0];
+			return `${entry.chapterCount} Kap., ${entry.wordCount} Wörter`;
+		}
+		return `${librarySummaries.length} Bibliotheken · ${totalSelectedChapters} Kap., ${totalSelectedWords} Wörter`;
+	})();
 	
 	// Legacy Klett reactive statements
 	$: allKlettChaptersSelected =
@@ -1336,7 +1346,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 	<header class="sticky top-0 z-20 md:top-4" bind:this={headerElement}>
 		<nav class="flex flex-col gap-3 rounded-2xl bg-white/95 p-3 shadow-lg ring-1 ring-slate-200/70 backdrop-blur md:rounded-3xl md:p-5">
 			{#if !headerExpanded}
-				<div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+				<div class="flex flex-col gap-1 md:flex-row md:items-center md:justify-between md:gap-2">
 					<div class="flex items-center gap-3">
 						<button
 							type="button"
@@ -1350,10 +1360,17 @@ Format 2 - Mit Kapiteln (wie Klett):
 						</button>
 						<div>
 							<h1 class="text-base font-semibold text-slate-900 md:text-lg">Chinesischer Zettelkasten</h1>
-							<p class="text-xs text-slate-500 md:text-sm">{primaryLibraryLabel}</p>
+							<p class="text-xs text-slate-500 md:text-sm">
+								{primaryLibraryLabel}
+								{#if collapsedLibrarySummary}
+									<span class="ml-1 inline-flex items-center gap-1 text-[0.7rem] text-slate-400 sm:text-xs md:text-[0.82rem]">
+										· {collapsedLibrarySummary}
+									</span>
+								{/if}
+							</p>
 						</div>
 					</div>
-					<div class="flex flex-wrap items-center justify-end gap-2">
+						<div class="flex flex-wrap items-center justify-center gap-2">
 						<button
 							type="button"
 							class={`${matchingModeButtonBase} ${matchingModeActive ? matchingModeActiveClass : matchingModeInactiveClass}`}
@@ -1387,10 +1404,11 @@ Format 2 - Mit Kapiteln (wie Klett):
 						</button>
 					</div>
 				</div>
-				<div class="flex flex-col gap-1 text-xs text-slate-500 md:flex-row md:items-center md:justify-between md:text-sm">
-					<span>{libraryHeaderLabel}</span>
-					<span>Matching: {matchingTargetWordCount} Wörter · {matchingCardCount} Karten</span>
-				</div>
+				{#if !isMobileViewport}
+					<div class="flex items-center justify-between text-xs text-slate-500 md:text-sm">
+						<span>Matching: {matchingTargetWordCount} Wörter · {matchingCardCount} Karten</span>
+					</div>
+				{/if}
 			{:else}
 				<!-- Full Header (Desktop oder erweitert) -->
 				<div class="flex flex-col gap-3">
