@@ -42,7 +42,8 @@ export const settingsSchema = z.object({
 	enforceTones: z.boolean(),
 	showStrokeOrderHints: z.boolean(),
 	leniency: z.number().min(0.2).max(2),
-	librarySelections: z.record(z.string(), z.array(z.string().min(1))).default({})
+	librarySelections: z.record(z.string(), z.array(z.string().min(1))).default({}),
+	matchingWordCount: z.number().int().min(3).max(6).default(3)
 });
 
 export const progressSchema = z.object({

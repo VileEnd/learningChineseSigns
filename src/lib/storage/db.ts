@@ -37,7 +37,8 @@ const DEFAULT_SETTINGS: Settings = {
 	enforceTones: true,
 	showStrokeOrderHints: false,
 	leniency: 1,
-	librarySelections: {}
+	librarySelections: {},
+	matchingWordCount: 3
 };
 
 class LearningDexie extends Dexie {
@@ -84,19 +85,23 @@ class LearningDexie extends Dexie {
 	async ensureSettings(): Promise<SettingsRecord> {
 		const existing = await this.settings.get('default');
 		if (existing) {
-			if (!existing.payload.librarySelections) {
-				const normalized: SettingsRecord = {
-					...existing,
-					payload: {
-						...existing.payload,
-						librarySelections: {}
-					},
-					updatedAt: Date.now()
-				};
-				await this.settings.put(normalized);
-				return normalized;
+			const needsLibrarySelections = !existing.payload.librarySelections;
+			const needsMatchingCount = typeof existing.payload.matchingWordCount !== 'number';
+			if (!needsLibrarySelections && !needsMatchingCount) {
+				return existing;
 			}
-			return existing;
+			const normalizedPayload: Settings = {
+				...existing.payload,
+				librarySelections: needsLibrarySelections ? {} : existing.payload.librarySelections,
+				matchingWordCount: needsMatchingCount ? DEFAULT_SETTINGS.matchingWordCount : existing.payload.matchingWordCount
+			};
+			const normalized: SettingsRecord = {
+				...existing,
+				payload: normalizedPayload,
+				updatedAt: Date.now()
+			};
+			await this.settings.put(normalized);
+			return normalized;
 		}
 
 		const baseline: SettingsRecord = {

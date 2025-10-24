@@ -105,14 +105,16 @@ export async function getNextLessonCandidate(): Promise<{ word: WordRecord; prog
 	return { word, progress: nextProgress };
 }
 
-export async function getMatchingRound(): Promise<MatchingRound | null> {
+export async function getMatchingRound(wordCount = 3): Promise<MatchingRound | null> {
 	const progressList = (await db.progress.toArray()).map((item) => ({
 		...item,
 		reviewCount: item.reviewCount ?? 0,
 		suspended: item.suspended ?? false
 	}));
 	const activeProgress = progressList.filter((item) => !item.suspended);
-	if (activeProgress.length < 3) {
+	const desiredCount = Number.isFinite(wordCount) ? Math.floor(wordCount) : 3;
+	const targetWordCount = Math.max(3, desiredCount);
+	if (activeProgress.length < targetWordCount) {
 		return null;
 	}
 
@@ -140,19 +142,19 @@ export async function getMatchingRound(): Promise<MatchingRound | null> {
 				pinyin: word.pinyin,
 				characters: word.characters
 			});
-			if (words.length === 3) {
+			if (words.length === targetWordCount) {
 				return;
 			}
 		}
 	}
 
 	await appendFrom(ordered);
-	if (words.length < 3) {
+	if (words.length < targetWordCount) {
 		const fallback = shuffle(activeProgress);
 		await appendFrom(fallback);
 	}
 
-	if (words.length < 3) {
+	if (words.length < targetWordCount) {
 		return null;
 	}
 

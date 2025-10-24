@@ -76,6 +76,7 @@ export interface Settings {
 	showStrokeOrderHints: boolean; // show character outline immediately instead of hiding it initially
 	leniency: number; // 0..1 for handwriting leniency (hanzi-writer quiz leniency)
 	librarySelections?: LibrarySelectionMap;
+	matchingWordCount?: number; // words per matching round (3 Karten pro Wort)
 }
 
 export interface ExportSnapshot {

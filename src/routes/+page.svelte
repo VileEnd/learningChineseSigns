@@ -196,6 +196,8 @@
 	$: draftTotalChapters = librarySelectionDraftSummary.reduce((sum, entry) => sum + entry.chapterCount, 0);
 	$: draftTotalWords = librarySelectionDraftSummary.reduce((sum, entry) => sum + entry.wordCount, 0);
 	$: draftActiveLibraries = librarySelectionDraftSummary.filter((entry) => entry.chapterCount > 0).length;
+	$: matchingTargetWordCount = activeSettings?.matchingWordCount ?? 3;
+	$: matchingCardCount = matchingTargetWordCount * 3;
 	
 	// Legacy Klett reactive statements
 	$: allKlettChaptersSelected =
@@ -350,7 +352,14 @@ Format 2 - Mit Kapiteln (wie Klett):
 		if (Math.abs(nextHeight - headerHeight) > 0.5) {
 			headerHeight = nextHeight;
 		}
-		isMobileViewport = window.innerWidth < 768;
+		const hasCoarsePointer = typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches;
+		const minViewportEdge = Math.min(window.innerWidth, window.innerHeight);
+		isMobileViewport = window.innerWidth < 768 || (hasCoarsePointer && minViewportEdge < 640);
+	}
+
+	$: if (browser) {
+		headerExpanded;
+		void tick().then(() => updateHeaderHeight());
 	}
 
 	$: headerOffset = headerHeight > 0 ? headerHeight : 96;
@@ -534,7 +543,10 @@ Format 2 - Mit Kapiteln (wie Klett):
 				return;
 			}
 			const previousMode = activeSettings?.learningMode ?? fallbackLearningMode;
+			const previousMatchingCount = activeSettings?.matchingWordCount ?? 3;
 			activeSettings = value;
+			const nextMatchingCount = value.matchingWordCount ?? 3;
+			const matchingCountChanged = previousMatchingCount !== nextMatchingCount;
 			if (value.learningMode !== 'matching-triplets') {
 				fallbackLearningMode = value.learningMode;
 			}
@@ -542,7 +554,13 @@ Format 2 - Mit Kapiteln (wie Klett):
 				void handleLearningModeChange(value.learningMode, previousMode);
 				return;
 			}
-			if (isMatchingMode()) {
+			if (value.learningMode === 'matching-triplets') {
+				if (matchingCountChanged) {
+					resetMatchingState();
+					void saveSession(null);
+					void loadMatchingRound();
+					return;
+				}
 				void saveSession(null);
 			} else {
 				void persistSession();
@@ -777,11 +795,12 @@ Format 2 - Mit Kapiteln (wie Klett):
 		matchingLoading = true;
 		matchingRoundId += 1;
 		try {
-			const round = await getMatchingRound();
-			if (!round || round.words.length < 3) {
+			const desiredWordCount = Math.max(3, activeSettings?.matchingWordCount ?? 3);
+			const round = await getMatchingRound(desiredWordCount);
+			if (!round || round.words.length < desiredWordCount) {
 				matchingWords = [];
 				matchingError =
-					'Nicht genug aktive Wörter für die Matching-Runde. Importiere neue Karten oder reaktiviere pausierte Wörter.';
+					`Nicht genug aktive Wörter für die Matching-Runde (benötigt ${desiredWordCount}). Importiere neue Karten oder reaktiviere pausierte Wörter.`;
 				return;
 			}
 			matchingWords = round.words;
@@ -1128,6 +1147,10 @@ Format 2 - Mit Kapiteln (wie Klett):
 			| null;
 		const selectedMode = modeInput ?? settingsPreferredMode;
 		const leniency = Number(formData.get('leniency'));
+		const matchingWordCountRaw = Number(formData.get('matchingWordCount'));
+		const normalizedMatchingWordCount = Number.isFinite(matchingWordCountRaw)
+			? Math.min(Math.max(Math.round(matchingWordCountRaw), 3), 6)
+			: activeSettings.matchingWordCount ?? 3;
 		const matchingActive = isMatchingMode();
 		const appliedMode = matchingActive ? 'matching-triplets' : selectedMode;
 
@@ -1140,7 +1163,8 @@ Format 2 - Mit Kapiteln (wie Klett):
 			enforceTones,
 			showStrokeOrderHints: showOutline,
 			learningMode: appliedMode,
-			leniency: Number.isFinite(leniency) ? leniency : activeSettings.leniency
+			leniency: Number.isFinite(leniency) ? leniency : activeSettings.leniency,
+			matchingWordCount: normalizedMatchingWordCount
 		};
 
 		await saveSettings(next);
@@ -1311,53 +1335,80 @@ Format 2 - Mit Kapiteln (wie Klett):
 <section class="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 pt-2 pb-10 md:py-10">
 	<header class="sticky top-0 z-20 md:top-4" bind:this={headerElement}>
 		<nav class="flex flex-col gap-3 rounded-2xl bg-white/95 p-3 shadow-lg ring-1 ring-slate-200/70 backdrop-blur md:rounded-3xl md:p-5">
-			<!-- Mobile Compact Header -->
-			{#if isMobileViewport && !headerExpanded}
-				<div class="flex items-center justify-between gap-3">
-					<div class="flex items-center gap-2">
+			{#if !headerExpanded}
+				<div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+					<div class="flex items-center gap-3">
 						<button
 							type="button"
-							class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-700 transition hover:bg-slate-200"
+							class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-700 transition hover:bg-slate-200 md:h-9 md:w-9"
 							on:click={() => (headerExpanded = true)}
 							aria-label="Header erweitern"
 						>
-							<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<svg class="h-4 w-4 md:h-5 md:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
 							</svg>
 						</button>
 						<div>
-							<h1 class="text-base font-semibold text-slate-900">Zettelkasten</h1>
-							<p class="text-xs text-slate-500">{primaryLibraryLabel}</p>
+							<h1 class="text-base font-semibold text-slate-900 md:text-lg">Chinesischer Zettelkasten</h1>
+							<p class="text-xs text-slate-500 md:text-sm">{primaryLibraryLabel}</p>
 						</div>
 					</div>
-					<button
-						type="button"
-						class="rounded-full bg-slate-900 px-2.5 py-1 text-xs font-medium text-white"
-						on:click={openLibraryPicker}
-					>
-						Kap. {totalSelectedChapters} / W {totalSelectedWords}
-					</button>
+					<div class="flex flex-wrap items-center justify-end gap-2">
+						<button
+							type="button"
+							class={`${matchingModeButtonBase} ${matchingModeActive ? matchingModeActiveClass : matchingModeInactiveClass}`}
+							on:click={() => void toggleMatchingMode()}
+							aria-pressed={matchingModeActive}
+							disabled={togglingMode || matchingLoading || matchingRecording || loading}
+						>
+							<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h2a3 3 0 006 0h2a2 2 0 012 2v2h-1a2 2 0 100 4h1v2a2 2 0 01-2 2h-2a3 3 0 10-6 0H7a2 2 0 01-2-2v-2h1a2 2 0 100-4H5v-2a2 2 0 012-2z" />
+							</svg>
+							<span>{matchingModeActive ? 'Zettelkasten' : 'Matching'}</span>
+						</button>
+						<button
+							type="button"
+							class="rounded-full bg-slate-900 px-2.5 py-1 text-xs font-medium text-white"
+							on:click={openLibraryPicker}
+							aria-label="Bibliotheksauswahl öffnen"
+						>
+							Kap. {totalSelectedChapters} / W {totalSelectedWords}
+						</button>
+						<button
+							type="button"
+							class="flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-slate-700 ring-1 ring-slate-200 transition hover:bg-white md:h-9 md:w-9"
+							on:click={() => (showSettings = true)}
+							aria-label="Einstellungen öffnen"
+						>
+							<svg class="h-4 w-4 md:h-5 md:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+							</svg>
+						</button>
+					</div>
+				</div>
+				<div class="flex flex-col gap-1 text-xs text-slate-500 md:flex-row md:items-center md:justify-between md:text-sm">
+					<span>{libraryHeaderLabel}</span>
+					<span>Matching: {matchingTargetWordCount} Wörter · {matchingCardCount} Karten</span>
 				</div>
 			{:else}
-				<!-- Full Header (Desktop or Expanded Mobile) -->
+				<!-- Full Header (Desktop oder erweitert) -->
 				<div class="flex flex-col gap-3">
 					<div class="flex items-center justify-between">
 						<div>
 							<h1 class="text-2xl font-semibold text-slate-900 md:text-3xl">Chinesischer Zettelkasten</h1>
 							<p class="text-sm text-slate-600">Deutsch - zu Pinyin & Schrift</p>
 						</div>
-						{#if isMobileViewport}
-							<button
-								type="button"
-								class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-700 transition hover:bg-slate-200"
-								on:click={() => (headerExpanded = false)}
-								aria-label="Header minimieren"
-							>
-								<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-								</svg>
-							</button>
-						{/if}
+						<button
+							type="button"
+							class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-700 transition hover:bg-slate-200 md:h-9 md:w-9"
+							on:click={() => (headerExpanded = false)}
+							aria-label="Header minimieren"
+						>
+							<svg class="h-4 w-4 md:h-5 md:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+							</svg>
+						</button>
 					</div>
 					
 					<div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
@@ -1546,7 +1597,8 @@ Format 2 - Mit Kapiteln (wie Klett):
 				<section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
 					<h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Rundenstatus</h3>
 					<ul class="mt-3 space-y-2 text-sm text-slate-700">
-						<li>Aktive Karten: {matchingWords.length}</li>
+						<li>Aktive Wörter: {matchingWords.length} ({matchingWords.length * 3} Karten)</li>
+						<li>Ziel pro Runde: {matchingTargetWordCount} Wörter ({matchingCardCount} Karten)</li>
 						<li>Abgeschlossen: {matchingComplete ? 'Ja' : 'Nein'}</li>
 					</ul>
 				</section>
@@ -1947,6 +1999,20 @@ Format 2 - Mit Kapiteln (wie Klett):
 							<option value="pinyin-to-character">Pinyin → Schriftzeichen</option>
 						</select>
 						<p class="text-xs text-slate-500">Matching-Modus über den Button in der Kopfzeile starten.</p>
+					</label>
+					<label class="flex flex-col gap-2 text-sm text-slate-700">
+						<span>Matching-Karten pro Runde</span>
+						<select
+							name="matchingWordCount"
+							class="rounded-md border border-slate-300 px-3 py-2"
+							value={activeSettings.matchingWordCount ?? 3}
+						>
+							<option value="3">9 Karten (3 Wörter)</option>
+							<option value="4">12 Karten (4 Wörter)</option>
+							<option value="5">15 Karten (5 Wörter)</option>
+							<option value="6">18 Karten (6 Wörter)</option>
+						</select>
+						<p class="text-xs text-slate-500">Mehr Karten passen besonders gut auf größere Displays.</p>
 					</label>
 					<label class="flex flex-col gap-2 text-sm text-slate-700">
 						<span>Schreib-Lenienz</span>

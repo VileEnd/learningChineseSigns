@@ -23,14 +23,15 @@
 	}>();
 
 	const defaultMessage =
-		'Waehle die passenden Kombinationen aus Deutsch, Pinyin und Schriftzeichen.';
+		'Wähle die passenden Kombinationen aus Deutsch, Pinyin und Schriftzeichen.';
 
 	const MATCH_CARD_CLASSES = [
 		'border-emerald-300 bg-emerald-50 text-emerald-900',
 		'border-sky-300 bg-sky-50 text-sky-900',
 		'border-amber-300 bg-amber-50 text-amber-900',
 		'border-violet-300 bg-violet-50 text-violet-900',
-		'border-rose-300 bg-rose-50 text-rose-900'
+		'border-rose-300 bg-rose-50 text-rose-900',
+		'border-lime-300 bg-lime-50 text-lime-900'
 	];
 
 	const MATCH_LABEL_CLASSES = [
@@ -38,7 +39,8 @@
 		' text-sky-600',
 		' text-amber-600',
 		' text-violet-600',
-		' text-rose-600'
+		' text-rose-600',
+		' text-lime-600'
 	];
 
 	const MATCH_VALUE_CLASSES = [
@@ -46,7 +48,8 @@
 		' text-sky-900',
 		' text-amber-900',
 		' text-violet-900',
-		' text-rose-900'
+		' text-rose-900',
+		' text-lime-900'
 	];
 
 	let cards: Card[] = [];
@@ -272,6 +275,12 @@
 			return;
 		}
 
+		const activeSelection = cards.filter((current) => selectedIds.has(current.id));
+		if (activeSelection.some((current) => current.kind === card.kind)) {
+			statusMessage = 'Pro Kategorie darf nur eine Karte gleichzeitig aktiv sein.';
+			return;
+		}
+
 		const next = new Set(selectedIds);
 		next.add(card.id);
 		selectedIds = next;
@@ -280,7 +289,7 @@
 		if (next.size === 3) {
 			evaluateSelection(next);
 		} else {
-			statusMessage = 'Waehle insgesamt drei Karten.';
+			statusMessage = 'Wähle insgesamt drei Karten.';
 		}
 	}
 
@@ -296,7 +305,7 @@
 </script>
 
 <div class="flex flex-col gap-6">
-	<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+	<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
 		{#if cards.length === 0}
 			<p class="col-span-full rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
 				Keine passenden Karten verfuegbar.
