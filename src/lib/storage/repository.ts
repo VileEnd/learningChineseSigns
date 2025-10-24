@@ -7,7 +7,8 @@ import {
 	clearSessionState,
 	type LessonSummaryRecord,
 	type SessionStateRecord,
-	type WordRecord
+	type WordRecord,
+	type ProgressRecord
 } from './db';
 import type {
 	ExportSnapshot,
@@ -15,6 +16,7 @@ import type {
 	MatchingRoundWord,
 	LessonStage,
 	LessonSummary,
+	LessonHistoryEntry,
 	SessionState,
 	Settings,
 	LibrarySelectionMap,
@@ -197,12 +199,60 @@ export async function recordMatchingRound(wordIds: string[]): Promise<void> {
 	}
 }
 
-export async function listRecentSummaries(limit = 10): Promise<LessonSummary[]> {
+export async function listRecentSummaries(limit = 10): Promise<LessonHistoryEntry[]> {
 	const entries = await db.summaries.orderBy('timestamp').reverse().limit(limit).toArray();
-	return entries.map(({ id: _id, stageReached, ...rest }: LessonSummaryRecord) => ({
-		...rest,
-		stageReached: stageReached as LessonStage
-	}));
+	if (entries.length === 0) {
+		return [];
+	}
+
+	const wordIds = entries.map((entry) => entry.wordId);
+	const [words, progressRecords] = await Promise.all([
+		db.words.bulkGet(wordIds),
+		db.progress.bulkGet(wordIds)
+	]);
+
+	const wordMap = new Map<string, WordRecord>();
+	words.forEach((word) => {
+		if (word) {
+			wordMap.set(word.id, word);
+		}
+	});
+
+	const progressMap = new Map<string, WordProgress>();
+	progressRecords.forEach((progress) => {
+		if (progress) {
+			const normalized: ProgressRecord = {
+				...progress,
+				reviewCount: progress.reviewCount ?? 0,
+				suspended: progress.suspended ?? false,
+				sm2Repetitions: progress.sm2Repetitions ?? 0,
+				sm2Interval: progress.sm2Interval ?? 1,
+				sm2Easiness: progress.sm2Easiness ?? 2.5,
+				sm2LastQuality: progress.sm2LastQuality ?? (progress.lastResult === 'success' ? 4 : 2)
+			};
+			progressMap.set(progress.wordId, normalized);
+		}
+	});
+
+	return entries.map(({ id: _id, stageReached, ...rest }: LessonSummaryRecord) => {
+		const stage = stageReached as LessonStage;
+		const word = wordMap.get(rest.wordId);
+		const progress = progressMap.get(rest.wordId);
+
+		return {
+			...rest,
+			stageReached: stage,
+			prompt: word?.prompt ?? rest.wordId,
+			pinyin: word?.pinyin ?? '',
+			characters: word?.characters ?? [],
+			bucket: progress?.bucket ?? 'learning',
+			nextDueAt: progress?.nextDueAt ?? rest.timestamp,
+			sm2Repetitions: progress?.sm2Repetitions ?? 0,
+			sm2Interval: progress?.sm2Interval ?? 1,
+			sm2Easiness: progress?.sm2Easiness ?? 2.5,
+			sm2LastQuality: progress?.sm2LastQuality ?? (progress?.lastResult === 'success' ? 4 : 2)
+		};
+	});
 }
 
 export async function getWordById(id: string): Promise<WordRecord | null> {
@@ -271,7 +321,15 @@ export async function importWordPack(
 				await db.progress.put({
 					...existingProgress,
 					suspended: false,
-					reviewCount: existingProgress.reviewCount ?? 0
+					reviewCount: existingProgress.reviewCount ?? 0,
+					sm2Repetitions: existingProgress.sm2Repetitions ?? 0,
+					sm2Interval: existingProgress.sm2Interval ?? 1,
+					sm2Easiness: existingProgress.sm2Easiness ?? 2.5,
+					sm2LastQuality: existingProgress.sm2LastQuality ?? 0,
+					nextDueAt:
+						existingProgress.nextDueAt && existingProgress.nextDueAt > 1_000_000_000_000
+							? existingProgress.nextDueAt
+							: now
 				});
 			} else {
 				await db.progress.put({
@@ -284,7 +342,11 @@ export async function importWordPack(
 					writingAttempts: 0,
 					lastResult: 'failure',
 					reviewCount: 0,
-					suspended: false
+					suspended: false,
+					sm2Repetitions: 0,
+					sm2Interval: 1,
+					sm2Easiness: 2.5,
+					sm2LastQuality: 0
 				});
 			}
 
@@ -315,7 +377,13 @@ export async function upsertWord(word: WordEntry, source: WordRecord['source'] =
 			nextDueAt: now,
 			pinyinAttempts: 0,
 			writingAttempts: 0,
-			lastResult: 'failure'
+			lastResult: 'failure',
+			reviewCount: 0,
+			suspended: false,
+			sm2Repetitions: 0,
+			sm2Interval: 1,
+			sm2Easiness: 2.5,
+			sm2LastQuality: 0
 		});
 	});
 }
@@ -356,7 +424,15 @@ export async function importSnapshot(snapshot: ExportSnapshot): Promise<void> {
 			await db.progress.put({
 				...progress,
 				suspended: progress.suspended ?? false,
-				reviewCount: progress.reviewCount ?? 0
+				reviewCount: progress.reviewCount ?? 0,
+				sm2Repetitions: progress.sm2Repetitions ?? 0,
+				sm2Interval: progress.sm2Interval ?? 1,
+				sm2Easiness: progress.sm2Easiness ?? 2.5,
+				sm2LastQuality: progress.sm2LastQuality ?? (progress.lastResult === 'success' ? 4 : 2),
+				nextDueAt:
+					progress.nextDueAt && progress.nextDueAt > 1_000_000_000_000
+						? progress.nextDueAt
+						: Date.now()
 			});
 		}
 

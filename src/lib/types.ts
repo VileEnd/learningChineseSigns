@@ -38,6 +38,10 @@ export interface WordProgress {
 	lastResult: 'success' | 'failure';
 	reviewCount?: number;
 	suspended?: boolean;
+	sm2Repetitions?: number;
+	sm2Interval?: number;
+	sm2Easiness?: number;
+	sm2LastQuality?: number;
 }
 
 export interface LessonSummary {
@@ -47,6 +51,18 @@ export interface LessonSummary {
 	pinyinAttempts: number;
 	writingAttempts: number;
 	timestamp: number;
+}
+
+export interface LessonHistoryEntry extends LessonSummary {
+	prompt: string;
+	pinyin: string;
+	characters: string[];
+	bucket: LearningBucket;
+	nextDueAt: number;
+	sm2Repetitions: number;
+	sm2Interval: number;
+	sm2Easiness: number;
+	sm2LastQuality: number;
 }
 
 export interface SessionState {

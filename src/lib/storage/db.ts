@@ -80,6 +80,38 @@ class LearningDexie extends Dexie {
 					}
 				});
 			});
+
+		this.version(4)
+			.stores({
+				words: '&id, promptLanguage, source',
+				progress: '&wordId, bucket, nextDueAt',
+				settings: '&id',
+				summaries: '++id, wordId, timestamp',
+				session: '&id'
+			})
+			.upgrade(async (transaction) => {
+				const now = Date.now();
+				await transaction.table('progress').toCollection().modify((record: ProgressRecord) => {
+					if (record.sm2Repetitions === undefined) {
+						record.sm2Repetitions = Math.max(record.streak ?? 0, 0);
+					}
+					if (record.sm2Interval === undefined || record.sm2Interval <= 0) {
+						record.sm2Interval = record.sm2Repetitions > 1 ? 6 : 1;
+					}
+					if (record.sm2Easiness === undefined || !Number.isFinite(record.sm2Easiness)) {
+						record.sm2Easiness = 2.5;
+					}
+					if (record.sm2LastQuality === undefined) {
+						record.sm2LastQuality = record.lastResult === 'success' ? 4 : 2;
+					}
+					if (!record.nextDueAt || record.nextDueAt < 1_000_000_000_000) {
+						record.nextDueAt = now;
+					}
+					if (record.bucket === undefined) {
+						record.bucket = 'learning';
+					}
+				});
+			});
 	}
 
 	async ensureSettings(): Promise<SettingsRecord> {
@@ -125,7 +157,11 @@ export async function updateProgress(entry: ProgressRecord): Promise<void> {
 		...entry,
 		suspended: entry.suspended ?? false,
 		nextDueAt: entry.nextDueAt,
-		lastReviewedAt: entry.lastReviewedAt
+		lastReviewedAt: entry.lastReviewedAt,
+		sm2Repetitions: entry.sm2Repetitions ?? 0,
+		sm2Interval: entry.sm2Interval ?? 1,
+		sm2Easiness: entry.sm2Easiness ?? 2.5,
+		sm2LastQuality: entry.sm2LastQuality ?? 0
 	});
 }
 
@@ -166,7 +202,11 @@ export async function bootstrapWords(words: WordEntry[], source: WordRecord['sou
 				writingAttempts: 0,
 				lastResult: 'failure',
 				reviewCount: 0,
-				suspended: false
+				suspended: false,
+				sm2Repetitions: 0,
+				sm2Interval: 1,
+				sm2Easiness: 2.5,
+				sm2LastQuality: 0
 			};
 			await db.progress.put(progress);
 		}

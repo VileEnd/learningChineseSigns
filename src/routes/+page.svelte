@@ -35,8 +35,10 @@
 	import type {
 		LessonStage,
 		LessonSummary,
+		LessonHistoryEntry,
 		MatchingRoundWord,
 		LearningMode,
+		LearningBucket,
 		SessionState,
 		Settings,
 		WordProgress,
@@ -62,7 +64,7 @@
 	let totalWritingAttempts = 0;
 	let attemptKey = 0;
 	let sessionFinished = false;
-	let summaryHistory: LessonSummary[] = [];
+	let summaryHistory: LessonHistoryEntry[] = [];
 	let activeSettings: Settings | null = null;
 	let showSettings = false;
 	let exporting = false;
@@ -265,6 +267,48 @@ Format 2 - Mit Kapiteln (wie Klett):
     }
   ]
 }`;
+
+	const historyBucketLabels: Record<LearningBucket, string> = {
+		learning: 'Lernphase',
+		reinforce: 'Festigen',
+		known: 'Langzeit'
+	};
+
+	const historyStageLabels: Record<LessonStage, string> = {
+		pinyin: 'Pinyin',
+		writing: 'Schriftzeichen',
+		'writing-guided-half': 'Geführte Hälfte',
+		'writing-guided-full': 'Geführte Ganzschrift',
+		complete: 'Abgeschlossen'
+	};
+
+	const HISTORY_DAY_MS = 86_400_000;
+
+	function historyStateLabel(entry: LessonHistoryEntry): string {
+		return entry.success ? 'Erfolg' : 'Wiederholen';
+	}
+
+	function historyQualityLabel(entry: LessonHistoryEntry): string {
+		const quality = Math.round(entry.sm2LastQuality ?? 0);
+		return `Qualität ${quality}`;
+	}
+
+	function historyBucketLabel(bucket: LearningBucket): string {
+		return historyBucketLabels[bucket] ?? bucket;
+	}
+
+	function historyStageLabel(stage: LessonStage): string {
+		return historyStageLabels[stage] ?? stage;
+	}
+
+	function historyNextDueLabel(entry: LessonHistoryEntry): string {
+		const diff = entry.nextDueAt - Date.now();
+		if (!Number.isFinite(diff) || diff <= 0) {
+			return 'fällig';
+		}
+		const days = Math.ceil(diff / HISTORY_DAY_MS);
+		return days <= 1 ? 'in 1 Tag' : `in ${days} Tagen`;
+	}
 
 	function cloneLibrarySelections(source: LibrarySelectionMap | undefined): LibrarySelectionMap {
 		const result: LibrarySelectionMap = {};
@@ -1037,7 +1081,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 			timestamp: Date.now()
 		};
 		await recordLesson(summary);
-		summaryHistory = [summary, ...summaryHistory].slice(0, 10);
+		summaryHistory = await listRecentSummaries();
 		await saveSession(null);
 	}
 
@@ -1721,12 +1765,35 @@ Format 2 - Mit Kapiteln (wie Klett):
 					{#if summaryHistory.length === 0}
 						<p class="mt-2 text-sm text-slate-500">Noch keine Einträge.</p>
 					{:else}
-						<ul class="mt-2 space-y-2 text-sm text-slate-600">
+						<ul class="mt-2 space-y-3 text-sm text-slate-600">
 							{#each summaryHistory as item}
-								<li class="rounded-md border border-slate-100 px-3 py-2">
-									<span class="font-medium">{item.wordId}</span>
-									<span class="ml-2">{item.success ? '✔️' : '⏳'}</span>
-									<span class="ml-2 text-xs text-slate-500">{new Date(item.timestamp).toLocaleString()}</span>
+								<li class="rounded-lg border border-slate-100 px-3 py-3">
+									<div class="flex flex-col gap-2">
+										<div class="flex items-start justify-between gap-3">
+											<div>
+												<p class="text-sm font-semibold text-slate-900">{item.prompt}</p>
+												{#if item.pinyin}
+													<p class="text-xs text-slate-600">{item.pinyin}</p>
+												{/if}
+												{#if item.characters.length}
+													<p class="text-lg text-slate-900">{item.characters.join('')}</p>
+												{/if}
+											</div>
+											<div class="flex flex-col items-end gap-1 text-xs text-slate-500">
+												<span class={`inline-flex items-center rounded-full px-2 py-0.5 font-semibold ${item.success ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+													{historyStateLabel(item)}
+												</span>
+												<span>{historyQualityLabel(item)}</span>
+												<span>Phase: {historyBucketLabel(item.bucket)}</span>
+												<span>Stufe: {historyStageLabel(item.stageReached)}</span>
+												<span>Nächste Wiederholung: {historyNextDueLabel(item)}</span>
+											</div>
+										</div>
+										<div class="flex flex-wrap justify-between text-[0.7rem] text-slate-400">
+											<span>{new Date(item.timestamp).toLocaleString()}</span>
+											<span>Intervall: {item.sm2Interval} Tag{item.sm2Interval === 1 ? '' : 'e'}</span>
+										</div>
+									</div>
 								</li>
 							{/each}
 						</ul>
@@ -1861,12 +1928,35 @@ Format 2 - Mit Kapiteln (wie Klett):
 					{#if summaryHistory.length === 0}
 						<p class="mt-2 text-sm text-slate-500">Noch keine Einträge.</p>
 					{:else}
-						<ul class="mt-2 space-y-2 text-sm text-slate-600">
+						<ul class="mt-2 space-y-3 text-sm text-slate-600">
 							{#each summaryHistory as item}
-								<li class="rounded-md border border-slate-100 px-3 py-2">
-									<span class="font-medium">{item.wordId}</span>
-									<span class="ml-2">{item.success ? '✔️' : '⏳'}</span>
-									<span class="ml-2 text-xs text-slate-500">{new Date(item.timestamp).toLocaleString()}</span>
+								<li class="rounded-lg border border-slate-100 px-3 py-3">
+									<div class="flex flex-col gap-2">
+										<div class="flex items-start justify-between gap-3">
+											<div>
+												<p class="text-sm font-semibold text-slate-900">{item.prompt}</p>
+												{#if item.pinyin}
+													<p class="text-xs text-slate-600">{item.pinyin}</p>
+												{/if}
+												{#if item.characters.length}
+													<p class="text-lg text-slate-900">{item.characters.join('')}</p>
+												{/if}
+											</div>
+											<div class="flex flex-col items-end gap-1 text-xs text-slate-500">
+												<span class={`inline-flex items-center rounded-full px-2 py-0.5 font-semibold ${item.success ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+													{historyStateLabel(item)}
+												</span>
+												<span>{historyQualityLabel(item)}</span>
+												<span>Phase: {historyBucketLabel(item.bucket)}</span>
+												<span>Stufe: {historyStageLabel(item.stageReached)}</span>
+												<span>Nächste Wiederholung: {historyNextDueLabel(item)}</span>
+											</div>
+										</div>
+										<div class="flex flex-wrap justify-between text-[0.7rem] text-slate-400">
+											<span>{new Date(item.timestamp).toLocaleString()}</span>
+											<span>Intervall: {item.sm2Interval} Tag{item.sm2Interval === 1 ? '' : 'e'}</span>
+										</div>
+									</div>
 								</li>
 							{/each}
 						</ul>

@@ -56,7 +56,11 @@ export const progressSchema = z.object({
 	writingAttempts: z.number().int().min(0),
 	lastResult: z.enum(['success', 'failure']),
 	reviewCount: z.number().int().min(0).optional(),
-	suspended: z.boolean().optional()
+	suspended: z.boolean().optional(),
+	sm2Repetitions: z.number().int().min(0).optional(),
+	sm2Interval: z.number().int().min(1).optional(),
+	sm2Easiness: z.number().min(1.3).max(3.5).optional(),
+	sm2LastQuality: z.number().min(0).max(5).optional()
 });
 
 export const exportSnapshotSchema = z.object({
