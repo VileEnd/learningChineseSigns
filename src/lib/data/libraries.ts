@@ -1,5 +1,7 @@
 import type { WordEntry } from '$lib/types';
 
+import { browser } from '$app/environment';
+
 export type LibraryType = string;
 
 interface RawWord {
@@ -64,15 +66,12 @@ export interface LibraryInfo {
 	totalWords: number;
 }
 
-const rawModules = import.meta.glob<{ default: RawLibrary }>('$lib/assets/library/*.json', {
-	eager: true
-});
-
-const libraries: LibraryData[] = [];
+let libraries: LibraryData[] = [];
 const libraryMap = new Map<LibraryType, LibraryData>();
-const usedLibraryIds = new Set<string>();
-
+const LIBRARY_INDEX_URL = '/library/index.json';
+const LIBRARY_CACHE_KEY = 'lcs-library-cache-v1';
 const fallbackPromptLanguage = 'de';
+let loadPromise: Promise<void> | null = null;
 
 function slugify(value: string): string {
 	return value
@@ -132,7 +131,7 @@ function buildChapterId(libraryId: string, rawValue: string, index: number, used
 	return candidate;
 }
 
-function parseLibrary(sourcePath: string, raw: RawLibrary): LibraryData | null {
+function parseLibrary(sourcePath: string, raw: RawLibrary, usedLibraryIds: Set<string>): LibraryData | null {
 	const fileName = sourcePath.split('/').pop() ?? 'library.json';
 	const baseName = fileName.replace(/\.json$/i, '');
 	const requestedId = raw.libraryId?.trim() || slugify(baseName) || 'library';
@@ -213,29 +212,96 @@ function parseLibrary(sourcePath: string, raw: RawLibrary): LibraryData | null {
 	};
 }
 
-for (const [path, module] of Object.entries(rawModules)) {
-	const payload = (module as { default?: RawLibrary }).default ?? (module as unknown as RawLibrary);
-	const library = parseLibrary(path, payload);
-	if (!library) {
-		console.warn(`Bibliothek ignoriert (keine gültigen Kapitel): ${path}`);
-		continue;
+async function loadLibraries(): Promise<void> {
+	if (libraries.length > 0) {
+		return;
+	}
+	if (loadPromise) {
+		await loadPromise;
+		return;
 	}
 
-	libraries.push(library);
-	libraryMap.set(library.id, library);
+	loadPromise = (async () => {
+		if (browser) {
+			try {
+				const cached = localStorage.getItem(LIBRARY_CACHE_KEY);
+				if (cached) {
+					const parsed = JSON.parse(cached) as LibraryData[];
+					libraries = parsed;
+					libraryMap.clear();
+					parsed.forEach((library) => {
+						libraryMap.set(library.id, library);
+					});
+					return;
+				}
+			} catch (error) {
+				console.warn('Bibliotheks-Cache konnte nicht gelesen werden.', error);
+			}
+		}
+
+		if (!browser) {
+			libraries = [];
+			libraryMap.clear();
+			return;
+		}
+
+		const indexResponse = await fetch(LIBRARY_INDEX_URL);
+		if (!indexResponse.ok) {
+			throw new Error(`Bibliotheksindex konnte nicht geladen werden (${indexResponse.status})`);
+		}
+		const files = (await indexResponse.json()) as string[];
+		const usedLibraryIds = new Set<string>();
+		const parsedLibraries: LibraryData[] = [];
+
+		for (const fileName of files) {
+			try {
+				const response = await fetch(`/library/${fileName}`);
+				if (!response.ok) {
+					console.warn(`Bibliothek konnte nicht geladen werden (${fileName}): ${response.status}`);
+					continue;
+				}
+				const raw = (await response.json()) as RawLibrary;
+				const parsed = parseLibrary(`/library/${fileName}`, raw, usedLibraryIds);
+				if (!parsed) {
+					console.warn(`Bibliothek ignoriert (keine gültigen Kapitel): ${fileName}`);
+					continue;
+				}
+				parsedLibraries.push(parsed);
+			} catch (error) {
+				console.error(`Bibliothek ${fileName} konnte nicht verarbeitet werden.`, error);
+			}
+		}
+
+		libraries = parsedLibraries;
+		libraryMap.clear();
+		libraries.forEach((library) => {
+			libraryMap.set(library.id, library);
+		});
+
+		if (browser) {
+			try {
+				localStorage.setItem(LIBRARY_CACHE_KEY, JSON.stringify(libraries));
+			} catch (error) {
+				console.warn('Bibliotheks-Cache konnte nicht gespeichert werden.', error);
+			}
+		}
+	})();
+
+	await loadPromise;
 }
 
-export const availableLibraries: LibraryInfo[] = libraries.map(({ id, name, totalWords }) => ({
-	id,
-	name,
-	totalWords
-}));
+export async function getAvailableLibraries(): Promise<LibraryInfo[]> {
+	await loadLibraries();
+	return libraries.map(({ id, name, totalWords }) => ({ id, name, totalWords }));
+}
 
-export function getLibraryMetadata(libraryId: LibraryType): LibraryData | undefined {
+export async function getLibraryMetadata(libraryId: LibraryType): Promise<LibraryData | undefined> {
+	await loadLibraries();
 	return libraryMap.get(libraryId);
 }
 
-export function getChaptersForLibrary(libraryId: LibraryType): ChapterInfo[] {
+export async function getChaptersForLibrary(libraryId: LibraryType): Promise<ChapterInfo[]> {
+	await loadLibraries();
 	const library = libraryMap.get(libraryId);
 	if (!library) {
 		return [];
@@ -250,7 +316,8 @@ export function getChaptersForLibrary(libraryId: LibraryType): ChapterInfo[] {
 	}));
 }
 
-export function getWordsForChapters(libraryId: LibraryType, chapterIds: string[]): WordEntry[] {
+export async function getWordsForChapters(libraryId: LibraryType, chapterIds: string[]): Promise<WordEntry[]> {
+	await loadLibraries();
 	const library = libraryMap.get(libraryId);
 	if (!library || chapterIds.length === 0) {
 		return [];
@@ -262,14 +329,17 @@ export function getWordsForChapters(libraryId: LibraryType, chapterIds: string[]
 		.flatMap((chapter) => chapter.words);
 }
 
-export function getAllChapterIdsForLibrary(libraryId: LibraryType): string[] {
-	return getChaptersForLibrary(libraryId).map((chapter) => chapter.id);
+export async function getAllChapterIdsForLibrary(libraryId: LibraryType): Promise<string[]> {
+	const chapters = await getChaptersForLibrary(libraryId);
+	return chapters.map((chapter) => chapter.id);
 }
 
-export function getLibraryTotalWordCount(libraryId: LibraryType): number {
+export async function getLibraryTotalWordCount(libraryId: LibraryType): Promise<number> {
+	await loadLibraries();
 	return libraryMap.get(libraryId)?.totalWords ?? 0;
 }
 
-export function listLibraries(): LibraryData[] {
+export async function listLibraries(): Promise<LibraryData[]> {
+	await loadLibraries();
 	return libraries.slice();
 }

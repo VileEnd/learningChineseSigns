@@ -26,7 +26,7 @@ import type {
 } from '../types';
 import { defaultWords } from '../data/defaultWords';
 import {
-	availableLibraries,
+	getAvailableLibraries as loadAvailableLibraries,
 	getChaptersForLibrary,
 	getWordsForChapters,
 	getLibraryMetadata,
@@ -164,6 +164,32 @@ export async function getMatchingRound(wordCount = 3): Promise<MatchingRound | n
 }
 
 export async function recordLesson(summary: LessonSummary): Promise<void> {
+	await db.transaction('rw', db.progress, db.summaries, async () => {
+		await persistLessonSummary(summary);
+	});
+}
+
+export async function recordMatchingRound(wordIds: string[]): Promise<void> {
+	if (wordIds.length === 0) {
+		return;
+	}
+	const baseTimestamp = Date.now();
+	await db.transaction('rw', db.progress, db.summaries, async () => {
+		for (let index = 0; index < wordIds.length; index += 1) {
+			const wordId = wordIds[index];
+			await persistLessonSummary({
+				wordId,
+				success: true,
+				stageReached: 'complete',
+				pinyinAttempts: 0,
+				writingAttempts: 0,
+				timestamp: baseTimestamp + index
+			});
+		}
+	});
+}
+
+async function persistLessonSummary(summary: LessonSummary): Promise<void> {
 	const currentProgress = await db.progress.get(summary.wordId);
 	if (!currentProgress) {
 		return;
@@ -179,24 +205,6 @@ export async function recordLesson(summary: LessonSummary): Promise<void> {
 		writingAttempts: summary.writingAttempts,
 		timestamp: summary.timestamp
 	});
-}
-
-export async function recordMatchingRound(wordIds: string[]): Promise<void> {
-	if (wordIds.length === 0) {
-		return;
-	}
-	const baseTimestamp = Date.now();
-	for (let index = 0; index < wordIds.length; index += 1) {
-		const wordId = wordIds[index];
-		await recordLesson({
-			wordId,
-			success: true,
-			stageReached: 'complete',
-			pinyinAttempts: 0,
-			writingAttempts: 0,
-			timestamp: baseTimestamp + index
-		});
-	}
 }
 
 export async function listRecentSummaries(limit = 10): Promise<LessonHistoryEntry[]> {
@@ -488,8 +496,8 @@ export interface KlettChapterSummary {
 
 const KLETT_LIBRARY_ID: LibraryType = 'klett';
 
-export function getKlettChapterSummaries(): KlettChapterSummary[] {
-	const library = getLibraryMetadata(KLETT_LIBRARY_ID);
+export async function getKlettChapterSummaries(): Promise<KlettChapterSummary[]> {
+	const library = await getLibraryMetadata(KLETT_LIBRARY_ID);
 	if (!library) {
 		return [];
 	}
@@ -503,12 +511,12 @@ export function getKlettChapterSummaries(): KlettChapterSummary[] {
 		.sort((a, b) => a.chapter - b.chapter);
 }
 
-export function getKlettTotalWordCount(): number {
+export async function getKlettTotalWordCount(): Promise<number> {
 	return getLibraryTotalWordCount(KLETT_LIBRARY_ID);
 }
 
 export async function importKlettChapters(selection: 'all' | number | number[]): Promise<{ inserted: number }> {
-	const library = getLibraryMetadata(KLETT_LIBRARY_ID);
+	const library = await getLibraryMetadata(KLETT_LIBRARY_ID);
 	if (!library) {
 		return { inserted: 0 };
 	}
@@ -539,7 +547,7 @@ export async function importKlettChapters(selection: 'all' | number | number[]):
 }
 
 export async function suspendKlettChapters(selection: 'all' | number | number[]): Promise<number> {
-	const library = getLibraryMetadata(KLETT_LIBRARY_ID);
+	const library = await getLibraryMetadata(KLETT_LIBRARY_ID);
 	if (!library) {
 		return 0;
 	}
@@ -570,11 +578,11 @@ export async function suspendKlettChapters(selection: 'all' | number | number[])
 }
 
 // New generic library functions
-export function getAvailableLibraries() {
-	return availableLibraries;
+export async function getAvailableLibraries() {
+	return loadAvailableLibraries();
 }
 
-export function getLibraryChapters(libraryId: LibraryType) {
+export async function getLibraryChapters(libraryId: LibraryType) {
 	return getChaptersForLibrary(libraryId);
 }
 
@@ -582,7 +590,7 @@ export async function importLibraryChapters(
 	libraryId: LibraryType,
 	chapterIds: string[]
 ): Promise<{ inserted: number }> {
-	const words = getWordsForChapters(libraryId, chapterIds);
+	const words = await getWordsForChapters(libraryId, chapterIds);
 	
 	if (words.length === 0) {
 		return { inserted: 0 };
@@ -601,7 +609,7 @@ export async function suspendLibraryChapters(
 	libraryId: LibraryType,
 	chapterIds: string[]
 ): Promise<number> {
-	const words = getWordsForChapters(libraryId, chapterIds);
+	const words = await getWordsForChapters(libraryId, chapterIds);
 	const wordIds = words.map((word) => word.id);
 
 	if (wordIds.length === 0) {
@@ -642,9 +650,10 @@ export async function applyLibrarySelections(
 	let totalInserted = 0;
 	let totalPaused = 0;
 	const details: LibrarySelectionDetail[] = [];
+	const libraries = await loadAvailableLibraries();
 
-	for (const library of availableLibraries) {
-		const metadata = getLibraryMetadata(library.id);
+	for (const library of libraries) {
+		const metadata = await getLibraryMetadata(library.id);
 		if (!metadata || metadata.chapters.length === 0) {
 			continue;
 		}

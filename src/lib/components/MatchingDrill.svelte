@@ -59,6 +59,9 @@
 	let previousRoundId = roundId;
 	let mismatchTimer: ReturnType<typeof setTimeout> | null = null;
 	let matchedPalette = new Map<string, number>();
+	let cardRefs: Array<HTMLButtonElement | null> = [];
+
+	$: statusElementId = `matching-status-${roundId}`;
 
 	const typeLabels: Record<MatchingCardKind, string> = {
 		prompt: 'Deutsch',
@@ -163,11 +166,13 @@
 	}
 
 	function resetRoundState(): void {
-		cards = words.length > 0 ? buildCards(words) : [];
+		const nextCards = words.length > 0 ? buildCards(words) : [];
+		cards = nextCards;
 		selectedIds = new Set();
 		matchedWordIds = new Set();
 		statusMessage = defaultMessage;
 		matchedPalette = new Map();
+		cardRefs = Array(nextCards.length).fill(null);
 	}
 
 	function clearMismatch(): void {
@@ -302,6 +307,64 @@
 		clearMismatch();
 		resetRoundState();
 	}
+
+	function registerCard(node: HTMLButtonElement, index: number) {
+		cardRefs[index] = node;
+		return {
+			destroy() {
+				cardRefs[index] = null;
+			}
+		};
+	}
+
+	function focusCardAt(index: number) {
+		const target = cardRefs[index];
+		if (target && !target.disabled) {
+			target.focus();
+		}
+	}
+
+	function focusNextAvailable(startIndex: number, step: number) {
+		if (cardRefs.length === 0) {
+			return;
+		}
+		const total = cardRefs.length;
+		let nextIndex = startIndex;
+		for (let count = 0; count < total; count += 1) {
+			nextIndex = (nextIndex + step + total) % total;
+			const ref = cardRefs[nextIndex];
+			const card = cards[nextIndex];
+			if (ref && !ref.disabled && !card.matched) {
+				ref.focus();
+				return;
+			}
+		}
+	}
+
+	function handleCardKeydown(event: KeyboardEvent, index: number) {
+		switch (event.key) {
+			case 'ArrowRight':
+			case 'ArrowDown':
+				event.preventDefault();
+				focusNextAvailable(index, 1);
+				break;
+			case 'ArrowLeft':
+			case 'ArrowUp':
+				event.preventDefault();
+				focusNextAvailable(index, -1);
+				break;
+			case 'Home':
+				event.preventDefault();
+				focusCardAt(0);
+				break;
+			case 'End':
+				event.preventDefault();
+				focusCardAt(cardRefs.length - 1);
+				break;
+			default:
+				break;
+		}
+	}
 </script>
 
 <div class="flex flex-col gap-6">
@@ -311,13 +374,16 @@
 				Keine passenden Karten verfuegbar.
 			</p>
 		{:else}
-			{#each cards as card (card.id)}
+			{#each cards as card, index (card.id)}
 				<button
 					type="button"
 					class={cardClass(card)}
 					on:click={() => toggleCard(card)}
 					aria-pressed={card.selected}
 					disabled={disabled || card.matched}
+					aria-describedby={statusElementId}
+					on:keydown={(event) => handleCardKeydown(event, index)}
+					use:registerCard={index}
 				>
 					<p class={labelClass(card)}>{typeLabels[card.kind]}</p>
 					<p class={valueClass(card)}>{card.label}</p>
@@ -325,7 +391,7 @@
 			{/each}
 		{/if}
 	</div>
-	<p class="rounded-xl bg-slate-900/90 px-4 py-3 text-sm font-medium text-white shadow">
+		<p id={statusElementId} class="rounded-xl bg-slate-900/90 px-4 py-3 text-sm font-medium text-white shadow" role="status" aria-live="polite">
 		{statusMessage}
 	</p>
 </div>

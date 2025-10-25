@@ -1,13 +1,18 @@
 <script lang="ts">
 	import { onDestroy, onMount, tick } from 'svelte';
+	import FeatureHighlightsBanner from '$lib/components/FeatureHighlightsBanner.svelte';
+	import LessonHistory from '$lib/components/LessonHistory.svelte';
 	import { browser } from '$app/environment';
 	import HandwritingQuiz from '$lib/components/HandwritingQuiz.svelte';
-	import MatchingDrill from '$lib/components/MatchingDrill.svelte';
+	import StudyHeader from '$lib/components/study/StudyHeader.svelte';
+	import SettingsDialog from '$lib/components/study/SettingsDialog.svelte';
+	import LibraryPickerDialog from '$lib/components/study/LibraryPickerDialog.svelte';
+	import KlettPickerDialog from '$lib/components/study/KlettPickerDialog.svelte';
+	import MatchingModePanel from '$lib/components/study/MatchingModePanel.svelte';
 	import { comparePinyin, convertNumericToToneMarks } from '$lib/utils/pinyin';
 	import {
 		initializeRepository,
 		getNextLessonCandidate,
-		getMatchingRound,
 		recordLesson,
 		recordMatchingRound,
 		exportSnapshot,
@@ -17,7 +22,6 @@
 		getWordById,
 		getProgressByWordId,
 		saveSession,
-		loadSession,
 		getKlettChapterSummaries,
 		getKlettTotalWordCount,
 		importKlettChapters,
@@ -29,9 +33,26 @@
 		getLibraryChapters,
 		importLibraryChapters,
 		suspendLibraryChapters,
-		applyLibrarySelections
+		applyLibrarySelections,
+		type KlettChapterSummary
 	} from '$lib/storage/repository';
-	import { loadSettings, saveSettings, settings } from '$lib/state/settings';
+	import { loadSettings, saveSettings } from '$lib/state/settings';
+	import {
+		fetchMatchingRound,
+		hydrateLessonState,
+		invalidateLessonCache,
+		invalidateMatchingCache,
+		watchSettingsChanges,
+		type LessonHydration,
+		type MatchingRoundResult,
+		type SettingsChange
+	} from '$lib/state/study-sync';
+	import {
+		createLibrarySelectionManager,
+		type LibraryCatalogEntry,
+		type DraftSummary as LibraryDraftSummary,
+		type LibrarySummary as LibrarySelectionSummary
+	} from '$lib/state/library-selection';
 	import type {
 		LessonStage,
 		LessonSummary,
@@ -91,27 +112,44 @@
 	let matchingModeActive = false;
 	let settingsPreferredMode: Exclude<LearningMode, 'matching-triplets'> = 'prompt-to-pinyin';
 	let settingsWasOpen = false;
-	
+
 	// Library management
-	const availableLibraries = getAvailableLibraries();
-	const libraryCatalog = availableLibraries.map((library) => ({
-		...library,
-		chapters: getLibraryChapters(library.id)
-	}));
-	const libraryCatalogMap = new Map(libraryCatalog.map((entry) => [entry.id as LibraryType, entry]));
+	let libraryCatalog: LibraryCatalogEntry[] = [];
+	const initialLibrarySelectionManager = createLibrarySelectionManager([]);
+	let draftLibrarySelection = initialLibrarySelectionManager.draftSelection;
+	let activeLibraryDetails = initialLibrarySelectionManager.activeDetails;
+	let draftLibraryDetails = initialLibrarySelectionManager.draftDetails;
+	let setActiveLibrarySelection = initialLibrarySelectionManager.setActiveSelection;
+	let openLibraryDraft = initialLibrarySelectionManager.openDraftFromActive;
+	let toggleDraftChapterFn = initialLibrarySelectionManager.toggleDraftChapter;
+	let selectAllDraftChaptersFn = initialLibrarySelectionManager.selectAllDraftChapters;
+	let clearDraftSelectionFn = initialLibrarySelectionManager.clearDraftSelection;
+	let getDraftSelectionSnapshot = initialLibrarySelectionManager.getDraftSelectionSnapshot;
+
+	function updateLibrarySelectionManager(catalog: LibraryCatalogEntry[], initialSelection: LibrarySelectionMap = {}) {
+		const manager = createLibrarySelectionManager(catalog, initialSelection);
+		libraryCatalog = catalog;
+		draftLibrarySelection = manager.draftSelection;
+		activeLibraryDetails = manager.activeDetails;
+		draftLibraryDetails = manager.draftDetails;
+		setActiveLibrarySelection = manager.setActiveSelection;
+		openLibraryDraft = manager.openDraftFromActive;
+		toggleDraftChapterFn = manager.toggleDraftChapter;
+		selectAllDraftChaptersFn = manager.selectAllDraftChapters;
+		clearDraftSelectionFn = manager.clearDraftSelection;
+		getDraftSelectionSnapshot = manager.getDraftSelectionSnapshot;
+	}
 	let libraryImporting = false;
 	let showLibraryPicker = false;
-	let librarySelectionDraft: LibrarySelectionMap = {};
-	let storedLibrarySelections: LibrarySelectionMap = {};
-	
+
 	// Legacy Klett support (for backwards compatibility)
-	const klettChapterSummaries = getKlettChapterSummaries();
-	const klettTotalWords = getKlettTotalWordCount();
+	let klettChapterSummaries: KlettChapterSummary[] = [];
+	let klettTotalWords = 0;
 	let selectedKlettChapters: number[] = [];
 	let klettImporting = false;
 	let unloadingWord = false;
 	let showKlettPicker = false;
-	
+
 	let searchQuery = '';
 	let searchResults: WordRecord[] = [];
 	let searchLoading = false;
@@ -127,92 +165,41 @@
 	let dialogTopGap = 32;
 	let dialogPaddingTop = '32px';
 	let dialogHeight = 'calc(100dvh - 32px - 1rem)';
-	
+
 	// Reactive statements for library selection
-	type LibrarySummary = {
-		libraryId: LibraryType;
-		name: string;
-		chapterCount: number;
-		wordCount: number;
-		chapterLabels: string[];
-	};
-	type DraftSummary = {
-		libraryId: LibraryType;
-		name: string;
-		chapterCount: number;
-		wordCount: number;
-	};
-	let librarySummaries: LibrarySummary[] = [];
+	let librarySummaries: LibrarySelectionSummary[] = [];
 	let totalSelectedChapters = 0;
 	let totalSelectedWords = 0;
-	let libraryHeaderLabel = '';
-	let primaryLibraryLabel = '';
-	let librarySelectionDraftSummary: DraftSummary[] = [];
-	let draftSummaryMap = new Map<LibraryType, DraftSummary>();
+	let libraryHeaderLabel = 'Keine Bibliotheken aktiv';
+	let primaryLibraryLabel = 'Keine Bibliothek';
+	let collapsedLibrarySummary = '';
+	let librarySelectionDraftSummary: LibraryDraftSummary[] = [];
+	let draftSummaryMap = new Map<LibraryType, LibraryDraftSummary>();
 	let draftTotalChapters = 0;
 	let draftTotalWords = 0;
 	let draftActiveLibraries = 0;
 
-	$: storedLibrarySelections = activeSettings?.librarySelections ?? {};
-	$: librarySummaries = Object.entries(storedLibrarySelections)
-		.map(([libraryId, chapterIds]) => {
-			const catalog = libraryCatalogMap.get(libraryId as LibraryType);
-			if (!catalog || chapterIds.length === 0) {
-				return null;
-			}
-			const selectedSet = new Set(chapterIds);
-			const selectedChapters = catalog.chapters.filter((chapter) => selectedSet.has(chapter.id));
-			if (selectedChapters.length === 0) {
-				return null;
-			}
-			return {
-				libraryId: libraryId as LibraryType,
-				name: catalog.name,
-				chapterCount: selectedChapters.length,
-				wordCount: selectedChapters.reduce((sum, chapter) => sum + chapter.wordCount, 0),
-				chapterLabels: selectedChapters.map((chapter) => chapter.label)
-			};
-		})
-		.filter((entry): entry is LibrarySummary => entry !== null);
-	$: totalSelectedChapters = librarySummaries.reduce((sum, entry) => sum + entry.chapterCount, 0);
-	$: totalSelectedWords = librarySummaries.reduce((sum, entry) => sum + entry.wordCount, 0);
-	$: libraryHeaderLabel = librarySummaries.length === 0
-		? 'Keine Bibliotheken aktiv'
-		: librarySummaries.length === 1
-			? `${librarySummaries[0].name}: ${librarySummaries[0].chapterCount} Kap., ${librarySummaries[0].wordCount} Wörter`
-			: `${librarySummaries.length} Bibliotheken · ${totalSelectedChapters} Kap., ${totalSelectedWords} Wörter`;
-	$: primaryLibraryLabel = librarySummaries.length === 0
-		? 'Keine Bibliothek'
-		: librarySummaries.length === 1
-			? librarySummaries[0].name
-			: `${librarySummaries[0].name} +${librarySummaries.length - 1}`;
-	$: librarySelectionDraftSummary = libraryCatalog.map((catalog) => {
-		const draftChapters = librarySelectionDraft[catalog.id as LibraryType] ?? [];
-		const selectedSet = new Set(draftChapters);
-		const selectedChapters = catalog.chapters.filter((chapter) => selectedSet.has(chapter.id));
-		return {
-			libraryId: catalog.id as LibraryType,
-			name: catalog.name,
-			chapterCount: draftChapters.length,
-			wordCount: selectedChapters.reduce((sum, chapter) => sum + chapter.wordCount, 0)
-		};
-	});
-	$: draftSummaryMap = new Map(librarySelectionDraftSummary.map((entry) => [entry.libraryId, entry]));
-	$: draftTotalChapters = librarySelectionDraftSummary.reduce((sum, entry) => sum + entry.chapterCount, 0);
-	$: draftTotalWords = librarySelectionDraftSummary.reduce((sum, entry) => sum + entry.wordCount, 0);
-	$: draftActiveLibraries = librarySelectionDraftSummary.filter((entry) => entry.chapterCount > 0).length;
+	$: {
+		const details = $activeLibraryDetails;
+		librarySummaries = details.summaries;
+		totalSelectedChapters = details.totalChapters;
+		totalSelectedWords = details.totalWords;
+		libraryHeaderLabel = details.headerLabel;
+		primaryLibraryLabel = details.primaryLabel;
+		collapsedLibrarySummary = details.collapsedSummary;
+	}
+
+	$: {
+		const draftDetails = $draftLibraryDetails;
+		librarySelectionDraftSummary = draftDetails.summaries;
+		draftSummaryMap = draftDetails.summaryMap;
+		draftTotalChapters = draftDetails.totalChapters;
+		draftTotalWords = draftDetails.totalWords;
+		draftActiveLibraries = draftDetails.activeLibraries;
+	}
+
 	$: matchingTargetWordCount = activeSettings?.matchingWordCount ?? 3;
 	$: matchingCardCount = matchingTargetWordCount * 3;
-	$: collapsedLibrarySummary = (() => {
-		if (librarySummaries.length === 0) {
-			return '';
-		}
-		if (librarySummaries.length === 1) {
-			const entry = librarySummaries[0];
-			return `${entry.chapterCount} Kap., ${entry.wordCount} Wörter`;
-		}
-		return `${librarySummaries.length} Bibliotheken · ${totalSelectedChapters} Kap., ${totalSelectedWords} Wörter`;
-	})();
 	
 	// Legacy Klett reactive statements
 	$: allKlettChaptersSelected =
@@ -223,15 +210,6 @@
 				.filter((item) => selectedKlettChapters.includes(item.chapter))
 				.reduce((sum, item) => sum + item.wordCount, 0);
 	$: selectedKlettChapterCount = selectedKlettChapters.length;
-	const headerActionClass =
-		'inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-xs font-medium text-slate-700 ring-1 ring-slate-200/70 shadow-sm transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 md:gap-2 md:px-4 md:py-2 md:text-sm';
-	const headerPrimaryActionClass =
-		'inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 disabled:opacity-60 md:gap-2 md:px-4 md:py-2 md:text-sm';
-	const importActionLabel = 'Vokabeln oder Sicherungen importieren';
-	const matchingModeButtonBase =
-		'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 disabled:opacity-60 md:px-4 md:py-2 md:text-sm';
-	const matchingModeInactiveClass = 'bg-amber-400 text-slate-900 hover:bg-amber-300';
-	const matchingModeActiveClass = 'bg-emerald-600 text-white hover:bg-emerald-500';
 	const importExample = `Format 1 - Einfache Wortliste:
 {
   "version": 1,
@@ -268,106 +246,24 @@ Format 2 - Mit Kapiteln (wie Klett):
   ]
 }`;
 
-	const historyBucketLabels: Record<LearningBucket, string> = {
-		learning: 'Lernphase',
-		reinforce: 'Festigen',
-		known: 'Langzeit'
-	};
+	let draftSelectionState: LibrarySelectionMap = {};
 
-	const historyStageLabels: Record<LessonStage, string> = {
-		pinyin: 'Pinyin',
-		writing: 'Schriftzeichen',
-		'writing-guided-half': 'Geführte Hälfte',
-		'writing-guided-full': 'Geführte Ganzschrift',
-		complete: 'Abgeschlossen'
-	};
-
-	const HISTORY_DAY_MS = 86_400_000;
-
-	function historyStateLabel(entry: LessonHistoryEntry): string {
-		return entry.success ? 'Erfolg' : 'Wiederholen';
-	}
-
-	function historyQualityLabel(entry: LessonHistoryEntry): string {
-		const quality = Math.round(entry.sm2LastQuality ?? 0);
-		return `Qualität ${quality}`;
-	}
-
-	function historyBucketLabel(bucket: LearningBucket): string {
-		return historyBucketLabels[bucket] ?? bucket;
-	}
-
-	function historyStageLabel(stage: LessonStage): string {
-		return historyStageLabels[stage] ?? stage;
-	}
-
-	function historyNextDueLabel(entry: LessonHistoryEntry): string {
-		const diff = entry.nextDueAt - Date.now();
-		if (!Number.isFinite(diff) || diff <= 0) {
-			return 'fällig';
-		}
-		const days = Math.ceil(diff / HISTORY_DAY_MS);
-		return days <= 1 ? 'in 1 Tag' : `in ${days} Tagen`;
-	}
-
-	function cloneLibrarySelections(source: LibrarySelectionMap | undefined): LibrarySelectionMap {
-		const result: LibrarySelectionMap = {};
-		if (!source) {
-			return result;
-		}
-		for (const [libraryId, chapters] of Object.entries(source) as Array<[LibraryType, string[]]>) {
-			result[libraryId] = [...chapters];
-		}
-		return result;
-	}
-
-	function sortChapterIds(libraryId: LibraryType, chapterIds: Iterable<string>): string[] {
-		const catalog = libraryCatalogMap.get(libraryId);
-		if (!catalog) {
-			return Array.from(chapterIds);
-		}
-		const chapterSet = new Set(chapterIds);
-		return catalog.chapters.filter((chapter) => chapterSet.has(chapter.id)).map((chapter) => chapter.id);
-	}
+	$: draftSelectionState = $draftLibrarySelection;
 
 	function toggleLibraryChapter(libraryId: LibraryType, chapterId: string) {
-		const current = new Set(librarySelectionDraft[libraryId] ?? []);
-		if (current.has(chapterId)) {
-			current.delete(chapterId);
-		} else {
-			current.add(chapterId);
-		}
-		librarySelectionDraft = {
-			...librarySelectionDraft,
-			[libraryId]: sortChapterIds(libraryId, current)
-		};
+		toggleDraftChapterFn(libraryId, chapterId);
 	}
 
 	function selectAllLibraryChapters(libraryId: LibraryType) {
-		const catalog = libraryCatalogMap.get(libraryId);
-		if (!catalog) {
-			return;
-		}
-		librarySelectionDraft = {
-			...librarySelectionDraft,
-			[libraryId]: catalog.chapters.map((chapter) => chapter.id)
-		};
+		selectAllDraftChaptersFn(libraryId);
 	}
 
 	function clearLibraryChapterSelection(libraryId: LibraryType) {
-		if (!(libraryId in librarySelectionDraft)) {
-			return;
-		}
-		const { [libraryId]: _removed, ...rest } = librarySelectionDraft;
-		librarySelectionDraft = rest;
-	}
-
-	function isChapterSelectedInDraft(libraryId: LibraryType, chapterId: string): boolean {
-		return (librarySelectionDraft[libraryId] ?? []).includes(chapterId);
+		clearDraftSelectionFn(libraryId);
 	}
 
 	function openLibraryPicker() {
-		librarySelectionDraft = cloneLibrarySelections(storedLibrarySelections);
+		openLibraryDraft();
 		showLibraryPicker = true;
 	}
 
@@ -523,7 +419,8 @@ Format 2 - Mit Kapiteln (wie Klett):
 		return match ? Number(match[1]) : null;
 	}
 
-	let unsubscribe: (() => void) | null = null;
+	let settingsUnsubscribe: (() => void) | null = null;
+	let settingsInitialized = false;
 
 	const currentLearningMode = (): Settings['learningMode'] => activeSettings?.learningMode ?? 'prompt-to-pinyin';
 	const isMatchingMode = (): boolean => matchingModeActive;
@@ -565,6 +462,25 @@ Format 2 - Mit Kapiteln (wie Klett):
 		const loaded = await loadSettings();
 		activeSettings = loaded;
 		const selectionResult = await applyLibrarySelections(loaded.librarySelections);
+		const libraries = await getAvailableLibraries();
+		const catalogEntries: LibraryCatalogEntry[] = await Promise.all(
+			libraries.map(async (library) => {
+				const chapters = await getLibraryChapters(library.id);
+				return {
+					id: library.id,
+					name: library.name,
+					chapters: chapters.map(({ id, label, wordCount }) => ({ id, label, wordCount }))
+				};
+			})
+		);
+		updateLibrarySelectionManager(catalogEntries, selectionResult.normalizedSelections);
+		setActiveLibrarySelection(selectionResult.normalizedSelections);
+		const [klettSummaries, klettWords] = await Promise.all([
+			getKlettChapterSummaries(),
+			getKlettTotalWordCount()
+		]);
+		klettChapterSummaries = klettSummaries;
+		klettTotalWords = klettWords;
 		if (selectionResult.inserted > 0 || selectionResult.paused > 0) {
 			importFeedback = selectionResult.details
 				.filter((detail) => detail.inserted > 0 || detail.paused > 0)
@@ -587,17 +503,9 @@ Format 2 - Mit Kapiteln (wie Klett):
 		if (JSON.stringify(normalizedSettings.librarySelections) !== JSON.stringify(loaded.librarySelections ?? {})) {
 			await saveSettings(normalizedSettings);
 		}
-		librarySelectionDraft = cloneLibrarySelections(selectionResult.normalizedSelections);
-		subscribeToSettings();
-		if (isMatchingMode()) {
-			await saveSession(null);
-			await loadMatchingRound();
-		} else {
-			const restored = await hydrateSession();
-			if (!restored) {
-				await loadNextWord();
-			}
-		}
+		settingsUnsubscribe = watchSettingsChanges((change) => {
+			void handleSettingsChange(change);
+		});
 		summaryHistory = await listRecentSummaries();
 		document.addEventListener('click', handleGlobalSearchClick, true);
 		updateHeaderHeight();
@@ -607,7 +515,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 	});
 
 	onDestroy(() => {
-		if (unsubscribe) unsubscribe();
+		if (settingsUnsubscribe) settingsUnsubscribe();
 		if (searchDebounce) {
 			clearTimeout(searchDebounce);
 		}
@@ -619,38 +527,6 @@ Format 2 - Mit Kapiteln (wie Klett):
 			document.removeEventListener('click', handleGlobalSearchClick, true);
 		}
 	});
-
-	function subscribeToSettings() {
-		if (unsubscribe) unsubscribe();
-		unsubscribe = settings.subscribe((value) => {
-			if (!value) {
-				return;
-			}
-			const previousMode = activeSettings?.learningMode ?? fallbackLearningMode;
-			const previousMatchingCount = activeSettings?.matchingWordCount ?? 3;
-			activeSettings = value;
-			const nextMatchingCount = value.matchingWordCount ?? 3;
-			const matchingCountChanged = previousMatchingCount !== nextMatchingCount;
-			if (value.learningMode !== 'matching-triplets') {
-				fallbackLearningMode = value.learningMode;
-			}
-			if (previousMode !== value.learningMode) {
-				void handleLearningModeChange(value.learningMode, previousMode);
-				return;
-			}
-			if (value.learningMode === 'matching-triplets') {
-				if (matchingCountChanged) {
-					resetMatchingState();
-					void saveSession(null);
-					void loadMatchingRound();
-					return;
-				}
-				void saveSession(null);
-			} else {
-				void persistSession();
-			}
-		});
-	}
 
 	function resetMatchingState(clearWords = false) {
 		if (clearWords) {
@@ -664,24 +540,121 @@ Format 2 - Mit Kapiteln (wie Klett):
 		lastMatchedWords = [];
 	}
 
+	function applyLessonHydration(hydration: LessonHydration | null): boolean {
+		if (!hydration) {
+			return false;
+		}
+		const { snapshot, word, progress } = hydration;
+		currentWord = word;
+		currentProgress = progress;
+		stage = snapshot.stage;
+		writingMode = snapshot.writingMode;
+		pinyinSolved = snapshot.pinyinSolved;
+		pinyinAttempts = snapshot.pinyinAttempts;
+		pinyinInput = convertNumericToToneMarks(snapshot.pinyinInput ?? '');
+		message = snapshot.message;
+		toneMessage = snapshot.toneMessage;
+		writingAttemptCounter = snapshot.writingAttemptCounter;
+		guidedRepetitions = snapshot.guidedRepetitions;
+		totalWritingAttempts = snapshot.totalWritingAttempts;
+		characterIndex = snapshot.characterIndex;
+		attemptKey = snapshot.attemptKey;
+		sessionFinished = snapshot.sessionFinished;
+		loading = false;
+		return true;
+	}
+
+	function applyMatchingRoundResult(result: MatchingRoundResult): void {
+		if (result.type === 'success' && result.round) {
+			matchingWords = result.round.words;
+			matchingError = '';
+			return;
+		}
+		matchingWords = [];
+		matchingError = result.message;
+	}
+
+	async function refreshMatchingRound(options: { force?: boolean } = {}): Promise<void> {
+		resetMatchingState();
+		matchingLoading = true;
+		matchingRoundId += 1;
+		const desiredCount = Math.max(3, activeSettings?.matchingWordCount ?? 3);
+		try {
+			const result = await fetchMatchingRound({ desiredCount, force: options.force });
+			applyMatchingRoundResult(result);
+		} finally {
+			matchingLoading = false;
+			loading = false;
+		}
+	}
+
+	async function handleSettingsChange({ current, previous }: SettingsChange): Promise<void> {
+		setActiveLibrarySelection(current.librarySelections);
+		const previousMode = previous?.learningMode ?? fallbackLearningMode;
+		const previousMatchingCount = previous?.matchingWordCount ?? 3;
+		activeSettings = current;
+		const nextMatchingCount = current.matchingWordCount ?? 3;
+		const matchingCountChanged = previousMatchingCount !== nextMatchingCount;
+		if (current.learningMode !== 'matching-triplets') {
+			fallbackLearningMode = current.learningMode;
+		}
+		if (!settingsInitialized) {
+			settingsInitialized = true;
+			if (current.learningMode === 'matching-triplets') {
+				resetMatchingState();
+				await saveSession(null);
+				invalidateLessonCache();
+				invalidateMatchingCache();
+				await refreshMatchingRound({ force: true });
+				return;
+			}
+			resetMatchingState(true);
+			const hydration = await hydrateLessonState({ force: true });
+			const restored = applyLessonHydration(hydration);
+			if (!restored) {
+				await loadNextWord();
+			}
+			return;
+		}
+		if (previousMode !== current.learningMode) {
+			await handleLearningModeChange(current.learningMode, previousMode);
+			return;
+		}
+		if (current.learningMode === 'matching-triplets') {
+			if (matchingCountChanged) {
+				resetMatchingState();
+				await saveSession(null);
+				invalidateLessonCache();
+				invalidateMatchingCache();
+				await refreshMatchingRound({ force: true });
+				return;
+			}
+			await saveSession(null);
+			invalidateLessonCache();
+			return;
+		}
+		await persistSession();
+	}
+
 	async function handleLearningModeChange(
 		nextMode: Settings['learningMode'],
-		previousMode: Settings['learningMode']
+		previousMode: Settings['learningMode'] | null
 	): Promise<void> {
 		if (!browser) {
 			return;
 		}
 		if (nextMode === 'matching-triplets') {
-			if (previousMode !== 'matching-triplets') {
+			if (previousMode && previousMode !== 'matching-triplets') {
 				fallbackLearningMode = previousMode;
 			}
 			loading = true;
 			currentWord = null;
 			currentProgress = null;
 			await saveSession(null);
+			invalidateLessonCache();
 			resetMatchingState();
+			await refreshMatchingRound({ force: true });
 			loading = false;
-			await loadMatchingRound();
 			return;
 		}
 
@@ -690,11 +663,16 @@ Format 2 - Mit Kapiteln (wie Klett):
 		loading = true;
 		if (previousMode === 'matching-triplets') {
 			await saveSession(null);
+			invalidateLessonCache();
+			invalidateMatchingCache();
 		}
-		const restored = await hydrateSession();
-		if (!restored) {
-			await loadNextWord();
+		const hydration = await hydrateLessonState({ force: true });
+		if (hydration) {
+			resetBeforeLoadingWord();
+			await applyActiveWord(hydration.word, hydration.progress);
+			return;
 		}
+		await loadNextWord();
 	}
 
 	function serializeSession(): SessionState | null {
@@ -727,9 +705,11 @@ Format 2 - Mit Kapiteln (wie Klett):
 	async function persistSession() {
 		if (isMatchingMode()) {
 			await saveSession(null);
+			invalidateLessonCache();
 			return;
 		}
 		await saveSession(serializeSession());
+		invalidateLessonCache();
 	}
 
 	function resetBeforeLoadingWord() {
@@ -811,46 +791,6 @@ Format 2 - Mit Kapiteln (wie Klett):
 		importFeedback = `Trainiere jetzt: ${word.prompt}`;
 	}
 
-	async function hydrateSession(): Promise<boolean> {
-		if (isMatchingMode()) {
-			return false;
-		}
-		const snapshot = await loadSession();
-		if (!snapshot) {
-			return false;
-		}
-
-		const word = await getWordById(snapshot.currentWordId);
-		if (!word) {
-			await saveSession(null);
-			return false;
-		}
-
-		const progress = await getProgressByWordId(word.id);
-		if (!progress || progress.suspended) {
-			await saveSession(null);
-			return false;
-		}
-
-		currentWord = word;
-		currentProgress = progress;
-		stage = snapshot.stage;
-		writingMode = snapshot.writingMode;
-		pinyinSolved = snapshot.pinyinSolved;
-		pinyinAttempts = snapshot.pinyinAttempts;
-		pinyinInput = convertNumericToToneMarks(snapshot.pinyinInput ?? '');
-		message = snapshot.message;
-		toneMessage = snapshot.toneMessage;
-		writingAttemptCounter = snapshot.writingAttemptCounter;
-		guidedRepetitions = snapshot.guidedRepetitions;
-		totalWritingAttempts = snapshot.totalWritingAttempts;
-		characterIndex = snapshot.characterIndex;
-		attemptKey = snapshot.attemptKey;
-		sessionFinished = snapshot.sessionFinished;
-		loading = false;
-		return true;
-	}
-
 	async function loadNextWord() {
 		if (isMatchingMode()) {
 			return;
@@ -874,31 +814,6 @@ Format 2 - Mit Kapiteln (wie Klett):
 		}
 	}
 
-	async function loadMatchingRound(): Promise<void> {
-		resetMatchingState();
-		matchingLoading = true;
-		matchingRoundId += 1;
-		try {
-			const desiredWordCount = Math.max(3, activeSettings?.matchingWordCount ?? 3);
-			const round = await getMatchingRound(desiredWordCount);
-			if (!round || round.words.length < desiredWordCount) {
-				matchingWords = [];
-				matchingError =
-					`Nicht genug aktive Wörter für die Matching-Runde (benötigt ${desiredWordCount}). Importiere neue Karten oder reaktiviere pausierte Wörter.`;
-				return;
-			}
-			matchingWords = round.words;
-			matchingError = '';
-		} catch (error) {
-			console.error(error);
-			matchingWords = [];
-			matchingError = 'Matching-Runde konnte nicht geladen werden.';
-		} finally {
-			matchingLoading = false;
-			loading = false;
-		}
-	}
-
 	async function completeMatchingRound(wordIds: string[]): Promise<void> {
 		if (matchingRecording) {
 			return;
@@ -912,6 +827,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 				const matched = matchingWords.filter((word) => wordIds.includes(word.id));
 				lastMatchedWords = matched;
 				await recordMatchingRound(wordIds);
+				invalidateMatchingCache();
 				summaryHistory = await listRecentSummaries();
 				matchingFeedback = 'Runde gespeichert. Starte eine neue Runde, wenn du bereit bist.';
 			} else {
@@ -931,7 +847,9 @@ Format 2 - Mit Kapiteln (wie Klett):
 	async function refreshActiveMode(): Promise<void> {
 		if (isMatchingMode()) {
 			await saveSession(null);
-			await loadMatchingRound();
+			invalidateLessonCache();
+			invalidateMatchingCache();
+			await refreshMatchingRound({ force: true });
 			return;
 		}
 		await loadNextWord();
@@ -1083,6 +1001,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 		await recordLesson(summary);
 		summaryHistory = await listRecentSummaries();
 		await saveSession(null);
+		invalidateLessonCache();
 	}
 
 	function advanceCharacterOrFinish(successStage: LessonStage) {
@@ -1261,6 +1180,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 		if (libraryImporting || !activeSettings) return false;
 		libraryImporting = true;
 		try {
+			const draftSelection = getDraftSelectionSnapshot();
 			let totalInserted = 0;
 			let totalPaused = 0;
 			const feedbackSegments: string[] = [];
@@ -1271,7 +1191,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 				if (validChapters.length === 0) {
 					continue;
 				}
-				const selectedIds = (librarySelectionDraft[libraryId] ?? []).filter((id) => validChapters.includes(id));
+				const selectedIds = (draftSelection[libraryId] ?? []).filter((id) => validChapters.includes(id));
 
 				if (selectedIds.length === 0) {
 					const paused = await suspendLibraryChapters(libraryId, validChapters);
@@ -1294,17 +1214,14 @@ Format 2 - Mit Kapiteln (wie Klett):
 				feedbackSegments.push(`${catalog.name}: ${segmentDetails.join(', ')}`);
 			}
 
-			const normalizedSelections = Object.fromEntries(
-				Object.entries(librarySelectionDraft).filter(([, ids]) => ids.length > 0)
-			) as LibrarySelectionMap;
-
+			const normalizedSelections = getDraftSelectionSnapshot(true);
 			const updatedSettings: Settings = {
 				...activeSettings,
 				librarySelections: normalizedSelections
 			};
 
 			await saveSettings(updatedSettings);
-			librarySelectionDraft = cloneLibrarySelections(updatedSettings.librarySelections);
+			setActiveLibrarySelection(normalizedSelections);
 
 			const summaryParts = [];
 			if (totalInserted > 0) {
@@ -1390,6 +1307,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 		try {
 			await suspendWord(currentWord.id);
 			await saveSession(null);
+			invalidateLessonCache();
 			await refreshActiveMode();
 			importFeedback = `"${removedPrompt}" wird aktuell nicht mehr abgefragt. Fortschritt bleibt gespeichert.`;
 		} catch (error) {
@@ -1418,482 +1336,179 @@ Format 2 - Mit Kapiteln (wie Klett):
 
 <section class="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 pt-2 pb-10 md:py-10">
 	<header class="sticky top-0 z-20 md:top-4" bind:this={headerElement}>
-		<nav class="flex flex-col gap-3 rounded-2xl bg-white/95 p-3 shadow-lg ring-1 ring-slate-200/70 backdrop-blur md:rounded-3xl md:p-5">
-			{#if !headerExpanded}
-				<div class="flex flex-col gap-1 md:flex-row md:items-center md:justify-between md:gap-2">
-					<div class="flex items-center gap-3">
-						<button
-							type="button"
-							class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-700 transition hover:bg-slate-200 md:h-9 md:w-9"
-							on:click={() => (headerExpanded = true)}
-							aria-label="Header erweitern"
-						>
-							<svg class="h-4 w-4 md:h-5 md:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-							</svg>
-						</button>
-						<div>
-							<h1 class="text-base font-semibold text-slate-900 md:text-lg">Chinesischer Zettelkasten</h1>
-							<p class="text-xs text-slate-500 md:text-sm">
-								{primaryLibraryLabel}
-								{#if collapsedLibrarySummary}
-									<span class="ml-1 inline-flex items-center gap-1 text-[0.7rem] text-slate-400 sm:text-xs md:text-[0.82rem]">
-										· {collapsedLibrarySummary}
-									</span>
-								{/if}
-							</p>
-						</div>
-					</div>
-						<div class="flex flex-wrap items-center justify-center gap-2">
-						<button
-							type="button"
-							class={`${matchingModeButtonBase} ${matchingModeActive ? matchingModeActiveClass : matchingModeInactiveClass}`}
-							on:click={() => void toggleMatchingMode()}
-								aria-pressed={matchingModeActive}
-								aria-label={matchingModeActive ? 'Zettelkasten starten' : 'Matching starten'}
-							disabled={togglingMode || matchingLoading || matchingRecording || loading}
-						>
-							<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h2a3 3 0 006 0h2a2 2 0 012 2v2h-1a2 2 0 100 4h1v2a2 2 0 01-2 2h-2a3 3 0 10-6 0H7a2 2 0 01-2-2v-2h1a2 2 0 100-4H5v-2a2 2 0 012-2z" />
-							</svg>
-							<span>{matchingModeActive ? 'Zettelkasten' : 'Matching'}</span>
-						</button>
-						<button
-							type="button"
-							class="rounded-full bg-slate-900 px-2.5 py-1 text-xs font-medium text-white"
-							on:click={openLibraryPicker}
-							aria-label="Bibliotheksauswahl öffnen"
-						>
-							Kap. {totalSelectedChapters} / W {totalSelectedWords}
-						</button>
-						<button
-							type="button"
-							class="flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-slate-700 ring-1 ring-slate-200 transition hover:bg-white md:h-9 md:w-9"
-							on:click={() => (showSettings = true)}
-							aria-label="Einstellungen öffnen"
-						>
-							<svg class="h-4 w-4 md:h-5 md:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-							</svg>
-						</button>
-					</div>
-				</div>
-				{#if !isMobileViewport}
-					<div class="flex items-center justify-between text-xs text-slate-500 md:text-sm">
-						<span>Matching: {matchingTargetWordCount} Wörter · {matchingCardCount} Karten</span>
-					</div>
-				{/if}
-			{:else}
-				<!-- Full Header (Desktop oder erweitert) -->
-				<div class="flex flex-col gap-3">
-					<div class="flex items-start justify-between gap-3 md:items-center">
-						<div>
-							<h1 class="text-2xl font-semibold text-slate-900 md:text-3xl">Chinesischer Zettelkasten</h1>
-							<p class="text-sm text-slate-600">Deutsch - zu Pinyin & Schrift</p>
-						</div>
-						<button
-							type="button"
-							class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-700 transition hover:bg-slate-200 md:h-9 md:w-9"
-							on:click={() => (headerExpanded = false)}
-							aria-label="Header minimieren"
-						>
-							<svg class="h-4 w-4 md:h-5 md:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-							</svg>
-						</button>
-					</div>
-					
-					<div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
-						<div class="relative w-full md:w-72" bind:this={searchContainer}>
-							<form class="relative" on:submit|preventDefault={handleSearchSubmit}>
-								<input
-									class="w-full rounded-full border border-slate-300 bg-white/90 px-3 py-2 pr-9 text-sm text-slate-800 shadow-inner focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400 md:px-4 md:py-2 md:pr-10 md:text-sm"
-									type="search"
-									placeholder="Wort suchen"
-									autocomplete="off"
-									spellcheck={false}
-									on:input={handleSearchInput}
-									on:focus={handleSearchFocus}
-									on:keydown={handleSearchKeydown}
-									bind:value={searchQuery}
-								/>
-								{#if searchQuery}
-									<button
-										type="button"
-										class="absolute right-1.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-slate-200 text-xs text-slate-600 transition hover:bg-slate-300 md:right-2 md:h-6 md:w-6"
-										on:click={clearSearchField}
-									>
-										✕
-									</button>
-								{/if}
-							</form>
-							{#if searchOpen}
-								<div class="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-white/95 shadow-2xl backdrop-blur">
-									{#if searchLoading}
-										<p class="px-4 py-3 text-sm text-slate-500">Suche läuft …</p>
-									{:else if searchResults.length === 0}
-										<p class="px-4 py-3 text-sm text-slate-500">Keine Treffer für „{searchQuery.trim()}“.</p>
-									{:else}
-										<ul class="max-h-64 overflow-y-auto text-sm text-slate-700">
-											{#each searchResults as word (word.id)}
-												<li class="border-b border-slate-100 last:border-b-0">
-													<button
-														type="button"
-														on:mousedown|preventDefault
-														on:click={() => void selectSearchResult(word)}
-														class="flex w-full items-start justify-between gap-3 px-4 py-3 text-left hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
-													>
-														<span>
-															<span class="block font-semibold text-slate-900">{word.prompt}</span>
-															<span class="block text-xs text-slate-500">{word.pinyin}</span>
-															{#if word.characters?.length}
-																<span class="block text-xs text-slate-400">{word.characters.join('')}</span>
-															{/if}
-														</span>
-														<span class="text-xs font-medium text-slate-500">
-															{#if klettChapterFromWordId(word.id)}Kapitel {klettChapterFromWordId(word.id)}{/if}
-														</span>
-													</button>
-												</li>
-											{/each}
-										</ul>
-									{/if}
-								</div>
-							{/if}
-						</div>
-						<div class="flex flex-wrap items-center justify-center gap-2 md:justify-end">
-							<button
-								type="button"
-								class={`${matchingModeButtonBase} ${
-								matchingModeActive ? matchingModeActiveClass : matchingModeInactiveClass
-								}`}
-								on:click={() => void toggleMatchingMode()}
-								aria-pressed={matchingModeActive}
-								aria-label={matchingModeActive ? 'Zettelkasten starten' : 'Matching starten'}
-								disabled={togglingMode || matchingLoading || matchingRecording || loading}
-							>
-								<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h2a3 3 0 006 0h2a2 2 0 012 2v2h-1a2 2 0 100 4h1v2a2 2 0 01-2 2h-2a3 3 0 10-6 0H7a2 2 0 01-2-2v-2h1a2 2 0 100-4H5v-2a2 2 0 012-2z" />
-								</svg>
-								<span>{matchingModeActive ? 'Zettelkasten starten' : 'Matching starten'}</span>
-							</button>
-							<button
-								class={headerActionClass}
-								type="button"
-								on:click={() => (showSettings = true)}
-								aria-label="Einstellungen öffnen"
-							>
-								<svg class="h-4 w-4 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-								</svg>
-								<span class="hidden md:inline">Einstellungen</span>
-							</button>
-							<button
-								class={headerActionClass}
-								type="button"
-								on:click={() => (showImportHelp = true)}
-								aria-label="Importhilfe anzeigen"
-							>
-								<svg class="h-4 w-4 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-								</svg>
-								<span class="hidden md:inline">Hilfe</span>
-							</button>
-							<label class={`${headerActionClass} cursor-pointer`} aria-label={importActionLabel}>
-								<svg class="h-4 w-4 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-								</svg>
-								<span class="hidden md:inline">Import</span>
-								<input class="hidden" type="file" accept="application/json" on:change={handleImport} />
-							</label>
-							<button
-								type="button"
-								class={`${headerActionClass} justify-between`}
-								on:click={openLibraryPicker}
-								aria-expanded={showLibraryPicker}
-								aria-label="Bibliotheksauswahl öffnen"
-							>
-								<svg class="h-4 w-4 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-								</svg>
-								<span class="hidden md:inline">Bibliothek</span>
-								<span class="flex items-center gap-1 rounded-full bg-slate-900 px-1.5 py-0.5 text-[10px] font-semibold text-white md:px-2 md:text-xs">
-									Kap. {totalSelectedChapters}
-									<span class="hidden sm:inline">W {totalSelectedWords}</span>
-								</span>
-							</button>
-							<button
-								type="button"
-								class={headerPrimaryActionClass}
-								on:click={handleExport}
-								disabled={exporting}
-								aria-label={exporting ? 'Export läuft' : 'Daten exportieren'}
-							>
-								<svg class="h-4 w-4 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-								</svg>
-								<span class="hidden md:inline">{exporting ? 'Export läuft …' : 'Export'}</span>
-							</button>
-						</div>
-					</div>
-					<div class="hidden text-xs font-medium text-slate-500 md:block">
-						{libraryHeaderLabel}
-					</div>
-				</div>
-			{/if}
-		</nav>
+		<StudyHeader
+			{headerExpanded}
+			{isMobileViewport}
+			{matchingModeActive}
+			{matchingLoading}
+			{matchingRecording}
+			{togglingMode}
+			{loading}
+			{primaryLibraryLabel}
+			{matchingTargetWordCount}
+			{matchingCardCount}
+			{libraryHeaderLabel}
+			{collapsedLibrarySummary}
+			{totalSelectedChapters}
+			{totalSelectedWords}
+			{searchOpen}
+			{searchLoading}
+			{searchQuery}
+			{searchResults}
+			{klettChapterFromWordId}
+			{exporting}
+			{showLibraryPicker}
+			toggleMatchingMode={toggleMatchingMode}
+			openLibraryPicker={openLibraryPicker}
+			openSettings={() => (showSettings = true)}
+			openImportHelp={() => (showImportHelp = true)}
+			handleExport={handleExport}
+			handleImport={handleImport}
+			handleSearchSubmit={handleSearchSubmit}
+			handleSearchInput={handleSearchInput}
+			handleSearchFocus={handleSearchFocus}
+			handleSearchKeydown={handleSearchKeydown}
+			clearSearchField={clearSearchField}
+			selectSearchResult={selectSearchResult}
+			setHeaderExpanded={(value) => (headerExpanded = value)}
+			bind:searchContainer={searchContainer}
+		/>
 	</header>
-	{#if showFeatureHighlights}
-		<section class="relative rounded-2xl border border-slate-200 bg-white/90 p-4 text-sm text-slate-600 shadow-sm">
-			<button
-				type="button"
-				class="absolute right-3 top-3 rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-500 transition hover:bg-slate-200 hover:text-slate-700"
-				on:click={dismissFeatureHighlights}
-				aria-label="Hinweis schließen"
-			>
-				✕
-			</button>
-			<h2 class="text-sm font-semibold text-slate-900">Was dich erwartet</h2>
-			<ul class="mt-2 space-y-1">
-				<li>✍️ Handschriftliche Zeichenübungen mit Strich-für-Strich-Feedback.</li>
-				<li>🎯 Adaptive Pinyin- und Wortschatz-Abfragen mit persönlichem Wiederholungsplan.</li>
-				<li>🧠 Matching-Runden, um Deutsch, Pinyin und Schriftzeichen zu verknüpfen.</li>
-			</ul>
-			<p class="mt-3 text-xs text-slate-500">
-				Tipp: Tippe z. B. <code>ni3 hao3</code> – wir wandeln Zahlen automatisch in Tonzeichen um.
-			</p>
-		</section>
-	{/if}
+	<FeatureHighlightsBanner visible={showFeatureHighlights} on:dismiss={dismissFeatureHighlights} />
 	{#if loading}
 		<p class="text-center text-slate-600">Lade nächste Karte …</p>
 	{:else if matchingModeActive}
-		<article class="grid gap-8 md:grid-cols-[2fr,1fr]">
-			<section class="flex flex-col gap-6">
-				<div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-					<h2 class="text-2xl font-bold text-slate-900">Dreier-Matching</h2>
-					<p class="mt-2 text-sm text-slate-600">
-						Finde zu jedem Wort das passende Deutsch, Pinyin und Schriftzeichen.
-					</p>
-				</div>
-				<div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-					{#if matchingLoading}
-						<p class="text-sm text-slate-500">Matching-Runde wird geladen …</p>
-					{:else if matchingError}
-						<p class="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-							{matchingError}
-						</p>
-						<div class="mt-4 flex gap-3">
-							<button
-								type="button"
-								class="rounded-md bg-slate-900 px-4 py-2 text-white disabled:opacity-60"
-								on:click={() => loadMatchingRound()}
-								disabled={matchingLoading}
-							>
-								Erneut versuchen
-							</button>
-						</div>
-					{:else}
-						<MatchingDrill
-							words={matchingWords}
-							roundId={matchingRoundId}
-							disabled={matchingComplete || matchingRecording}
-							on:complete={(event) => completeMatchingRound(event.detail.wordIds)}
-						/>
-						<div class="mt-4 flex flex-wrap gap-3">
-							<button
-								type="button"
-								class="rounded-md bg-slate-900 px-4 py-2 text-white disabled:opacity-60"
-								on:click={() => loadMatchingRound()}
-								disabled={matchingLoading || matchingRecording}
-							>
-								{matchingComplete ? 'Neue Runde starten' : 'Neu mischen'}
-							</button>
-						</div>
-						{#if matchingFeedback}
-							<p class="mt-4 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-								{matchingFeedback}
-							</p>
-						{/if}
-					{/if}
-				</div>
-			</section>
-
-			<aside class="flex flex-col gap-4">
-				<section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-					<h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Rundenstatus</h3>
-					<ul class="mt-3 space-y-2 text-sm text-slate-700">
-						<li>Aktive Wörter: {matchingWords.length} ({matchingWords.length * 3} Karten)</li>
-						<li>Ziel pro Runde: {matchingTargetWordCount} Wörter ({matchingCardCount} Karten)</li>
-						<li>Abgeschlossen: {matchingComplete ? 'Ja' : 'Nein'}</li>
-					</ul>
-				</section>
-				<section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-					<h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Letzte Treffer</h3>
-					{#if lastMatchedWords.length === 0}
-						<p class="mt-2 text-sm text-slate-500">Noch keine abgeschlossene Runde.</p>
-					{:else}
-						<ul class="mt-2 space-y-2 text-sm text-slate-600">
-							{#each lastMatchedWords as word}
-								<li class="rounded-md border border-slate-100 px-3 py-2">
-									<p class="font-semibold text-slate-900">{word.prompt}</p>
-									<p class="text-sm text-slate-600">{word.pinyin}</p>
-									<p class="text-lg text-slate-900">{word.characters.join('')}</p>
-								</li>
-							{/each}
-						</ul>
-					{/if}
-				</section>
-				<section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-					<h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Aktive Bibliotheken</h3>
-					{#if librarySummaries.length === 0}
-						<p class="mt-2 text-sm text-slate-500">Noch keine Auswahl getroffen.</p>
-					{:else}
-						<ul class="mt-2 space-y-2 text-sm text-slate-600">
-							{#each librarySummaries as summary}
-								<li class="rounded-md border border-slate-100 px-3 py-2">
-									<p class="font-semibold text-slate-900">{summary.name}</p>
-									<p class="text-xs text-slate-500">{summary.chapterCount} Kapitel · {summary.wordCount} Wörter</p>
-								</li>
-							{/each}
-						</ul>
-					{/if}
-				</section>
-				<section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-					<h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Letzte Durchgänge</h3>
-					{#if summaryHistory.length === 0}
-						<p class="mt-2 text-sm text-slate-500">Noch keine Einträge.</p>
-					{:else}
-						<ul class="mt-2 space-y-3 text-sm text-slate-600">
-							{#each summaryHistory as item}
-								<li class="rounded-lg border border-slate-100 px-3 py-3">
-									<div class="flex flex-col gap-2">
-										<div class="flex items-start justify-between gap-3">
-											<div>
-												<p class="text-sm font-semibold text-slate-900">{item.prompt}</p>
-												{#if item.pinyin}
-													<p class="text-xs text-slate-600">{item.pinyin}</p>
-												{/if}
-												{#if item.characters.length}
-													<p class="text-lg text-slate-900">{item.characters.join('')}</p>
-												{/if}
-											</div>
-											<div class="flex flex-col items-end gap-1 text-xs text-slate-500">
-												<span class={`inline-flex items-center rounded-full px-2 py-0.5 font-semibold ${item.success ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-													{historyStateLabel(item)}
-												</span>
-												<span>{historyQualityLabel(item)}</span>
-												<span>Phase: {historyBucketLabel(item.bucket)}</span>
-												<span>Stufe: {historyStageLabel(item.stageReached)}</span>
-												<span>Nächste Wiederholung: {historyNextDueLabel(item)}</span>
-											</div>
-										</div>
-										<div class="flex flex-wrap justify-between text-[0.7rem] text-slate-400">
-											<span>{new Date(item.timestamp).toLocaleString()}</span>
-											<span>Intervall: {item.sm2Interval} Tag{item.sm2Interval === 1 ? '' : 'e'}</span>
-										</div>
-									</div>
-								</li>
-							{/each}
-						</ul>
-					{/if}
-				</section>
-			</aside>
-		</article>
-	{:else if !currentWord}
-		<p class="rounded-md border border-amber-400 bg-amber-50 px-4 py-3 text-slate-700">{errorMessage}</p>
+		<MatchingModePanel
+			{matchingWords}
+			{matchingRoundId}
+			{matchingLoading}
+			{matchingError}
+			{matchingComplete}
+			{matchingRecording}
+			{matchingFeedback}
+			{matchingTargetWordCount}
+			{matchingCardCount}
+			{lastMatchedWords}
+			{librarySummaries}
+			loadMatchingRound={() => refreshMatchingRound({ force: true })}
+			completeMatchingRound={completeMatchingRound}
+		/>
 	{:else}
 		<article class="grid gap-8 md:grid-cols-[2fr,1fr]">
 			<section class="flex flex-col gap-6">
-				<div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-					<p class="text-4xl font-bold text-slate-900">{displayedPrompt()}</p>
-				</div>
-
-				{#if stage === 'pinyin'}
-					<form class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm" on:submit={handlePinyinSubmit}>
-						<label class="flex flex-col gap-2 text-sm font-medium text-slate-700">
-							Pinyin eingeben
-							<input
-								class="w-full rounded-md border border-slate-300 px-4 py-2 text-base"
-								on:input={handlePinyinInputChange}
-								bind:value={pinyinInput}
-								placeholder="z. B. nǐ hǎo"
-								autocomplete="off"
-								spellcheck={false}
-						/>
-						</label>
-						<p class="mt-2 text-xs text-slate-500">
-							Hinweis: Du kannst Zahlen tippen, z. B. <code>ni3 hao3</code>, wir wandeln sie in Tonzeichen um.
-						</p>
-						<div class="mt-4 flex justify-between text-sm text-slate-500">
-							<span>Versuche übrig: {remainingAttempts(pinyinAttempts)}</span>
-							<button class="rounded-md bg-slate-900 px-3 py-2 text-white" type="submit">Prüfen</button>
-						</div>
-					</form>
-				{:else}
-					<div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-						<h3 class="mb-4 text-lg font-semibold text-slate-900">Schriftzeichen zeichnen</h3>
-						<HandwritingQuiz
-							{attemptKey}
-							mode={writingMode}
-							character={currentWord.characters[characterIndex]}
-							leniency={activeSettings?.leniency ?? 1}
-							disabled={sessionFinished}
-							alwaysShowOutline={activeSettings?.showStrokeOrderHints ?? false}
-							bind:this={quizComponent}
-							on:complete={handleQuizComplete}
-						/>
-						<div class="mt-4 flex flex-wrap justify-center gap-2">
-							<button
-								type="button"
-								class="rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-600 disabled:opacity-60"
-								on:click={handleHintRequest}
+				{#if currentWord}
+					<div class="rounded-lg border border-slate-200 bg-white px-6 py-4 shadow-sm">
+						<h2 class="text-2xl font-semibold text-slate-900 md:text-3xl">{displayedPrompt()}</h2>
+					</div>
+					{#if stage === 'pinyin'}
+						<form class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm" on:submit={handlePinyinSubmit}>
+							<label class="flex flex-col gap-2 text-sm text-slate-700">
+								<span class="font-semibold text-slate-900">Pinyin eingeben</span>
+								<input
+									type="text"
+									class="rounded-md border border-slate-300 px-3 py-2 text-base text-slate-900 shadow-inner focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400"
+									on:input={handlePinyinInputChange}
+									bind:value={pinyinInput}
+									placeholder="z. B. nǐ hǎo"
+									autocomplete="off"
+									spellcheck={false}
+								/>
+							</label>
+							<p class="mt-2 text-xs text-slate-500">
+								Hinweis: Du kannst Zahlen tippen, z. B. <code>ni3 hao3</code>, wir wandeln sie in Tonzeichen um.
+							</p>
+							<div class="mt-4 flex justify-between text-sm text-slate-500">
+								<span>Versuche übrig: {remainingAttempts(pinyinAttempts)}</span>
+								<button class="rounded-md bg-slate-900 px-3 py-2 text-white" type="submit">Prüfen</button>
+							</div>
+						</form>
+					{:else}
+						<div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+							<h3 class="mb-4 text-lg font-semibold text-slate-900">Schriftzeichen zeichnen</h3>
+							<HandwritingQuiz
+								{attemptKey}
+								mode={writingMode}
+								character={currentWord?.characters?.[characterIndex] ?? ''}
+								leniency={activeSettings?.leniency ?? 1}
 								disabled={sessionFinished}
-							>
-								Hinweis
-							</button>
+								alwaysShowOutline={activeSettings?.showStrokeOrderHints ?? false}
+								bind:this={quizComponent}
+								on:complete={handleQuizComplete}
+							/>
+							<div class="mt-4 flex flex-wrap justify-center gap-2">
+								<button
+									type="button"
+									class="rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-600 disabled:opacity-60"
+									on:click={handleHintRequest}
+									disabled={sessionFinished}
+								>
+									Hinweis
+								</button>
+							</div>
+							{#if stage === 'writing-guided-full'}
+								<p class="mt-3 text-center text-sm text-slate-600">Wiederholungen erledigt: {guidedRepetitions}/3</p>
+							{/if}
 						</div>
-						{#if stage === 'writing-guided-full'}
-							<p class="mt-3 text-center text-sm text-slate-600">Wiederholungen erledigt: {guidedRepetitions}/3</p>
+					{/if}
+
+					<div class="space-y-2">
+						{#if message}
+							<p class="rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-slate-700">{message}</p>
+						{/if}
+						{#if revealedPinyin}
+							<p class="rounded-md border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-700">Pinyin: {revealedPinyin}</p>
+						{/if}
+						{#if toneMessage}
+							<p class="rounded-md border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">{toneMessage}</p>
+						{/if}
+						{#if importFeedback}
+							<p class="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{importFeedback}</p>
 						{/if}
 					</div>
+
+					<div class="flex gap-3">
+						{#if sessionFinished}
+							<button class="rounded-md bg-slate-900 px-4 py-2 text-white" on:click={resetSession}>
+								Nächstes Wort
+							</button>
+						{:else}
+							<button class="rounded-md border border-slate-300 px-4 py-2 text-slate-600" type="button" on:click={giveUp}>
+								Aufgeben
+							</button>
+							<button
+								type="button"
+								class="rounded-md border border-red-200 px-4 py-2 text-sm text-red-600 disabled:opacity-60"
+								on:click={unloadCurrentWord}
+								disabled={unloadingWord}
+							>
+								Karte vorerst aussetzen
+							</button>
+						{/if}
+					</div>
+				{:else}
+					<div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm">
+						<h2 class="text-xl font-semibold text-slate-900">Keine Lernkarten aktiv</h2>
+						<p class="mt-3 text-sm text-slate-600">
+							{errorMessage || 'Wähle eine Bibliothek oder importiere neue Wörter, um zu starten.'}
+						</p>
+						<div class="mt-5 flex flex-wrap justify-center gap-3">
+							<button
+								type="button"
+								class="rounded-md bg-slate-900 px-4 py-2 text-sm text-white"
+								on:click={openLibraryPicker}
+							>
+								Bibliothek auswählen
+							</button>
+							<button
+								type="button"
+								class="rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-600"
+								on:click={() => (showImportHelp = true)}
+							>
+								Import-Anleitung öffnen
+							</button>
+						</div>
+					</div>
 				{/if}
-
-				<div class="space-y-2">
-					{#if message}
-						<p class="rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-slate-700">{message}</p>
-					{/if}
-					{#if revealedPinyin}
-						<p class="rounded-md border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-700">Pinyin: {revealedPinyin}</p>
-					{/if}
-					{#if toneMessage}
-						<p class="rounded-md border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">{toneMessage}</p>
-					{/if}
-					{#if importFeedback}
-						<p class="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{importFeedback}</p>
-					{/if}
-				</div>
-
-				<div class="flex gap-3">
-					{#if sessionFinished}
-						<button class="rounded-md bg-slate-900 px-4 py-2 text-white" on:click={resetSession}>
-							Nächstes Wort
-						</button>
-					{:else}
-						<button class="rounded-md border border-slate-300 px-4 py-2 text-slate-600" type="button" on:click={giveUp}>
-							Aufgeben
-						</button>
-						<button
-							type="button"
-							class="rounded-md border border-red-200 px-4 py-2 text-sm text-red-600 disabled:opacity-60"
-							on:click={unloadCurrentWord}
-							disabled={unloadingWord}
-						>
-							Karte vorerst aussetzen
-						</button>
-					{/if}
-				</div>
 			</section>
 
 			<aside class="flex flex-col gap-4">
@@ -1901,7 +1516,7 @@ Format 2 - Mit Kapiteln (wie Klett):
 					<h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Fortschritt</h3>
 					<ul class="mt-3 space-y-2 text-sm text-slate-700">
 						<li>Pinyin Versuche: {pinyinAttempts}</li>
-						<li>Zeichen-Fortschritt: {characterIndex + 1}/{currentWord.characters.length}</li>
+						<li>Zeichen-Fortschritt: {characterIndex + 1}/{currentWord?.characters.length ?? 0}</li>
 						<li>Schreibversuche: {totalWritingAttempts}</li>
 						{#if currentProgress}
 							<li>Aktueller Status: {currentProgress.bucket}</li>
@@ -1925,147 +1540,29 @@ Format 2 - Mit Kapiteln (wie Klett):
 				</section>
 				<section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
 					<h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Letzte Durchgänge</h3>
-					{#if summaryHistory.length === 0}
-						<p class="mt-2 text-sm text-slate-500">Noch keine Einträge.</p>
-					{:else}
-						<ul class="mt-2 space-y-3 text-sm text-slate-600">
-							{#each summaryHistory as item}
-								<li class="rounded-lg border border-slate-100 px-3 py-3">
-									<div class="flex flex-col gap-2">
-										<div class="flex items-start justify-between gap-3">
-											<div>
-												<p class="text-sm font-semibold text-slate-900">{item.prompt}</p>
-												{#if item.pinyin}
-													<p class="text-xs text-slate-600">{item.pinyin}</p>
-												{/if}
-												{#if item.characters.length}
-													<p class="text-lg text-slate-900">{item.characters.join('')}</p>
-												{/if}
-											</div>
-											<div class="flex flex-col items-end gap-1 text-xs text-slate-500">
-												<span class={`inline-flex items-center rounded-full px-2 py-0.5 font-semibold ${item.success ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-													{historyStateLabel(item)}
-												</span>
-												<span>{historyQualityLabel(item)}</span>
-												<span>Phase: {historyBucketLabel(item.bucket)}</span>
-												<span>Stufe: {historyStageLabel(item.stageReached)}</span>
-												<span>Nächste Wiederholung: {historyNextDueLabel(item)}</span>
-											</div>
-										</div>
-										<div class="flex flex-wrap justify-between text-[0.7rem] text-slate-400">
-											<span>{new Date(item.timestamp).toLocaleString()}</span>
-											<span>Intervall: {item.sm2Interval} Tag{item.sm2Interval === 1 ? '' : 'e'}</span>
-										</div>
-									</div>
-								</li>
-							{/each}
-						</ul>
-					{/if}
+					<LessonHistory entries={summaryHistory} />
 				</section>
 			</aside>
-		</article>
+			</article>
 	{/if}
 
 	{#if showLibraryPicker}
-		<div
-			class="fixed inset-0 z-[80] isolate flex flex-col bg-white/80 backdrop-blur-sm md:items-center md:px-4"
-			style={`padding-top: ${dialogPaddingTop};`}
-			role="dialog"
-			aria-modal="true"
-			tabindex="-1"
-			on:keydown={(event) => {
-				if (event.key === 'Escape') {
-					event.preventDefault();
-					showLibraryPicker = false;
-				}
-			}}
-		>
-			<button
-				type="button"
-				class="absolute inset-0 z-0 h-full w-full cursor-pointer"
-				aria-label="Bibliotheksauswahl schließen"
-				on:click={() => (showLibraryPicker = false)}
-			></button>
-			<div
-				data-state="open"
-				class="relative z-10 flex w-full flex-1 min-h-0 flex-col translate-y-6 overflow-hidden rounded-t-3xl bg-white p-6 opacity-0 shadow-2xl ring-1 ring-slate-200 transition-all duration-300 ease-out data-[state=open]:translate-y-0 data-[state=open]:opacity-100 md:mt-0 md:max-w-2xl md:flex-none md:rounded-2xl md:p-8"
-				style={`height: ${dialogHeight}; max-height: ${dialogHeight};`}
-			>
-				<header class="mb-4 flex items-center justify-between">
-					<h2 class="text-base font-semibold text-slate-900">Bibliothek & Kapitel wählen</h2>
-					<button class="text-sm text-slate-500" type="button" on:click={() => (showLibraryPicker = false)}>Schließen</button>
-				</header>
-				<form
-					class="flex flex-1 min-h-0 flex-col gap-4 overflow-hidden"
-					on:submit|preventDefault={async () => {
-						const imported = await handleLibraryImport();
-						if (imported) {
-							showLibraryPicker = false;
-						}
-					}}
-				>
-					<div class="flex-1 min-h-0 space-y-4 overflow-y-auto pr-1">
-						{#each libraryCatalog as library (library.id)}
-							<section class="rounded-xl border border-slate-200 bg-slate-50">
-								<header class="flex flex-col gap-2 border-b border-slate-200/70 bg-white px-4 py-3 md:flex-row md:items-center md:justify-between">
-									<div>
-										<h3 class="text-sm font-semibold text-slate-900">{library.name}</h3>
-										<p class="text-xs text-slate-500">
-											Kapitel: {draftSummaryMap.get(library.id as LibraryType)?.chapterCount ?? 0} · Wörter: {draftSummaryMap.get(library.id as LibraryType)?.wordCount ?? 0}
-										</p>
-									</div>
-									<div class="flex items-center gap-2 text-xs">
-										<button
-											type="button"
-											class="rounded border border-slate-200 px-2 py-1 text-slate-600 hover:border-slate-300"
-											on:click={() => selectAllLibraryChapters(library.id as LibraryType)}
-										>
-											Alle
-										</button>
-										<button
-											type="button"
-											class="rounded border border-slate-200 px-2 py-1 text-slate-600 hover:border-slate-300"
-											on:click={() => clearLibraryChapterSelection(library.id as LibraryType)}
-										>
-											Keine
-										</button>
-									</div>
-								</header>
-								{#if library.chapters.length === 0}
-									<p class="px-4 py-4 text-sm text-slate-500">Keine Kapitel verfügbar.</p>
-								{:else}
-									<div class="grid max-h-56 grid-cols-1 gap-2 overflow-y-auto px-4 py-3 md:grid-cols-2">
-										{#each library.chapters as chapter}
-											<label class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm transition hover:border-slate-300">
-												<span class="font-medium">{chapter.label}</span>
-												<span class="text-xs text-slate-500">{chapter.wordCount} Wörter</span>
-												<input
-													type="checkbox"
-													class="h-5 w-5 rounded border-slate-300 text-slate-900 focus:ring-slate-500"
-													checked={isChapterSelectedInDraft(library.id as LibraryType, chapter.id)}
-													on:change={() => toggleLibraryChapter(library.id as LibraryType, chapter.id)}
-												/>
-											</label>
-										{/each}
-									</div>
-								{/if}
-							</section>
-						{/each}
-					</div>
-
-					<div class="mt-auto flex flex-col gap-2 border-t border-slate-200/70 pt-3 text-sm text-slate-600">
-						<span>Aktiv: {draftActiveLibraries} Bibliothek(en) · {draftTotalChapters} Kapitel · {draftTotalWords} Wörter</span>
-						<button
-							type="submit"
-							class="rounded-md bg-slate-900 px-4 py-2 text-white disabled:opacity-60"
-							disabled={libraryImporting}
-						>
-							{libraryImporting ? 'Wird übernommen …' : 'Auswahl anwenden'}
-						</button>
-					</div>
-				</form>
-			</div>
-		</div>
+		<LibraryPickerDialog
+			dialogPaddingTop={dialogPaddingTop}
+			dialogHeight={dialogHeight}
+			libraryCatalog={libraryCatalog}
+			draftSelection={draftSelectionState}
+			draftSummaryMap={draftSummaryMap}
+			selectAllLibraryChapters={selectAllLibraryChapters}
+			clearLibraryChapterSelection={clearLibraryChapterSelection}
+			toggleLibraryChapter={toggleLibraryChapter}
+			handleLibraryImport={handleLibraryImport}
+			libraryImporting={libraryImporting}
+			draftActiveLibraries={draftActiveLibraries}
+			draftTotalChapters={draftTotalChapters}
+			draftTotalWords={draftTotalWords}
+			close={() => (showLibraryPicker = false)}
+		/>
 	{/if}
 
 	{#if showKlettPicker}
@@ -2148,68 +1645,12 @@ Format 2 - Mit Kapiteln (wie Klett):
 	{/if}
 
 	{#if showSettings && activeSettings}
-		<div class="fixed inset-0 z-20 flex items-center justify-center bg-black/50">
-			<div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-				<header class="mb-4 flex items-center justify-between">
-					<h2 class="text-lg font-semibold text-slate-900">Einstellungen</h2>
-					<button class="text-slate-500" on:click={() => (showSettings = false)}>Schließen</button>
-				</header>
-				<form class="space-y-4" on:submit={handleSettingsSave}>
-					<label class="flex items-center justify-between text-sm text-slate-700">
-						<span>Töne streng prüfen</span>
-						<input type="checkbox" name="tones" checked={activeSettings.enforceTones} />
-					</label>
-					<label class="flex items-center justify-between text-sm text-slate-700">
-						<span>Schriftzeichen immer anzeigen</span>
-						<input type="checkbox" name="outline" checked={activeSettings.showStrokeOrderHints} />
-					</label>
-					<label class="flex flex-col gap-2 text-sm text-slate-700">
-						<span>Lernmodus</span>
-						<select
-							name="mode"
-							class="rounded-md border border-slate-300 px-3 py-2"
-							bind:value={settingsPreferredMode}
-						>
-							<option value="prompt-to-pinyin">Deutsch → Pinyin</option>
-							<option value="prompt-to-character">Deutsch → Schriftzeichen</option>
-							<option value="pinyin-to-character">Pinyin → Schriftzeichen</option>
-						</select>
-						<p class="text-xs text-slate-500">Matching-Modus über den Button in der Kopfzeile starten.</p>
-					</label>
-					<label class="flex flex-col gap-2 text-sm text-slate-700">
-						<span>Matching-Karten pro Runde</span>
-						<select
-							name="matchingWordCount"
-							class="rounded-md border border-slate-300 px-3 py-2"
-							value={activeSettings.matchingWordCount ?? 3}
-						>
-							<option value="3">9 Karten (3 Wörter)</option>
-							<option value="4">12 Karten (4 Wörter)</option>
-							<option value="5">15 Karten (5 Wörter)</option>
-							<option value="6">18 Karten (6 Wörter)</option>
-						</select>
-						<p class="text-xs text-slate-500">Mehr Karten passen besonders gut auf größere Displays.</p>
-					</label>
-					<label class="flex flex-col gap-2 text-sm text-slate-700">
-						<span>Schreib-Lenienz</span>
-						<input
-							type="number"
-							step="0.1"
-							min="0.2"
-							max="2"
-							name="leniency"
-							value={activeSettings.leniency}
-						/>
-					</label>
-					<div class="flex justify-end gap-3">
-						<button type="button" class="rounded-md border border-slate-300 px-4 py-2" on:click={() => (showSettings = false)}>
-							Abbrechen
-						</button>
-						<button type="submit" class="rounded-md bg-slate-900 px-4 py-2 text-white">Speichern</button>
-					</div>
-				</form>
-			</div>
-		</div>
+		<SettingsDialog
+			settings={activeSettings}
+			bind:settingsPreferredMode={settingsPreferredMode}
+			handleSettingsSave={handleSettingsSave}
+			close={() => (showSettings = false)}
+		/>
 	{/if}
 
 	{#if showImportHelp}
